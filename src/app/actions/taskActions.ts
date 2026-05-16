@@ -1,9 +1,9 @@
 'use server'
 
 import prisma from '@/lib/prisma'
-import { createClient } from '@/utils/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { syncUser } from './userActions'
+import { logActivity } from './activityActions'
 
 async function requireUserId() {
   const user = await syncUser()
@@ -12,20 +12,31 @@ async function requireUserId() {
 }
 
 export async function getTasks(listId: string) {
-  const user = await syncUser()
-  if (!user) return []
+  try {
+    const user = await syncUser()
+    if (!user) return []
 
-  return prisma.task.findMany({
-    where: { listId },
-    include: {
-      creator: true,
-      assignee: true,
-    },
-    orderBy: [{ position: 'asc' }, { createdAt: 'asc' }],
-  })
+    return await prisma.task.findMany({
+      where: { listId },
+      include: {
+        creator: true,
+        assignees: true,
+        list: true,
+        subCards: {
+          include: {
+            assignees: true,
+          }
+        }
+      },
+      orderBy: [{ position: 'asc' }, { createdAt: 'asc' }],
+    })
+  } catch (err) {
+    console.error("Error fetching tasks:", err);
+    return [];
+  }
 }
 
-export async function createTask(title: string, listId: string, assigneeId?: string) {
+export async function createTask(title: string, listId: string, assigneeIds?: string[]) {
   const userId = await requireUserId()
 
   const last = await prisma.task.findFirst({
@@ -39,30 +50,64 @@ export async function createTask(title: string, listId: string, assigneeId?: str
       title,
       userId,
       listId,
-      assigneeId,
       position: (last?.position ?? -1) + 1,
+      assignees: assigneeIds ? {
+        connect: assigneeIds.map(id => ({ id }))
+      } : undefined
     },
     include: {
       creator: true,
-      assignee: true,
+      assignees: true,
     }
   })
+
+  await logActivity(task.id, 'created', `Created task: ${title}`)
 
   revalidatePath('/')
   return task
 }
 
-export async function updateTask(taskId: string, data: { title?: string, assigneeId?: string | null, status?: 'TODO' | 'IN_PROGRESS' | 'DONE' }) {
+export async function updateTask(taskId: string, data: { 
+  title?: string, 
+  description?: string | null,
+  contentJson?: any,
+  type?: 'TASK' | 'NOTE' | 'DOC' | 'HEADING',
+  color?: string | null,
+  assigneeIds?: string[], 
+  status?: 'TODO' | 'IN_PROGRESS' | 'DONE',
+  priority?: 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT',
+  dueDate?: Date | null,
+  reminder?: Date | null,
+  estimatedTime?: number | null,
+  completedTime?: number | null,
+  recurring?: string | null,
+  labels?: any,
+  isCompleted?: boolean
+}) {
   const userId = await requireUserId()
   
+  const { assigneeIds, ...rest } = data;
+
+  const oldTask = await prisma.task.findUnique({ where: { id: taskId } });
+
   const task = await prisma.task.update({
     where: { id: taskId },
-    data,
+    data: {
+      ...rest,
+      assignees: assigneeIds ? {
+        set: assigneeIds.map(id => ({ id }))
+      } : undefined
+    },
     include: {
       creator: true,
-      assignee: true,
+      assignees: true,
     }
   })
+
+  // Basic activity logging for status change
+  if (data.status && oldTask && data.status !== oldTask.status) {
+    await logActivity(taskId, 'status_change', `Changed status to ${data.status}`, { old: oldTask.status, new: data.status })
+  }
 
   revalidatePath('/')
   return task
@@ -141,10 +186,143 @@ export async function moveTask(
   revalidatePath('/')
 }
 
+export async function getTaskDistributionData(projectId: string) {
+  try {
+    const tasks = await prisma.task.findMany({
+      where: {
+        list: { projectId }
+      },
+      include: {
+        assignees: true
+      }
+    });
+
+    const distribution: Record<string, any> = {};
+
+    tasks.forEach(task => {
+      task.assignees.forEach(user => {
+        if (!distribution[user.id]) {
+          distribution[user.id] = {
+            id: user.id,
+            name: user.name || user.email.split('@')[0],
+            avatar: user.avatarUrl,
+            total: 0,
+            completed: 0,
+            inProgress: 0,
+            todo: 0,
+            overdue: 0
+          };
+        }
+        
+        const stats = distribution[user.id];
+        stats.total++;
+        if (task.status === 'DONE') stats.completed++;
+        else if (task.status === 'IN_PROGRESS') stats.inProgress++;
+        else stats.todo++;
+
+        if (task.dueDate && new Date(task.dueDate) < new Date() && task.status !== 'DONE') {
+          stats.overdue++;
+        }
+      });
+    });
+
+    return Object.values(distribution);
+  } catch (err) {
+    console.error("Error fetching distribution data:", err);
+    return [];
+  }
+}
+
 export async function deleteTask(taskId: string) {
-  await requireUserId()
-  await prisma.task.deleteMany({
+  const userId = await requireUserId()
+  
+  const task = await prisma.task.findUnique({
+    where: { id: taskId },
+    include: { list: true }
+  })
+  
+  if (!task) return
+
+  await prisma.task.delete({
     where: { id: taskId },
   })
   revalidatePath('/')
+}
+
+export async function getBoardCards(listId: string) {
+  return await getTasks(listId);
+}
+
+export async function getCardById(id: string) {
+  return prisma.task.findUnique({
+    where: { id },
+    include: {
+      creator: true,
+      assignees: true,
+      list: true,
+      subCards: {
+        include: {
+          assignees: true,
+        }
+      }
+    },
+  });
+}
+
+export async function getProjectTasks(projectId: string) {
+  try {
+    const user = await syncUser()
+    if (!user) return []
+
+    return await prisma.task.findMany({
+      where: {
+        list: { projectId }
+      },
+      include: {
+        creator: true,
+        assignees: true,
+        list: true,
+        subCards: {
+          include: {
+            assignees: true,
+          }
+        }
+      },
+      orderBy: { createdAt: 'desc' },
+    })
+  } catch (err) {
+    return [];
+  }
+}
+export async function getAllUserTasks() {
+  try {
+    const userId = await requireUserId()
+    
+    return await prisma.task.findMany({
+      where: {
+        OR: [
+          { userId },
+          { assignees: { some: { id: userId } } }
+        ]
+      },
+      include: {
+        creator: true,
+        assignees: true,
+        list: {
+          include: {
+            project: true
+          }
+        },
+        subCards: {
+          include: {
+            assignees: true,
+          }
+        }
+      },
+      orderBy: { createdAt: 'desc' },
+    })
+  } catch (err) {
+    console.error("Error fetching all user tasks:", err);
+    return [];
+  }
 }

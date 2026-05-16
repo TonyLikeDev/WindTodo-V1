@@ -3,8 +3,8 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 enum TaskStatus {
@@ -13,47 +13,171 @@ enum TaskStatus {
   DONE
 }
 
+enum TaskType {
+  TASK
+  NOTE
+  DOC
+  HEADING
+}
+
+enum WorkspaceRole {
+  ADMIN
+  MEMBER
+  VIEWER
+}
+
 model User {
   id              String      @id
   email           String      @unique
   name            String?
   avatarUrl       String?
   createdTasks    Task[]      @relation("TaskCreator")
-  assignedTasks   Task[]      @relation("TaskAssignee")
+  assignedTasks   Task[]      @relation("TaskAssignees")
   memberProjects  Project[]   @relation("ProjectMembers")
+
   createdProjects Project[]   @relation("ProjectCreator")
   lists           BoardList[] @relation("ListCreator")
+  messages        Message[]   @relation("MessageSender")
+  workspaces      Workspace[] @relation("WorkspaceOwner")
+  memberWorkspaces Workspace[] @relation("WorkspaceMembers")
+  workspaceMemberships WorkspaceMember[] @relation("UserMemberships")
+  notifications   Notification[] @relation("UserNotifications")
+  activities      TaskActivity[]
+  attachments     TaskAttachment[]
   createdAt       DateTime    @default(now())
 }
 
+model Workspace {
+  id        String    @id @default(uuid())
+  name      String
+  ownerId   String
+  owner     User      @relation("WorkspaceOwner", fields: [ownerId], references: [id])
+  members   User[]    @relation("WorkspaceMembers")
+  memberships WorkspaceMember[] @relation("WorkspaceMemberships")
+  projects  Project[]
+  messages  Message[]
+  createdAt DateTime  @default(now())
+
+
+  @@index([ownerId])
+}
+
+model WorkspaceMember {
+  id          String        @id @default(uuid())
+  userId      String
+  user        User          @relation("UserMemberships", fields: [userId], references: [id])
+  workspaceId String
+  workspace   Workspace     @relation("WorkspaceMemberships", fields: [workspaceId], references: [id], onDelete: Cascade)
+  role        WorkspaceRole @default(MEMBER)
+  joinedAt    DateTime      @default(now())
+
+  @@unique([userId, workspaceId])
+  @@index([workspaceId])
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation("UserNotifications", fields: [userId], references: [id])
+  type      String   // "task_completed", "card_moved", "mention", "deadline"
+  title     String
+  message   String
+  isRead    Boolean  @default(false)
+  taskId    String?
+  projectId String?
+  createdAt DateTime @default(now())
+
+  @@index([userId, isRead])
+  @@index([createdAt])
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
 model Task {
-  id          String     @id @default(uuid())
-  title       String
-  userId      String     // Creator
-  creator     User       @relation("TaskCreator", fields: [userId], references: [id])
-  assigneeId  String?
-  assignee    User?      @relation("TaskAssignee", fields: [assigneeId], references: [id])
-  listId      String
-  list        BoardList  @relation(fields: [listId], references: [id], onDelete: Cascade)
-  position    Int        @default(0)
-  status      TaskStatus @default(TODO)
-  createdAt   DateTime   @default(now())
+  id              String           @id @default(uuid())
+  title           String
+  description     String?
+  contentJson     Json?      
+  type            TaskType         @default(TASK)
+  color           String?    
+  isCompleted     Boolean          @default(false)
+  userId          String     
+  creator         User             @relation("TaskCreator", fields: [userId], references: [id])
+  assignees       User[]           @relation("TaskAssignees")
+  listId          String
+  list            BoardList        @relation(fields: [listId], references: [id], onDelete: Cascade)
+  position        Int              @default(0)
+  status          TaskStatus       @default(TODO)
+  priority        Priority         @default(MEDIUM)
+  dueDate         DateTime?
+  reminder        DateTime?
+  estimatedTime   Int?             // In minutes
+  completedTime   Int?             // In minutes
+  recurring       String?          // e.g., "daily", "weekly"
+  labels          Json?
+  parentId        String?
+  parent          Task?            @relation("SubTasks", fields: [parentId], references: [id])
+  subCards        Task[]           @relation("SubTasks")
+  activities      TaskActivity[]
+  attachments     TaskAttachment[]
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
 
   @@index([userId, listId])
   @@index([listId, position])
+  @@index([parentId])
+}
+
+model TaskActivity {
+  id        String   @id @default(uuid())
+  taskId    String
+  task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  type      String   // "created", "updated", "moved", "commented", "attachment_added"
+  content   String   // Description of what changed
+  metadata  Json?    // Store old/new values
+  createdAt DateTime @default(now())
+
+  @@index([taskId])
+  @@index([userId])
+}
+
+model TaskAttachment {
+  id        String   @id @default(uuid())
+  taskId    String
+  task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  name      String
+  url       String
+  size      Int
+  type      String   // mime type
+  createdAt DateTime @default(now())
+
+  @@index([taskId])
 }
 
 model Project {
-  id        String      @id @default(uuid())
-  name      String
-  color     String
-  userId    String      // Creator
-  creator   User        @relation("ProjectCreator", fields: [userId], references: [id])
-  members   User[]      @relation("ProjectMembers")
-  createdAt DateTime    @default(now())
-  lists     BoardList[]
+  id          String      @id @default(uuid())
+  name        String
+  color       String
+  userId      String      
+  creator     User        @relation("ProjectCreator", fields: [userId], references: [id])
+  members     User[]      @relation("ProjectMembers")
+  workspaceId String?
+  workspace   Workspace?  @relation(fields: [workspaceId], references: [id], onDelete: SetNull)
+  messages    Message[]
+  createdAt   DateTime    @default(now())
+  lists       BoardList[]
 
   @@index([userId])
+  @@index([workspaceId])
 }
 
 model BoardList {
@@ -71,3 +195,20 @@ model BoardList {
   @@index([projectId, position])
   @@index([userId])
 }
+
+model Message {
+  id          String     @id @default(uuid())
+  content     String
+  userId      String   
+  sender      User       @relation("MessageSender", fields: [userId], references: [id])
+  projectId   String?
+  project     Project?   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  workspaceId String?
+  workspace   Workspace? @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  createdAt   DateTime   @default(now())
+
+  @@index([projectId])
+  @@index([workspaceId])
+  @@index([userId])
+}
+

@@ -1,21 +1,22 @@
-'use client';
+"use client";
 
 import React, { useState, useEffect } from 'react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
-  ResponsiveContainer, PieChart, Pie, Cell, RadialBarChart, RadialBar,
+  ResponsiveContainer, PieChart, Pie, Cell,
 } from 'recharts';
 import {
-  TrendingUp, Users, CheckCircle, Clock, AlertCircle,
+  Users, CheckCircle, Clock, AlertCircle,
   BarChart2, PieChart as PieChartIcon, Trophy, Target, Layers,
+  Search, Filter, Sparkles
 } from 'lucide-react';
 import { getOverallStats, getProjectStats } from '@/app/actions/statsActions';
 import { getProjects } from '@/app/actions/projectActions';
 import GlassCard from './GlassCard';
 
 // ─── Colour palette ────────────────────────────────────────────────────────────
-const STATUS_COLORS = { done: '#22c55e', inProgress: '#3b82f6', todo: '#52525b' };
-const AVATAR_PALETTE = ['#8b5cf6', '#ec4899', '#f59e0b', '#10b981', '#3b82f6', '#ef4444'];
+const STATUS_COLORS = { done: '#22c55e', inProgress: '#3b82f6', todo: '#64748b' };
+const AVATAR_PALETTE = ['#0ea5e9', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981', '#ef4444'];
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
 interface OverallStats {
@@ -42,47 +43,6 @@ interface ProjectBreakdown {
   userStats: MemberStats[];
 }
 
-// ─── Custom tooltip ─────────────────────────────────────────────────────────────
-interface TooltipPayload {
-  name: string;
-  value: number;
-  fill: string;
-}
-
-function CustomTooltip({ active, payload, label }: { active?: boolean; payload?: TooltipPayload[]; label?: string }) {
-  if (!active || !payload?.length) return null;
-  return (
-    <div className="bg-[#111] border border-white/10 rounded-xl p-3 text-xs shadow-2xl">
-      <p className="text-white font-bold mb-1.5">{label}</p>
-      {payload.map((p) => (
-        <p key={p.name} style={{ color: p.fill }} className="font-medium">
-          {p.name}: <span className="text-white">{p.value}</span>
-        </p>
-      ))}
-    </div>
-  );
-}
-
-// ─── Circular progress ring ─────────────────────────────────────────────────────
-function RingProgress({ pct, color, size = 80 }: { pct: number; color: string; size?: number }) {
-  const r = (size - 12) / 2;
-  const circ = 2 * Math.PI * r;
-  const offset = circ - (pct / 100) * circ;
-  return (
-    <svg width={size} height={size} className="-rotate-90">
-      <circle cx={size / 2} cy={size / 2} r={r} strokeWidth={6} stroke="rgba(255,255,255,0.06)" fill="none" />
-      <circle
-        cx={size / 2} cy={size / 2} r={r} strokeWidth={6}
-        stroke={color} fill="none"
-        strokeDasharray={circ} strokeDashoffset={offset}
-        strokeLinecap="round"
-        style={{ transition: 'stroke-dashoffset 1s ease' }}
-      />
-    </svg>
-  );
-}
-
-// ─── Member card ────────────────────────────────────────────────────────────────
 interface MemberStats {
   id: string;
   name: string;
@@ -96,109 +56,131 @@ interface MemberStats {
   contributionPct: number;
 }
 
-function MemberCard({ u, rank, totalProjectTasks }: { u: MemberStats; rank: number; totalProjectTasks: number }) {
+// ─── Custom tooltip ─────────────────────────────────────────────────────────────
+function CustomTooltip({ active, payload, label }: any) {
+  if (!active || !payload?.length) return null;
+  return (
+    <div className="glass bg-white/80 backdrop-blur-xl border border-white/60 rounded-2xl p-4 text-xs shadow-2xl animate-in zoom-in-95 duration-200">
+      <p className="text-foreground font-black mb-2 uppercase tracking-widest text-[10px]">{label || payload[0].name}</p>
+      {payload.map((p: any) => (
+        <div key={p.name} className="flex items-center justify-between gap-6 py-1 border-t border-black/5 first:border-none">
+           <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full" style={{ backgroundColor: p.fill }} />
+              <span className="font-bold text-muted-foreground">{p.name}</span>
+           </div>
+           <span className="font-black text-foreground">{p.value}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ─── Circular progress ring ─────────────────────────────────────────────────────
+function RingProgress({ pct, color, size = 80 }: { pct: number; color: string; size?: number }) {
+  const r = (size - 12) / 2;
+  const circ = 2 * Math.PI * r;
+  const offset = circ - (pct / 100) * circ;
+  return (
+    <svg width={size} height={size} className="-rotate-90">
+      <circle cx={size / 2} cy={size / 2} r={r} strokeWidth={6} stroke="rgba(0,0,0,0.05)" fill="none" />
+      <circle
+        cx={size / 2} cy={size / 2} r={r} strokeWidth={6}
+        stroke={color} fill="none"
+        strokeDasharray={circ} strokeDashoffset={offset}
+        strokeLinecap="round"
+        style={{ transition: 'stroke-dashoffset 1.5s cubic-bezier(0.4, 0, 0.2, 1)' }}
+      />
+    </svg>
+  );
+}
+
+// ─── Member card ────────────────────────────────────────────────────────────────
+function MemberCard({ u, rank }: { u: MemberStats; rank: number }) {
   const avatarBg = AVATAR_PALETTE[(rank - 1) % AVATAR_PALETTE.length];
   const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : null;
 
   return (
-    <div className="glass rounded-2xl p-5 border border-white/5 flex flex-col gap-4 hover:border-white/15 transition-all duration-300 hover:bg-white/[0.03]">
+    <div className="glass rounded-[2.5rem] p-6 border-white/40 flex flex-col gap-6 hover:bg-white/60 transition-all duration-500 group relative overflow-hidden">
+      <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 rounded-full blur-3xl group-hover:bg-primary/10 transition-all" />
+      
       {/* Header */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-4 relative z-10">
         <div className="relative flex-shrink-0">
-          {u.avatarUrl ? (
-            <img src={u.avatarUrl} alt={u.name} className="w-11 h-11 rounded-full object-cover border-2 border-white/10" />
-          ) : (
-            <div
-              className="w-11 h-11 rounded-full flex items-center justify-center text-sm font-bold text-white border-2 border-white/10"
-              style={{ background: avatarBg }}
-            >
-              {u.name.charAt(0).toUpperCase()}
-            </div>
-          )}
-          {medal && <span className="absolute -top-1 -right-1 text-sm leading-none">{medal}</span>}
+          <div className="w-14 h-14 rounded-2xl bg-white flex items-center justify-center border border-white shadow-lg overflow-hidden group-hover:scale-110 transition-transform duration-500">
+             {u.avatarUrl ? (
+                <img src={u.avatarUrl} alt="" className="w-full h-full object-cover" />
+             ) : (
+                <div className="w-full h-full flex items-center justify-center text-white font-black text-xl" style={{ backgroundColor: avatarBg }}>
+                   {u.name.charAt(0).toUpperCase()}
+                </div>
+             )}
+          </div>
+          {medal && <span className="absolute -top-2 -right-2 text-xl filter drop-shadow-md animate-bounce">{medal}</span>}
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-bold text-white truncate">{u.name}</p>
-          <p className="text-[10px] text-gray-500 truncate">{u.email}</p>
+          <p className="text-base font-black text-foreground truncate tracking-tight">{u.name}</p>
+          <p className="text-[10px] font-bold text-muted-foreground truncate uppercase tracking-widest opacity-50">{u.email}</p>
         </div>
 
         {/* Completion ring */}
         <div className="relative flex-shrink-0 flex items-center justify-center">
-          <RingProgress pct={u.completionPct} color={STATUS_COLORS.done} size={52} />
-          <span className="absolute text-[10px] font-bold text-white rotate-90">{u.completionPct}%</span>
+          <RingProgress pct={u.completionPct} color={STATUS_COLORS.done} size={56} />
+          <span className="absolute text-[10px] font-black text-primary rotate-90">{u.completionPct}%</span>
         </div>
       </div>
 
       {/* Stats chips */}
-      <div className="grid grid-cols-3 gap-2">
-        <div className="flex flex-col items-center p-2 rounded-lg bg-zinc-800/50">
-          <span className="text-gray-500 text-[9px] font-bold uppercase tracking-wider mb-0.5">To Do</span>
-          <span className="text-white text-base font-bold">{u.todo}</span>
-        </div>
-        <div className="flex flex-col items-center p-2 rounded-lg bg-blue-500/10">
-          <span className="text-blue-400 text-[9px] font-bold uppercase tracking-wider mb-0.5">Active</span>
-          <span className="text-blue-300 text-base font-bold">{u.inProgress}</span>
-        </div>
-        <div className="flex flex-col items-center p-2 rounded-lg bg-green-500/10">
-          <span className="text-green-400 text-[9px] font-bold uppercase tracking-wider mb-0.5">Done</span>
-          <span className="text-green-300 text-base font-bold">{u.completed}</span>
-        </div>
+      <div className="grid grid-cols-3 gap-3 relative z-10">
+        <StatChip label="To Do" value={u.todo} color="gray" />
+        <StatChip label="Active" value={u.inProgress} color="blue" />
+        <StatChip label="Done" value={u.completed} color="green" />
       </div>
 
       {/* Multi-segment progress bar */}
-      {u.total > 0 && (
-        <div>
-          <div className="flex justify-between text-[10px] text-gray-500 mb-1.5">
-            <span>{u.total} tasks assigned</span>
-            <span className="text-white font-semibold">{u.contributionPct}% of project</span>
+      <div className="space-y-3 relative z-10">
+          <div className="flex justify-between items-center text-[9px] font-black uppercase tracking-[0.2em]">
+            <span className="text-muted-foreground">{u.total} Tasks Assigned</span>
+            <span className="text-primary">{u.contributionPct}% Workspace share</span>
           </div>
-          <div className="h-2 rounded-full overflow-hidden bg-white/5 flex gap-0.5">
-            {u.completed > 0 && (
-              <div
-                className="h-full rounded-l-full bg-green-500 transition-all duration-700"
-                style={{ width: `${(u.completed / u.total) * 100}%` }}
-              />
-            )}
-            {u.inProgress > 0 && (
-              <div
-                className="h-full bg-blue-500 transition-all duration-700"
-                style={{ width: `${(u.inProgress / u.total) * 100}%` }}
-              />
-            )}
-            {u.todo > 0 && (
-              <div
-                className="h-full rounded-r-full bg-zinc-600 transition-all duration-700"
-                style={{ width: `${(u.todo / u.total) * 100}%` }}
-              />
+          <div className="h-3 rounded-full overflow-hidden bg-black/5 flex p-0.5 border border-white/20">
+            {u.total > 0 ? (
+              <>
+                <div className="h-full rounded-full bg-green-500 shadow-sm" style={{ width: `${(u.completed / u.total) * 100}%` }} />
+                <div className="h-full rounded-full bg-blue-500 shadow-sm mx-0.5" style={{ width: `${(u.inProgress / u.total) * 100}%` }} />
+                <div className="h-full rounded-full bg-gray-400 shadow-sm" style={{ width: `${(u.todo / u.total) * 100}%` }} />
+              </>
+            ) : (
+              <div className="h-full w-full bg-black/5" />
             )}
           </div>
-          <div className="flex gap-3 mt-1.5 text-[9px]">
-            <span className="text-green-400">● Done {Math.round((u.completed / u.total) * 100)}%</span>
-            <span className="text-blue-400">● Active {Math.round((u.inProgress / u.total) * 100)}%</span>
-            <span className="text-gray-500">● Todo {Math.round((u.todo / u.total) * 100)}%</span>
-          </div>
-        </div>
-      )}
-      {u.total === 0 && (
-        <p className="text-[11px] text-gray-600 italic text-center">No tasks assigned yet</p>
-      )}
+      </div>
+    </div>
+  );
+}
+
+function StatChip({ label, value, color }: { label: string, value: number, color: 'gray' | 'blue' | 'green' }) {
+  const styles = {
+    gray: 'bg-black/5 text-muted-foreground border-black/5',
+    blue: 'bg-primary/10 text-primary border-primary/10',
+    green: 'bg-green-500/10 text-green-600 border-green-500/10'
+  };
+  return (
+    <div className={`flex flex-col items-center py-2.5 rounded-2xl border transition-all ${styles[color]}`}>
+      <span className="text-[8px] font-black uppercase tracking-widest mb-0.5 opacity-60">{label}</span>
+      <span className="text-lg font-black">{value}</span>
     </div>
   );
 }
 
 // ─── Main dashboard ─────────────────────────────────────────────────────────────
 export default function StatsDashboard() {
-  const [isMounted, setIsMounted] = useState(false);
   const [overall, setOverall] = useState<OverallStats | null>(null);
   const [projects, setProjects] = useState<ProjectData[]>([]);
   const [selectedProjectId, setSelectedProjectId] = useState<string>('');
   const [projectStats, setProjectStats] = useState<ProjectBreakdown | null>(null);
-  const [loadingProject, setLoadingProject] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setIsMounted(true);
     async function init() {
       const [overallData, projectsData] = await Promise.all([
         getOverallStats(),
@@ -214,31 +196,17 @@ export default function StatsDashboard() {
 
   useEffect(() => {
     if (!selectedProjectId) return;
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setLoadingProject(true);
-    getProjectStats(selectedProjectId).then(data => {
-      setProjectStats(data);
-      setLoadingProject(false);
-    });
+    getProjectStats(selectedProjectId).then(data => setProjectStats(data));
   }, [selectedProjectId]);
 
-  if (!isMounted || loading) {
+  if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-white" />
+      <div className="h-96 flex flex-col items-center justify-center gap-4 text-muted-foreground">
+        <Loader2 className="animate-spin text-primary" size={48} />
+        <p className="text-sm font-black uppercase tracking-widest animate-pulse">Analyzing Sky Performance...</p>
       </div>
     );
   }
-
-  const overallPct = (overall && overall.totalTasks > 0)
-    ? Math.round((overall.completedTasks / overall.totalTasks) * 100)
-    : 0;
-
-  const pieData = overall ? [
-    { name: 'Done',        value: overall.completedTasks,  fill: STATUS_COLORS.done },
-    { name: 'In Progress', value: overall.inProgressTasks, fill: STATUS_COLORS.inProgress },
-    { name: 'To Do',       value: overall.todoTasks,       fill: STATUS_COLORS.todo },
-  ].filter(d => d.value > 0) : [];
 
   const projectPieData = projectStats ? [
     { name: 'Done',        value: projectStats.completedTasks,  fill: STATUS_COLORS.done },
@@ -246,241 +214,193 @@ export default function StatsDashboard() {
     { name: 'To Do',       value: projectStats.todoTasks,       fill: STATUS_COLORS.todo },
   ].filter(d => d.value > 0) : [];
 
-  const barData = projectStats?.userStats?.filter((u: MemberStats) => u.total > 0) ?? [];
+  const memberContributionData = projectStats?.userStats?.map((u, i) => ({
+    name: u.name,
+    value: u.completed, // Measuring progress by completed tasks
+    fill: AVATAR_PALETTE[i % AVATAR_PALETTE.length]
+  })).filter(d => d.value > 0) || [];
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-700">
+    <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-1000 pb-20">
 
-      {/* ── Top KPI cards ────────────────────────────────────────────── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard title="Projects" value={overall?.totalProjects ?? 0} icon={<Layers className="w-5 h-5" />} accent="white" />
-        <StatCard title="To Do" value={overall?.todoTasks ?? 0} icon={<AlertCircle className="w-5 h-5" />} accent="gray" />
-        <StatCard title="In Progress" value={overall?.inProgressTasks ?? 0} icon={<Clock className="w-5 h-5" />} accent="blue" />
-        <StatCard title="Completed" value={overall?.completedTasks ?? 0} icon={<CheckCircle className="w-5 h-5" />} accent="green" sub={`${overallPct}% success rate`} />
+      {/* KPI Overview */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <KpiCard title="Active Workspaces" value={overall?.totalProjects ?? 0} icon={<Layers size={24} />} color="blue" />
+        <KpiCard title="Total Milestones" value={overall?.totalTasks ?? 0} icon={<Target size={24} />} color="purple" />
+        <KpiCard title="Underway" value={overall?.inProgressTasks ?? 0} icon={<Clock size={24} />} color="orange" />
+        <KpiCard title="Victory" value={overall?.completedTasks ?? 0} icon={<CheckCircle size={24} />} color="green" />
       </div>
 
-      {/* ── Project selector + overall chart row ──────────────────────── */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
-        {/* Overall status donut */}
-        <GlassCard className="flex flex-col">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest">Overall Tasks</h3>
-            <PieChartIcon className="w-4 h-4 text-gray-600" />
-          </div>
-          {overall && overall.totalTasks > 0 ? (
-            <div className="flex items-center gap-4 flex-1">
-              <div className="relative w-28 h-28 flex-shrink-0">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie data={pieData} innerRadius={38} outerRadius={52} dataKey="value" paddingAngle={3}>
-                      {pieData.map((d, i) => <Cell key={i} fill={d.fill} />)}
-                    </Pie>
-                    <Tooltip content={<CustomTooltip />} />
-                  </PieChart>
-                </ResponsiveContainer>
-                <div className="absolute inset-0 flex items-center justify-center flex-col">
-                  <span className="text-xl font-black text-white">{overallPct}%</span>
-                  <span className="text-[9px] text-gray-500 uppercase">done</span>
-                </div>
-              </div>
-              <div className="space-y-2 flex-1">
-                {pieData.map(d => (
-                  <div key={d.name} className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 rounded-full" style={{ background: d.fill }} />
-                      <span className="text-[11px] text-gray-400">{d.name}</span>
-                    </div>
-                    <span className="text-sm font-bold text-white">{d.value}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          ) : (
-            <div className="flex-1 flex items-center justify-center text-gray-600 text-sm italic">No tasks yet</div>
-          )}
-        </GlassCard>
-
-        {/* Project selector + project donut */}
-        <GlassCard className="lg:col-span-2 flex flex-col">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-3">
-              <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest">Project Breakdown</h3>
-              <select
+      {/* Charts Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        
+        {/* Project Task Breakdown Pie */}
+        <div className="glass rounded-[3rem] p-10 border-white/60 bg-white/40 shadow-xl shadow-sky-dark/5 flex flex-col">
+          <div className="flex items-center justify-between mb-10">
+             <div>
+                <h3 className="text-xl font-black text-foreground tracking-tight">Project Health</h3>
+                <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mt-1">Status distribution</p>
+             </div>
+             <select
                 value={selectedProjectId}
                 onChange={e => setSelectedProjectId(e.target.value)}
-                className="bg-black/50 border border-white/10 rounded-lg text-xs py-1 px-2 text-white focus:outline-none focus:ring-1 focus:ring-white/20"
+                className="bg-white/60 border border-white/60 rounded-2xl text-[10px] font-black uppercase tracking-widest px-4 py-2 text-primary focus:ring-4 focus:ring-primary/10 transition-all outline-none"
               >
                 {projects.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
               </select>
-            </div>
-            <Target className="w-4 h-4 text-gray-600" />
           </div>
 
-          {loadingProject ? (
-            <div className="flex-1 flex items-center justify-center">
-              <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-white/30" />
-            </div>
-          ) : projectStats ? (
-            <div className="flex items-center gap-6 flex-1">
-              {/* Donut */}
-              <div className="relative w-32 h-32 flex-shrink-0">
+          <div className="flex-1 flex flex-col xl:flex-row items-center gap-10">
+             <div className="relative w-56 h-56 flex-shrink-0">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
-                    <Pie data={projectPieData} innerRadius={42} outerRadius={58} dataKey="value" paddingAngle={3}>
-                      {projectPieData.map((d, i) => <Cell key={i} fill={d.fill} />)}
+                    <Pie data={projectPieData} innerRadius={70} outerRadius={90} dataKey="value" paddingAngle={8} stroke="none">
+                      {projectPieData.map((d, i) => <Cell key={i} fill={d.fill} className="hover:opacity-80 transition-opacity" />)}
                     </Pie>
                     <Tooltip content={<CustomTooltip />} />
                   </PieChart>
                 </ResponsiveContainer>
                 <div className="absolute inset-0 flex items-center justify-center flex-col">
-                  <span className="text-2xl font-black text-white">
-                    {projectStats.totalTasks > 0 ? Math.round((projectStats.completedTasks / projectStats.totalTasks) * 100) : 0}%
+                  <span className="text-4xl font-black text-primary">
+                    {projectStats && projectStats.totalTasks > 0 ? Math.round((projectStats.completedTasks / projectStats.totalTasks) * 100) : 0}%
                   </span>
-                  <span className="text-[9px] text-gray-500 uppercase">done</span>
+                  <span className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] mt-1">Completed</span>
                 </div>
-              </div>
-
-              {/* Legend + extra metrics */}
-              <div className="flex-1 space-y-2.5">
-                {[
-                  { label: 'Done',        val: projectStats.completedTasks,  color: STATUS_COLORS.done },
-                  { label: 'In Progress', val: projectStats.inProgressTasks, color: STATUS_COLORS.inProgress },
-                  { label: 'To Do',       val: projectStats.todoTasks,       color: STATUS_COLORS.todo },
-                ].map(row => (
-                  <div key={row.label} className="flex items-center gap-3">
-                    <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: row.color }} />
-                    <div className="flex-1">
-                      <div className="h-1.5 rounded-full bg-white/5 overflow-hidden">
-                        <div
-                          className="h-full rounded-full transition-all duration-700"
-                          style={{
-                            width: `${projectStats.totalTasks > 0 ? (row.val / projectStats.totalTasks) * 100 : 0}%`,
-                            background: row.color,
-                          }}
-                        />
-                      </div>
-                    </div>
-                    <span className="text-[11px] text-gray-400 w-16 text-right">
-                      {row.val} <span className="text-gray-600">
-                        ({projectStats.totalTasks > 0 ? Math.round((row.val / projectStats.totalTasks) * 100) : 0}%)
-                      </span>
-                    </span>
+             </div>
+             <div className="flex-1 w-full space-y-4">
+                {projectPieData.map(d => (
+                  <div key={d.name} className="flex items-center justify-between p-4 bg-white/40 rounded-2xl border border-white/60 shadow-sm">
+                     <div className="flex items-center gap-3">
+                        <div className="w-3 h-3 rounded-full" style={{ backgroundColor: d.fill }} />
+                        <span className="text-xs font-black text-muted-foreground uppercase tracking-widest">{d.name}</span>
+                     </div>
+                     <span className="text-base font-black text-foreground">{d.value}</span>
                   </div>
                 ))}
-                <div className="pt-2 border-t border-white/5 flex justify-between text-[10px] text-gray-500">
-                  <span>Total tasks: <span className="text-white font-bold">{projectStats.totalTasks}</span></span>
-                  <span>Members: <span className="text-white font-bold">{projectStats.userStats.length}</span></span>
-                  {projectStats.unassignedCount > 0 && (
-                    <span className="text-yellow-500/80">⚠ {projectStats.unassignedCount} unassigned</span>
-                  )}
-                </div>
-              </div>
-            </div>
-          ) : (
-            <div className="flex-1 flex items-center justify-center text-gray-600 text-sm italic">Select a project</div>
-          )}
-        </GlassCard>
+             </div>
+          </div>
+        </div>
+
+        {/* Member Progress Evaluation Pie */}
+        <div className="glass rounded-[3rem] p-10 border-white/60 bg-white/40 shadow-xl shadow-sky-dark/5 flex flex-col">
+          <div className="flex items-center justify-between mb-10">
+             <div>
+                <h3 className="text-xl font-black text-foreground tracking-tight">Member Efficiency</h3>
+                <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mt-1">Task completion share</p>
+             </div>
+             <div className="p-3 bg-primary/10 rounded-2xl text-primary">
+                <Trophy size={20} />
+             </div>
+          </div>
+
+          <div className="flex-1 flex flex-col xl:flex-row items-center gap-10">
+             <div className="relative w-56 h-56 flex-shrink-0">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie 
+                      data={memberContributionData} 
+                      innerRadius={0} 
+                      outerRadius={90} 
+                      dataKey="value" 
+                      paddingAngle={2}
+                      stroke="#fff"
+                      strokeWidth={2}
+                    >
+                      {memberContributionData.map((d, i) => <Cell key={i} fill={d.fill} className="hover:scale-105 transition-transform duration-500" />)}
+                    </Pie>
+                    <Tooltip content={<CustomTooltip />} />
+                  </PieChart>
+                </ResponsiveContainer>
+                {memberContributionData.length === 0 && (
+                  <div className="absolute inset-0 flex items-center justify-center text-center p-8">
+                     <p className="text-[10px] font-black text-muted-foreground uppercase leading-relaxed">No completed tasks yet</p>
+                  </div>
+                )}
+             </div>
+             <div className="flex-1 w-full space-y-3">
+                {memberContributionData.length > 0 ? memberContributionData.slice(0, 4).map(d => (
+                  <div key={d.name} className="flex items-center justify-between p-3.5 bg-white/40 rounded-2xl border border-white/60 shadow-sm hover:scale-102 transition-all">
+                     <div className="flex items-center gap-3">
+                        <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: d.fill }} />
+                        <span className="text-[11px] font-bold text-foreground truncate max-w-[100px]">{d.name}</span>
+                     </div>
+                     <span className="text-[11px] font-black text-primary bg-primary/10 px-3 py-1 rounded-xl">
+                        {Math.round((d.value / (projectStats?.completedTasks || 1)) * 100)}%
+                     </span>
+                  </div>
+                )) : (
+                  <div className="p-10 text-center glass rounded-[2rem] border-dashed border-white/40">
+                     <Users size={32} className="mx-auto text-muted-foreground/20 mb-3" />
+                     <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">Awaiting Results</p>
+                  </div>
+                )}
+             </div>
+          </div>
+        </div>
+
       </div>
 
-      {/* ── Stacked bar chart: per-user task breakdown ─────────────────── */}
-      {barData.length > 0 && (
-        <GlassCard>
-          <div className="flex items-center justify-between mb-5">
-            <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest">Task Distribution by Member</h3>
-            <BarChart2 className="w-4 h-4 text-gray-600" />
-          </div>
-          <div className="h-56">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={barData} margin={{ top: 0, right: 8, left: -20, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#ffffff08" vertical={false} />
-                <XAxis dataKey="name" stroke="#555" fontSize={11} tickLine={false} axisLine={false} />
-                <YAxis stroke="#555" fontSize={10} tickLine={false} axisLine={false} allowDecimals={false} />
-                <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(255,255,255,0.03)' }} />
-                <Legend
-                  iconType="circle" iconSize={8}
-                  wrapperStyle={{ fontSize: 11, color: '#888', paddingTop: 12 }}
-                />
-                <Bar dataKey="completed" stackId="a" fill={STATUS_COLORS.done}       name="Done"        radius={[0,0,0,0]} />
-                <Bar dataKey="inProgress" stackId="a" fill={STATUS_COLORS.inProgress} name="In Progress" radius={[0,0,0,0]} />
-                <Bar dataKey="todo"       stackId="a" fill={STATUS_COLORS.todo}       name="To Do"       radius={[4,4,0,0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </GlassCard>
-      )}
-
-      {/* ── Member contribution cards ─────────────────────────────────── */}
-      {projectStats && (
-        <div>
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h3 className="text-base font-bold text-white">Team Contributions</h3>
-              <p className="text-xs text-gray-500 mt-0.5">Individual performance in <span className="text-white font-semibold">{projectStats.projectName}</span></p>
-            </div>
-            <Trophy className="w-5 h-5 text-yellow-500/60" />
+      {/* Team Leaderboard */}
+      <div className="space-y-8">
+          <div className="flex items-center justify-between px-4">
+             <div className="flex items-center gap-4">
+                <div className="p-3 bg-white/60 rounded-2xl shadow-sm border border-white">
+                   <Users size={24} className="text-primary" />
+                </div>
+                <div>
+                   <h3 className="text-2xl font-black text-foreground tracking-tight">Performance Ranking</h3>
+                   <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mt-1">Based on milestone completion</p>
+                </div>
+             </div>
+             <div className="hidden sm:flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-2xl text-primary text-[10px] font-black uppercase tracking-widest">
+                <Sparkles size={14} />
+                Real-time Sync
+             </div>
           </div>
 
-          {projectStats.userStats.length === 0 ? (
-            <GlassCard className="text-center py-12">
-              <Users className="w-8 h-8 text-gray-700 mx-auto mb-3" />
-              <p className="text-gray-500 text-sm">No members in this project yet.</p>
-              <p className="text-gray-600 text-xs mt-1">Add members from the project board to track their contributions.</p>
-            </GlassCard>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-              {projectStats.userStats.map((u: MemberStats, i: number) => (
-                <MemberCard
-                  key={u.id}
-                  u={u}
-                  rank={i + 1}
-                  totalProjectTasks={projectStats.totalTasks}
-                />
-              ))}
-            </div>
-          )}
-        </div>
-      )}
-
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+            {projectStats?.userStats.map((u, i) => (
+              <MemberCard key={u.id} u={u} rank={i + 1} />
+            ))}
+          </div>
+      </div>
     </div>
   );
 }
 
-// ─── Stat Card ──────────────────────────────────────────────────────────────────
-const ACCENT: Record<string, string> = {
-  white: 'border-white/10',
-  gray:  'border-zinc-700/30',
-  blue:  'border-blue-500/20',
-  green: 'border-green-500/20',
-};
-const ACCENT_BG: Record<string, string> = {
-  white: 'bg-white/5',
-  gray:  'bg-zinc-700/10',
-  blue:  'bg-blue-500/10',
-  green: 'bg-green-500/10',
-};
-const ACCENT_ICON: Record<string, string> = {
-  white: 'text-gray-300',
-  gray:  'text-gray-500',
-  blue:  'text-blue-400',
-  green: 'text-green-400',
-};
-
-function StatCard({
-  title, value, icon, accent = 'white', sub,
-}: {
-  title: string; value: string | number; icon: React.ReactNode; accent?: string; sub?: string;
-}) {
+function KpiCard({ title, value, icon, color }: { title: string, value: number, icon: React.ReactNode, color: string }) {
+  const colorStyles: any = {
+    blue: 'text-blue-500 bg-blue-500/10 border-blue-500/10',
+    purple: 'text-purple-500 bg-purple-500/10 border-purple-500/10',
+    orange: 'text-orange-500 bg-orange-500/10 border-orange-500/10',
+    green: 'text-green-500 bg-green-500/10 border-green-500/10'
+  };
   return (
-    <div className={`glass rounded-2xl p-5 border ${ACCENT[accent]} ${ACCENT_BG[accent]} flex items-center gap-4 group hover:scale-[1.02] transition-transform duration-300`}>
-      <div className={`p-3 rounded-xl bg-white/5 group-hover:bg-white/10 transition-colors ${ACCENT_ICON[accent]}`}>
-        {icon}
-      </div>
-      <div>
-        <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-0.5">{title}</p>
-        <p className="text-2xl font-black text-white">{value}</p>
-        {sub && <p className="text-[10px] text-gray-600 mt-0.5">{sub}</p>}
-      </div>
+    <div className="glass rounded-[2.5rem] p-8 border-white/40 bg-white/40 shadow-xl shadow-sky-dark/5 hover:translate-y-[-4px] transition-all duration-500 group">
+       <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-6 shadow-sm border ${colorStyles[color]}`}>
+          {icon}
+       </div>
+       <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] mb-2">{title}</p>
+       <p className="text-4xl font-black text-foreground group-hover:scale-105 transition-transform duration-500 origin-left">{value}</p>
     </div>
+  );
+}
+
+function Loader2({ size, className }: { size?: number, className?: string }) {
+  return (
+    <svg 
+      xmlns="http://www.w3.org/2000/svg" 
+      width={size || 24} 
+      height={size || 24} 
+      viewBox="0 0 24 24" 
+      fill="none" 
+      stroke="currentColor" 
+      strokeWidth="3" 
+      strokeLinecap="round" 
+      strokeLinejoin="round" 
+      className={`animate-spin ${className}`}
+    >
+      <path d="M21 12a9 9 0 1 1-6.219-8.56"></path>
+    </svg>
   );
 }

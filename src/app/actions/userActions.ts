@@ -12,23 +12,34 @@ export async function syncUser() {
     return null;
   }
 
-  const dbUser = await prisma.user.upsert({
-    where: { id: user.id },
-    update: {
-      email: user.email!,
-      name: user.user_metadata.full_name || user.email?.split('@')[0],
-      avatarUrl: user.user_metadata.avatar_url,
-    },
-    create: {
+  try {
+    const dbUser = await prisma.user.upsert({
+      where: { id: user.id },
+      update: {
+        email: user.email!,
+        name: user.user_metadata.full_name || user.email?.split('@')[0],
+        avatarUrl: user.user_metadata.avatar_url,
+      },
+      create: {
+        id: user.id,
+        email: user.email!,
+        name: user.user_metadata.full_name || user.email?.split('@')[0],
+        avatarUrl: user.user_metadata.avatar_url,
+      },
+    });
+
+    return dbUser;
+  } catch (err) {
+    console.error("Prisma sync failed, using auth fallback:", err);
+    return {
       id: user.id,
       email: user.email!,
       name: user.user_metadata.full_name || user.email?.split('@')[0],
       avatarUrl: user.user_metadata.avatar_url,
-    },
-  });
-
-  return dbUser;
+    } as any;
+  }
 }
+
 
 export async function getAllUsers() {
   return await prisma.user.findMany({
@@ -72,4 +83,19 @@ export async function removeMemberFromProject(projectId: string, userId: string)
   revalidatePath(`/projects/${projectId}`);
   revalidatePath('/dashboard');
   return result;
+}
+
+export async function updateUserProfile(data: { name: string }) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) throw new Error('Unauthorized');
+
+  const updatedUser = await prisma.user.update({
+    where: { id: user.id },
+    data: { name: data.name },
+  });
+
+  revalidatePath('/dashboard/settings');
+  return updatedUser;
 }

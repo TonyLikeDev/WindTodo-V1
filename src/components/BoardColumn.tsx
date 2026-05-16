@@ -1,10 +1,19 @@
-'use client';
+"use client";
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import useSWR from 'swr';
 import { createTask, deleteTask, getTasks, updateTask } from '@/app/actions/taskActions';
 import { useBoardDrag } from './BoardDragContext';
-import { User, Trash2, MoreHorizontal, Plus, ChevronDown } from 'lucide-react';
+import { User, Trash2, MoreHorizontal, Plus, CheckCircle2 } from 'lucide-react';
+
+export const LIST_COLORS = [
+  { name: 'Default',    value: 'rgba(255, 255, 255, 0.4)' },
+  { name: 'Sky',        value: 'rgba(14, 165, 233, 0.15)' },
+  { name: 'Lavender',   value: 'rgba(139, 92, 246, 0.15)' },
+  { name: 'Rose',       value: 'rgba(236, 72, 153, 0.15)' },
+  { name: 'Leaf',       value: 'rgba(16, 185, 129, 0.15)' },
+];
+export const DEFAULT_LIST_COLOR = LIST_COLORS[0].value;
 
 type UserProfile = {
   id: string;
@@ -20,35 +29,21 @@ type Task = {
   userId: string;
   position: number;
   status: 'TODO' | 'IN_PROGRESS' | 'DONE';
-  assigneeId: string | null;
-  assignee?: UserProfile | null;
+  type: 'TASK' | 'NOTE' | 'DOC' | 'HEADING';
+  color: string | null;
+  assignees: UserProfile[];
+  dueDate?: Date | string | null;
+  labels?: any;
+  subCards?: Array<{ id: string; status: string }> | null;
   createdAt: Date;
 };
 
-export const LIST_COLORS = [
-  { name: 'Default',    value: 'rgba(255, 255, 255, 0.05)' },
-  { name: 'Purple',     value: 'rgba(139, 92, 246, 0.18)'  },
-  { name: 'Blue',       value: 'rgba(59, 130, 246, 0.18)'  },
-  { name: 'Teal',       value: 'rgba(20, 184, 166, 0.18)'  },
-  { name: 'Green',      value: 'rgba(34, 197, 94, 0.18)'   },
-  { name: 'Yellow',     value: 'rgba(234, 179, 8, 0.18)'   },
-  { name: 'Orange',     value: 'rgba(249, 115, 22, 0.18)'  },
-  { name: 'Red',        value: 'rgba(239, 68, 68, 0.18)'   },
-  { name: 'Pink',       value: 'rgba(236, 72, 153, 0.18)'  },
-];
-export const DEFAULT_LIST_COLOR = LIST_COLORS[0].value;
-
-// Returns theme colours/label based on column name for workflow columns
-function getColumnTheme(name: string) {
-  const n = name.toLowerCase().trim();
-  if (n === 'to do' || n === 'todo')
-    return { dot: 'bg-slate-400', badge: 'bg-slate-500/20 text-slate-400 border-slate-500/30', label: 'To Do' };
-  if (n === 'in progress')
-    return { dot: 'bg-blue-400', badge: 'bg-blue-500/20 text-blue-400 border-blue-500/30', label: 'In Progress' };
-  if (n === 'done' || n === 'completed')
-    return { dot: 'bg-green-400', badge: 'bg-green-500/20 text-green-400 border-green-500/30', label: 'Done' };
-  return null;
-}
+const PRIORITY_BADGE: Record<string, { label: string; color: string; dot: string }> = {
+  high: { label: 'High', color: 'text-red-600 bg-red-50 border-red-200', dot: 'bg-red-500' },
+  urgent: { label: '🚨 Urgent', color: 'text-red-700 bg-red-100 border-red-300', dot: 'bg-red-600' },
+  medium: { label: 'Medium', color: 'text-yellow-600 bg-yellow-50 border-yellow-200', dot: 'bg-yellow-500' },
+  low: { label: 'Low', color: 'text-green-600 bg-green-50 border-green-200', dot: 'bg-green-500' },
+};
 
 export default function BoardColumn({
   listId,
@@ -61,7 +56,8 @@ export default function BoardColumn({
   isDraft = false,
   onDraftCommit,
   onDraftCancel,
-  className = 'w-72 flex-shrink-0 max-h-[calc(100vh-220px)]',
+  className = 'w-80 lg:w-96 flex-shrink-0 h-full min-h-[600px]',
+  onTaskClick,
 }: {
   listId: string;
   title: string;
@@ -74,19 +70,17 @@ export default function BoardColumn({
   onDraftCommit?: (name: string) => void;
   onDraftCancel?: () => void;
   className?: string;
+  onTaskClick?: (taskId: string) => void;
 }) {
+
   const { data: tasks = [], mutate, isLoading } = useSWR<Task[]>(
     isDraft ? null : listId,
-    () => getTasks(listId),
-    {
-      revalidateOnFocus: false,
-      dedupingInterval: 5000,
-    }
+    () => getTasks(listId)
   );
+
   const [adding, setAdding] = useState(false);
   const [value, setValue] = useState('');
   const inputRef = useRef<HTMLTextAreaElement>(null);
-  const [menuOpen, setMenuOpen] = useState(false);
   const [renaming, setRenaming] = useState(isDraft);
   const [renameValue, setRenameValue] = useState(isDraft ? '' : title);
   const renameInputRef = useRef<HTMLInputElement>(null);
@@ -144,14 +138,14 @@ export default function BoardColumn({
       setValue('');
       return;
     }
-    const optimistic: Task = {
+    const optimistic: any = {
       id: `temp-${Date.now()}`,
       title: trimmed,
       listId,
       userId: 'temp',
       position: tasks.length,
       status: 'TODO',
-      assigneeId: null,
+      assignees: [],
       createdAt: new Date(),
     };
     mutate([...tasks, optimistic], false);
@@ -160,20 +154,8 @@ export default function BoardColumn({
     mutate();
   };
 
-  const updateStatus = async (taskId: string, newStatus: 'TODO' | 'IN_PROGRESS' | 'DONE') => {
-    mutate(tasks.map(t => t.id === taskId ? { ...t, status: newStatus } : t), false);
-    await updateTask(taskId, { status: newStatus });
-    mutate();
-  };
-
-  const assignTask = async (taskId: string, assigneeId: string | null) => {
-    const assignee = members.find(m => m.id === assigneeId) || null;
-    mutate(tasks.map(t => t.id === taskId ? { ...t, assigneeId, assignee } : t), false);
-    await updateTask(taskId, { assigneeId });
-    mutate();
-  };
-
-  const remove = async (id: string) => {
+  const remove = async (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
     mutate(tasks.filter((t) => t.id !== id), false);
     await deleteTask(id);
     mutate();
@@ -185,292 +167,146 @@ export default function BoardColumn({
     [tasks, draggingTaskId],
   );
 
-  const showRenameInput = renaming && (isDraft || onRename);
-  const colTheme = getColumnTheme(title);
-
   return (
     <div
       ref={columnRef}
-      className={`rounded-2xl border flex flex-col transition-all duration-300 ${className} ${
-        isHoveredHere && draggingTaskId
-          ? 'border-white/40 ring-2 ring-white/20'
-          : 'border-white/10'
+      className={`flex flex-col h-full bg-white/20 backdrop-blur-2xl rounded-[2.5rem] border border-white/60 shadow-xl shadow-sky-dark/5 overflow-hidden ring-1 ring-white/20 transition-all duration-300 relative ${className} ${
+        isHoveredHere && draggingTaskId ? 'ring-4 ring-primary/30 scale-[1.01]' : ''
       }`}
-      style={{ background: color }}
     >
-      {/* Column Header */}
-      <div className="flex items-center justify-between px-4 pt-4 pb-3">
-        <div className="flex items-center gap-2 min-w-0 flex-1">
-          {/* Workflow colour dot */}
-          {colTheme && !showRenameInput && (
-            <span className={`w-2 h-2 rounded-full flex-shrink-0 ${colTheme.dot}`} />
-          )}
-          {showRenameInput ? (
-            <input
-              ref={renameInputRef}
-              value={renameValue}
-              onChange={(e) => setRenameValue(e.target.value)}
-              onBlur={commitRename}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  e.preventDefault();
-                  commitRename();
-                } else if (e.key === 'Escape') {
-                  if (isDraft) onDraftCancel?.();
-                  else {
-                    setRenameValue(title);
-                    setRenaming(false);
-                  }
-                }
-              }}
-              placeholder={isDraft ? 'Enter list title…' : undefined}
-              className="text-sm font-semibold text-white bg-black/30 border border-white/20 rounded px-2 py-0.5 min-w-0 flex-1 focus:outline-none focus:ring-1 focus:ring-white/40 placeholder-gray-400"
-            />
-          ) : (
-            <h3
-              onDoubleClick={() => {
-                if (!onRename) return;
-                setRenameValue(title);
-                setRenaming(true);
-              }}
-              className={`text-sm font-semibold text-white truncate ${onRename ? 'cursor-text' : ''}`}
-            >
-              {title}
-            </h3>
-          )}
-          {!isDraft && (
-            <span className="text-xs bg-white/10 text-white px-2 py-0.5 rounded-full flex-shrink-0 font-bold">
-              {tasks.length}
-            </span>
-          )}
-        </div>
-        {!isDraft && (onRemoveList || onChangeColor) && (
-          <div className="relative">
-            <button
-              onClick={() => setMenuOpen((v) => !v)}
-              className="text-gray-400 hover:text-white p-1 rounded hover:bg-white/10 transition-colors"
-            >
-              <MoreHorizontal className="w-4 h-4" />
-            </button>
-            {menuOpen && (
-              <div className="absolute right-0 top-full mt-1 z-20 bg-[#1a1a1a] border border-white/10 rounded-lg shadow-2xl overflow-hidden min-w-[200px] glass animate-in zoom-in-95 duration-200">
-                {onChangeColor && (
-                  <div className="p-3">
-                    <div className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-3 px-1">
-                      Background Color
-                    </div>
-                    <div className="grid grid-cols-5 gap-2">
-                      {LIST_COLORS.map((c) => {
-                        const selected = c.value === color;
-                        return (
-                          <button
-                            key={c.value}
-                            type="button"
-                            title={c.name}
-                            onClick={() => {
-                              onChangeColor(c.value);
-                              setMenuOpen(false);
-                            }}
-                            style={{ background: c.value }}
-                            className={`h-7 rounded-md border transition-all ${
-                              selected
-                                ? 'border-white ring-2 ring-white/20'
-                                : 'border-white/10 hover:border-white/30'
-                            }`}
-                          />
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
-                {onRemoveList && (
-                  <button
-                    onClick={() => {
-                      setMenuOpen(false);
-                      onRemoveList();
-                    }}
-                    className="flex items-center gap-2 w-full text-left px-3 py-2 text-xs text-red-400 hover:bg-red-500/10 transition-colors border-t border-white/5"
-                  >
-                    <Trash2 className="w-3 h-3" />
-                    Delete list
-                  </button>
-                )}
-              </div>
+
+      {/* Header */}
+      <div className="p-5 flex items-center justify-between gap-3">
+         <div className="flex items-center gap-3 min-w-0 flex-1">
+            <div className="w-2 h-6 rounded-full" style={{ backgroundColor: color }} />
+            {renaming ? (
+               <input 
+                 ref={renameInputRef}
+                 value={renameValue}
+                 onChange={e => setRenameValue(e.target.value)}
+                 onBlur={commitRename}
+                 className="bg-white/40 border border-white/40 rounded-lg px-2 py-1 text-sm font-bold text-foreground outline-none focus:ring-2 focus:ring-primary/20 w-full"
+               />
+            ) : (
+               <h3 
+                 onDoubleClick={() => setRenaming(true)}
+                 className="text-sm font-black text-foreground truncate uppercase tracking-widest cursor-text"
+               >
+                 {title}
+               </h3>
             )}
-          </div>
-        )}
+            <span className="text-[10px] font-black text-muted-foreground bg-white/40 px-2 py-1 rounded-lg">
+               {tasks.length}
+            </span>
+         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto px-2 pb-2 custom-scrollbar">
-        {!isDraft && isLoading && (
-          <div className="space-y-3 py-2">
-            <div className="h-16 bg-white/5 rounded-xl animate-pulse" />
-            <div className="h-16 bg-white/5 rounded-xl animate-pulse" />
-          </div>
-        )}
-        {!isDraft && !isLoading && (
-          <div className="flex flex-col py-1">
-            {visibleTasks.map((t, i) => {
-              const isTemp = t.id.startsWith('temp-');
-              const showLineAbove = isHoveredHere && hoveredSlot?.index === i;
-              return (
-                <div key={t.id} className="relative group/card">
-                  <DropLine show={!!showLineAbove} />
-                  <div
-                    ref={(el) => {
-                      if (el) cardRefs.current.set(t.id, el);
-                      else cardRefs.current.delete(t.id);
-                    }}
-                    onPointerDown={(e) => {
-                      if (isTemp) return;
-                      if (e.button !== 0) return;
-                      if ((e.target as HTMLElement).closest('button, select, input')) return;
-                      e.preventDefault();
-                      startDrag(t, e, listId);
-                    }}
-                    className={`bg-white/[0.04] backdrop-blur-md border border-white/5 px-3 py-3 my-1 rounded-xl text-sm text-white flex flex-col gap-2.5 group transition-all duration-200 hover:bg-white/[0.08] hover:border-white/10 hover:shadow-lg ${
-                      isTemp ? 'opacity-50 cursor-default' : 'cursor-grab active:cursor-grabbing'
-                    } ${t.status === 'DONE' ? 'opacity-60' : ''}`}
-                  >
-                    {/* Task title row */}
-                    <div className="flex items-start justify-between gap-2">
-                      <span className={`break-words flex-1 leading-snug transition-all text-sm ${
-                        t.status === 'DONE' ? 'line-through text-gray-500' : 'text-gray-100'
-                      }`}>
-                        {t.title}
-                      </span>
-                      <button
-                        onPointerDown={(e) => e.stopPropagation()}
-                        onClick={() => remove(t.id)}
-                        className="opacity-0 group-hover/card:opacity-100 text-gray-600 hover:text-red-400 transition-all flex-shrink-0 mt-0.5"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-
-                    {/* Footer: assignee + assign selector */}
-                    <div className="flex items-center justify-between gap-2">
-                      {/* Current assignee */}
-                      <div className="flex items-center gap-1.5 min-w-0">
-                        {t.assignee ? (
-                          <div className="flex items-center gap-1.5 bg-white/5 rounded-full pl-0.5 pr-2 py-0.5 border border-white/5">
-                            <div className="w-5 h-5 rounded-full bg-white/10 flex items-center justify-center text-[10px] font-bold text-white overflow-hidden flex-shrink-0">
-                              {t.assignee.avatarUrl ? (
-                                <img src={t.assignee.avatarUrl} alt={t.assignee.name || ''} className="w-full h-full object-cover" />
-                              ) : (
-                                (t.assignee.name || t.assignee.email).charAt(0).toUpperCase()
-                              )}
-                            </div>
-                            <span className="text-[10px] text-gray-400 font-medium truncate max-w-[80px]">
-                              {t.assignee.name || 'User'}
-                            </span>
-                          </div>
-                        ) : (
-                          <div className="flex items-center gap-1 text-gray-600">
-                            <User className="w-3 h-3" />
-                            <span className="text-[10px]">Unassigned</span>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Assign-to selector (visible on hover) */}
-                      {members.length > 0 && (
-                        <div className="relative flex-shrink-0">
-                          <select
-                            onPointerDown={(e) => e.stopPropagation()}
-                            value={t.assigneeId || ''}
-                            onChange={(e) => assignTask(t.id, e.target.value || null)}
-                            className="opacity-0 group-hover/card:opacity-100 text-[9px] bg-black/50 border border-white/10 rounded-md py-0.5 pl-1.5 pr-5 text-gray-300 focus:outline-none hover:border-white/30 transition-all cursor-pointer appearance-none"
-                          >
-                            <option value="">Assign…</option>
-                            {members.map(m => (
-                              <option key={m.id} value={m.id}>{m.name || m.email}</option>
-                            ))}
-                          </select>
-                          <ChevronDown className="absolute right-1 top-1/2 -translate-y-1/2 w-2.5 h-2.5 text-gray-500 pointer-events-none opacity-0 group-hover/card:opacity-100 transition-opacity" />
-                        </div>
-                      )}
-                    </div>
+      {/* Task List */}
+      <div className="flex-1 overflow-y-auto px-4 pb-4 custom-scrollbar">
+         {visibleTasks.map((t, i) => {
+           const isHoveredSlot = isHoveredHere && hoveredSlot?.index === i;
+           return (
+             <div key={t.id} className="relative">
+                {isHoveredSlot && <div className="h-20 bg-primary/5 rounded-2xl border-2 border-dashed border-primary/20 my-2 animate-pulse" />}
+                <div 
+                  ref={el => { if (el) cardRefs.current.set(t.id, el); else cardRefs.current.delete(t.id); }}
+                  onClick={() => onTaskClick?.(t.id)}
+                  onPointerDown={(e) => {
+                    if (t.id.startsWith('temp-')) return;
+                    if ((e.target as HTMLElement).closest('button, select, input')) return;
+                    startDrag(t as any, e as any, listId);
+                  }}
+                  className={`bg-white/60 backdrop-blur-md border border-white/60 p-4 rounded-2xl shadow-sm my-2 group cursor-grab active:cursor-grabbing hover:shadow-lg hover:shadow-sky-dark/5 transition-all hover:scale-[1.02] active:scale-[0.98] ${t.status === 'DONE' ? 'opacity-60' : ''}`}
+                  style={{ borderLeft: t.color ? `6px solid ${t.color}` : undefined }}
+                >
+                  <div className="flex items-start justify-between gap-3 mb-2">
+                     <div className="flex items-start gap-2 flex-1">
+                        <span className={`text-sm font-bold text-foreground leading-tight ${t.status === 'DONE' ? 'line-through text-muted-foreground' : ''}`}>
+                          {t.title}
+                        </span>
+                     </div>
+                     <button 
+                       onClick={e => remove(t.id, e as any)}
+                       className="opacity-0 group-hover:opacity-100 p-1 text-muted-foreground hover:text-red-500 transition-all"
+                     >
+                       <Trash2 size={14} />
+                     </button>
                   </div>
+
+                   {/* Meta data display */}
+                   <div className="flex items-center justify-between mt-4">
+                      <div className="flex items-center gap-2">
+                         <button 
+                           onClick={async (e) => {
+                             e.stopPropagation();
+                             const newStatus = t.status === 'DONE' ? 'TODO' : 'DONE';
+                             mutate(tasks.map(task => task.id === t.id ? { ...task, status: newStatus } : task), false);
+                             await updateTask(t.id, { status: newStatus });
+                             mutate();
+                           }}
+                           className={`w-6 h-6 rounded-lg flex items-center justify-center transition-all ${
+                             t.status === 'DONE' ? 'bg-green-500 text-white' : 'bg-primary/10 text-primary hover:bg-primary/20'
+                           }`}
+                         >
+                            <CheckCircle2 size={14} />
+                         </button>
+                         
+                         {/* Multi-Assignee Avatar Stack */}
+                         <div className="flex -space-x-1.5 ml-1">
+                            {t.assignees && t.assignees.length > 0 ? (
+                              t.assignees.slice(0, 3).map((u, idx) => (
+                                <div key={u.id} className="w-5 h-5 rounded-md bg-white border border-white shadow-sm flex items-center justify-center text-[7px] font-black text-primary overflow-hidden ring-1 ring-black/5" style={{ zIndex: 10 - idx }}>
+                                   {u.avatarUrl ? <img src={u.avatarUrl} alt="" className="w-full h-full object-cover" /> : u.name?.charAt(0)}
+                                </div>
+                              ))
+                            ) : (
+                               <div className="w-5 h-5 rounded-md bg-black/5 flex items-center justify-center">
+                                  <User size={8} className="text-muted-foreground/30" />
+                               </div>
+                            )}
+                         </div>
+                      </div>
+                      <div className="flex items-center gap-1.5 opacity-30 group-hover:opacity-100 transition-opacity">
+                         <div className="w-1.5 h-1.5 rounded-full bg-primary" />
+                         <span className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">{t.status}</span>
+                      </div>
+                   </div>
                 </div>
-              );
-            })}
-            <DropLine
-              show={
-                !!isHoveredHere &&
-                hoveredSlot?.index === visibleTasks.length
-              }
-            />
-          </div>
-        )}
+             </div>
+           );
+         })}
       </div>
 
-      {!isDraft && (
-        <div className="p-3 pt-0">
-          {adding ? (
-            <div className="space-y-2 animate-in slide-in-from-top-2 duration-200">
-              <textarea
-                ref={inputRef}
-                value={value}
-                onChange={(e) => setValue(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    submit();
-                    setAdding(true);
-                  } else if (e.key === 'Escape') {
-                    setAdding(false);
-                    setValue('');
-                  }
-                }}
-                placeholder="What needs to be done?"
-                rows={2}
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-white/20 resize-none transition-all"
-              />
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => {
-                    submit();
-                    setAdding(true);
-                  }}
-                  className="px-4 py-1.5 text-xs bg-white text-black rounded-lg font-bold hover:bg-gray-200 transition-all shadow-lg active:scale-95"
-                >
-                  Add card
-                </button>
-                <button
-                  onClick={() => {
-                    setAdding(false);
-                    setValue('');
-                  }}
-                  className="text-gray-400 hover:text-white transition-colors"
-                >
-                  <Plus className="w-5 h-5 rotate-45" />
-                </button>
-              </div>
+      {/* Footer / Add Task */}
+      <div className="p-4 pt-0">
+         {adding ? (
+            <div className="space-y-3 bg-white/40 p-3 rounded-2xl border border-white/40">
+               <textarea 
+                 ref={inputRef}
+                 value={value}
+                 onChange={e => setValue(e.target.value)}
+                 onKeyDown={e => {
+                   if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); submit(); }
+                   if (e.key === 'Escape') setAdding(false);
+                 }}
+                 placeholder="What needs to be done?"
+                 rows={2}
+                 className="w-full bg-transparent border-none text-sm font-bold text-foreground placeholder-muted-foreground/60 outline-none resize-none"
+               />
+               <div className="flex items-center justify-between">
+                  <button onClick={submit} className="btn-primary !py-1.5 !px-4 !text-[10px]">Add Task</button>
+                  <button onClick={() => setAdding(false)} className="p-1.5 hover:bg-white/40 rounded-xl"><Plus className="rotate-45" size={16} /></button>
+               </div>
             </div>
-          ) : (
-            <button
+         ) : (
+            <button 
               onClick={() => setAdding(true)}
-              className="w-full flex items-center gap-2 px-3 py-2.5 text-sm text-gray-400 hover:bg-white/5 hover:text-white rounded-xl transition-all border border-transparent hover:border-white/5 group"
+              className="w-full flex items-center justify-center gap-2 p-3 rounded-2xl border-2 border-dashed border-white/60 text-xs font-black text-muted-foreground uppercase tracking-widest hover:bg-white/40 hover:border-primary/20 hover:text-primary transition-all"
             >
-              <Plus className="w-4 h-4 group-hover:scale-110 transition-transform" />
-              <span className="font-medium">Add a card</span>
+               <Plus size={16} /> Add Task
             </button>
-          )}
-        </div>
-      )}
+         )}
+      </div>
     </div>
   );
 }
-
-function DropLine({ show }: { show: boolean }) {
-  return (
-    <div
-      aria-hidden
-      className={`h-0.5 rounded-full bg-white/40 transition-all duration-300 ${
-        show ? 'opacity-100 my-2' : 'opacity-0 h-0 my-0'
-      }`}
-    />
-  );
-}
-

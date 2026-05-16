@@ -11,28 +11,93 @@ async function requireUserId() {
   return user.id
 }
 
-export async function getProjects() {
-  const user = await syncUser()
-  if (!user) return []
+export async function getProjects(workspaceId?: string) {
+  try {
+    const user = await syncUser()
+    if (!user) return []
 
-  return prisma.project.findMany({
-    where: {
-      OR: [
-        { userId: user.id },
-        { members: { some: { id: user.id } } }
-      ]
-    },
-    include: {
-      members: true,
-      _count: {
-        select: { lists: true }
-      }
-    },
-    orderBy: { createdAt: 'asc' },
-  })
+    return await prisma.project.findMany({
+      where: {
+        AND: [
+          {
+            OR: [
+              { userId: user.id },
+              { members: { some: { id: user.id } } }
+            ]
+          },
+          workspaceId ? { workspaceId } : {}
+        ]
+      },
+      include: {
+        members: true,
+        _count: {
+          select: { lists: true }
+        }
+      },
+      orderBy: { createdAt: 'asc' },
+    })
+  } catch (err) {
+    return [];
+  }
 }
 
-export async function createProject(name: string, color: string) {
+
+export async function getWorkspacesWithProjects() {
+  try {
+    const userId = await requireUserId()
+    
+    return await prisma.workspace.findMany({
+      where: {
+        OR: [
+          { ownerId: userId },
+          { members: { some: { id: userId } } }
+        ]
+      },
+      include: {
+        memberships: {
+          where: { userId }
+        },
+        projects: {
+          include: {
+            _count: {
+              select: { lists: true }
+            }
+          }
+        }
+      },
+      orderBy: { createdAt: 'asc' }
+    })
+  } catch (err) {
+    console.error("Failed to fetch workspaces, returning empty:", err);
+    return [];
+  }
+}
+
+
+export async function createWorkspace(name: string) {
+  const userId = await requireUserId()
+  
+  const workspace = await prisma.workspace.create({
+    data: {
+      name,
+      ownerId: userId,
+      members: {
+        connect: { id: userId }
+      },
+      memberships: {
+        create: {
+          userId,
+          role: 'ADMIN'
+        }
+      }
+    }
+  })
+  
+  revalidatePath('/dashboard')
+  return workspace
+}
+
+export async function createProject(name: string, color: string, workspaceId?: string) {
   const userId = await requireUserId()
 
   // Create project with creator as first member
@@ -41,6 +106,7 @@ export async function createProject(name: string, color: string) {
       name, 
       color, 
       userId,
+      workspaceId,
       members: {
         connect: { id: userId }
       }
@@ -68,45 +134,65 @@ export async function createProject(name: string, color: string) {
   return project
 }
 
+import { requireWorkspaceAdmin } from './permissionActions'
+
 export async function deleteProject(projectId: string) {
   const userId = await requireUserId()
+  
+  const project = await prisma.project.findUnique({
+    where: { id: projectId },
+    select: { workspaceId: true, userId: true }
+  })
+  
+  if (!project) throw new Error('Project not found')
+  
+  // Must be project creator OR workspace admin
+  if (project.userId !== userId && project.workspaceId) {
+    await requireWorkspaceAdmin(project.workspaceId)
+  }
+
   const lists = await prisma.boardList.findMany({
-    where: { projectId, userId },
+    where: { projectId },
     select: { id: true },
   })
   const listIds = lists.map((l) => l.id)
   if (listIds.length > 0) {
     await prisma.task.deleteMany({
-      where: { userId, listId: { in: listIds } },
+      where: { listId: { in: listIds } },
     })
   }
-  await prisma.project.deleteMany({ where: { id: projectId, userId } })
+  await prisma.project.delete({ where: { id: projectId } })
   revalidatePath('/dashboard')
 }
 
 export async function getBoardLists(projectId: string) {
-  const user = await syncUser()
-  if (!user) return []
+  try {
+    const user = await syncUser()
+    if (!user) return []
 
-  // Check user is member or creator of this project
-  const project = await prisma.project.findFirst({
-    where: {
-      id: projectId,
-      OR: [
-        { userId: user.id },
-        { members: { some: { id: user.id } } },
-      ],
-    },
-    select: { id: true },
-  })
-  if (!project) return []
+    // Check user is member or creator of this project
+    const project = await prisma.project.findFirst({
+      where: {
+        id: projectId,
+        OR: [
+          { userId: user.id },
+          { members: { some: { id: user.id } } },
+        ],
+      },
+      select: { id: true },
+    })
+    if (!project) return []
 
-  // Return ALL lists in the project (not filtered by userId)
-  return prisma.boardList.findMany({
-    where: { projectId },
-    orderBy: [{ position: 'asc' }, { createdAt: 'asc' }],
-  })
+    // Return ALL lists in the project (not filtered by userId)
+    return await prisma.boardList.findMany({
+      where: { projectId },
+      orderBy: [{ position: 'asc' }, { createdAt: 'asc' }],
+    })
+  } catch (err) {
+    return [];
+  }
 }
+
 
 export async function createBoardList(
   projectId: string,

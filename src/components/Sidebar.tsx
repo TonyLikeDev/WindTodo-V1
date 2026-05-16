@@ -1,92 +1,207 @@
 "use client";
 
+import React, { useState } from "react";
 import Link from "next/link";
-import { useState } from "react";
 import { usePathname } from "next/navigation";
-import Image from "next/image";
+import useSWR from "swr";
+import { 
+  LayoutDashboard, 
+  CheckCircle2, 
+  Calendar, 
+  Settings, 
+  Cloud,
+  LogOut,
+  Plus,
+  Hash,
+  ChevronRight,
+  FolderOpen,
+  ChevronDown,
+  Layers
+} from "lucide-react";
+import { getWorkspacesWithProjects, createWorkspace } from "@/app/actions/projectActions";
+import { motion, AnimatePresence } from "framer-motion";
 
-export default function Sidebar({ isOpen = false, onClose = () => {} }: { isOpen?: boolean, onClose?: () => void }) {
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+interface SidebarProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   const pathname = usePathname();
+  const { data: workspaces, mutate: mutateWorkspaces } = useSWR("workspaces", getWorkspacesWithProjects);
+  const [expandedWorkspaces, setExpandedWorkspaces] = useState<Record<string, boolean>>({});
 
   const navItems = [
-    { name: "Dashboard", href: "/dashboard", icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path> },
-    { name: "Tasks", href: "/dashboard/tasks", icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path> },
-    { name: "Statistics", href: "/dashboard/stats", icon: <><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"></path></> },
-    { name: "Users", href: "/dashboard/users", icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 01-12 0v1zm0-11a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0z"></path> },
+    { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { href: "/dashboard/tasks", label: "My Tasks", icon: CheckCircle2 },
+    { href: "/dashboard/calendar", label: "Calendar", icon: Calendar },
+    { href: "/dashboard/settings", label: "Settings", icon: Settings },
   ];
 
+  const isActive = (path: string) => pathname === path;
+
+  const toggleWorkspace = (id: string) => {
+    setExpandedWorkspaces(prev => ({ ...prev, [id]: !prev[id] }));
+  };
+
+  const handleCreateWorkspace = async () => {
+    const name = window.prompt("Workspace Name:");
+    if (!name) return;
+    try {
+      await createWorkspace(name);
+      mutateWorkspaces();
+    } catch (err) {
+      console.error("Failed to create workspace:", err);
+    }
+  };
+
   return (
-    <aside className={`sidebar-glass w-64 flex-shrink-0 flex flex-col fixed md:relative z-50 h-full transition-transform duration-300 ease-in-out ${isOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}`}>
-        <div className="p-6 border-b border-white/5 flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center border border-white/10 overflow-hidden">
-                    <Image src="/windtodo.png" alt="WindTodo" width={40} height={40} className="w-full h-full object-contain" />
-                </div>
-                <span className="text-xl font-bold tracking-tight text-white">WindTodo</span>
-            </div>
-            <button className="md:hidden text-gray-400 hover:text-white" onClick={onClose}>
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12"></path></svg>
-            </button>
+    <aside className="h-full w-72 p-6 flex flex-col">
+      <div className="glass h-full rounded-[2.5rem] flex flex-col p-6 border-white/40 shadow-xl shadow-sky-dark/10">
+        {/* Logo */}
+        <div className="flex items-center gap-3 px-2 mb-10">
+          <div className="w-10 h-10 rounded-2xl bg-primary flex items-center justify-center shadow-lg shadow-primary/30">
+            <Cloud className="text-white" size={24} />
+          </div>
+          <span className="text-xl font-bold text-foreground tracking-tight">SkyTodo</span>
         </div>
-        
-        <nav className="space-y-1 p-6">
-            {navItems.map((item) => {
-              const isActive = pathname === item.href;
-              return (
-                <Link 
-                  key={item.name}
-                  href={item.href} 
-                  onClick={onClose}
-                  className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-all ${
-                    isActive 
-                      ? "bg-white/5 text-white" 
-                      : "text-gray-400 hover:bg-white/5 hover:text-white"
-                  }`}
-                >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      {item.icon}
-                    </svg>
-                    <span>{item.name}</span>
-                </Link>
-              );
-            })}
+
+        {/* Main Nav */}
+        <nav className="space-y-1 mb-8">
+          <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-3 px-4">Menu</p>
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            const active = isActive(item.href);
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`flex items-center gap-4 px-4 py-3 rounded-2xl transition-all group ${
+                  active 
+                    ? "bg-white/60 shadow-sm text-primary font-bold" 
+                    : "text-muted-foreground hover:bg-white/30 hover:text-foreground"
+                }`}
+              >
+                <Icon size={18} className={active ? "text-primary" : "text-muted-foreground group-hover:text-foreground"} />
+                <span className="text-sm font-medium">{item.label}</span>
+                {active && <ChevronRight size={14} className="ml-auto opacity-50" />}
+              </Link>
+            );
+          })}
         </nav>
-        
-        <div className="mt-auto p-6 relative">
-            {isSettingsOpen && (
-                <div className="absolute bottom-full left-6 right-6 mb-2 bg-[#1a1a1a] border border-white/10 rounded-xl shadow-lg overflow-hidden glass z-50">
-                    <div className="py-1">
-                        <Link href="#" className="block px-4 py-2 text-sm text-gray-300 hover:bg-white/10 transition-colors">Profile</Link>
-                        <Link href="#" className="block px-4 py-2 text-sm text-gray-300 hover:bg-white/10 transition-colors">Account Settings</Link>
-                        <Link href="#" className="block px-4 py-2 text-sm text-gray-300 hover:bg-white/10 transition-colors">Preferences</Link>
-                        <div className="border-t border-white/10 my-1"></div>
-                        <Link href="/login" className="block px-4 py-2 text-sm text-red-400 hover:bg-red-500/10 transition-colors">Logout</Link>
+
+        {/* Workspaces Section */}
+        <div className="flex-grow overflow-y-auto custom-scrollbar pr-2 -mr-2">
+          <div className="flex items-center justify-between px-4 mb-4">
+             <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Workspaces</p>
+             <button 
+              onClick={handleCreateWorkspace}
+              className="text-primary hover:bg-primary/10 p-1 rounded-lg transition-all"
+             >
+                <Plus size={14} />
+             </button>
+          </div>
+          
+          <div className="space-y-4">
+             {workspaces?.map((workspace) => (
+               <div key={workspace.id} className="space-y-1">
+                  <div className="w-full flex items-center gap-3 px-4 py-2 hover:bg-white/20 rounded-xl transition-all group relative">
+                    <button 
+                      onClick={() => toggleWorkspace(workspace.id)}
+                      className="flex items-center gap-3 flex-1 text-left"
+                    >
+                      <div className="w-6 h-6 rounded-lg bg-white/40 flex items-center justify-center text-primary shadow-sm border border-white/60">
+                         <Layers size={14} />
+                      </div>
+                      <div className="flex flex-col min-w-0">
+                        <span className="text-sm font-bold text-foreground truncate">{workspace.name}</span>
+                        {(() => {
+                          const role = workspace.memberships?.[0]?.role || (workspace.ownerId === workspace.memberships?.[0]?.userId ? 'ADMIN' : 'MEMBER');
+                          return (
+                            <span className={`text-[8px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-md w-fit mt-0.5 ${
+                              role === 'ADMIN' ? 'bg-primary/10 text-primary' : 
+                              role === 'MEMBER' ? 'bg-green-500/10 text-green-500' : 
+                              'bg-muted-foreground/10 text-muted-foreground'
+                            }`}>
+                              {role}
+                            </span>
+                          );
+                        })()}
+                      </div>
+                    </button>
+                    <div className="flex items-center gap-1">
+                      {workspace.memberships?.[0]?.role === 'ADMIN' && (
+                        <button 
+                          className="p-1.5 hover:bg-white/40 rounded-lg text-muted-foreground hover:text-primary transition-all opacity-0 group-hover:opacity-100"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            alert('Member management coming soon!');
+                          }}
+                        >
+                          <Settings size={12} />
+                        </button>
+                      )}
+                      <button 
+                        onClick={() => toggleWorkspace(workspace.id)}
+                        className="p-1.5 hover:bg-white/40 rounded-lg text-muted-foreground transition-all"
+                      >
+                        <ChevronDown size={14} className={`transition-transform ${expandedWorkspaces[workspace.id] ? 'rotate-180' : ''}`} />
+                      </button>
                     </div>
-                </div>
-            )}
-            <div 
-              className="glass rounded-xl p-4 flex items-center space-x-3 cursor-pointer hover:bg-white/5 transition-colors"
-              onClick={() => setIsSettingsOpen(!isSettingsOpen)}
-            >
-                <div className="w-10 h-10 rounded-full bg-gray-600 border border-white/10 overflow-hidden relative">
-                    <Image 
-                      src="https://ui-avatars.com/api/?name=Tony+Stark&background=333&color=fff" 
-                      alt="User" 
-                      fill
-                      unoptimized
-                      className="object-cover"
-                    />
-                </div>
-                <div className="flex-grow min-w-0">
-                    <p className="text-sm font-medium text-white truncate">Tony Stark</p>
-                    <p className="text-xs text-gray-500 truncate">Pro Member</p>
-                </div>
-                <button className="text-gray-500 hover:text-white transition-colors" onClick={(e) => { e.stopPropagation(); setIsSettingsOpen(!isSettingsOpen); }}>
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z"></path></svg>
-                </button>
-            </div>
+                  </div>
+
+                  <AnimatePresence>
+                    {(expandedWorkspaces[workspace.id] || !expandedWorkspaces.hasOwnProperty(workspace.id)) && (
+                      <motion.div 
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.3, ease: "easeInOut" }}
+                        className="space-y-1 ml-4 border-l border-white/20 pl-2 overflow-hidden"
+                      >
+                        {workspace.projects.map((project: any) => (
+                          <Link
+                            key={project.id}
+                            href={`/dashboard/projects/${project.id}`}
+                            className={`flex items-center gap-3 px-4 py-2 rounded-xl transition-all group ${
+                              isActive(`/dashboard/projects/${project.id}`)
+                                ? "bg-white/60 shadow-sm text-foreground font-bold"
+                                : "text-muted-foreground hover:bg-white/30 hover:text-foreground"
+                            }`}
+                          >
+                            <div 
+                              className="w-2 h-2 rounded-full shadow-sm" 
+                              style={{ backgroundColor: project.color }} 
+                            />
+                            <span className="text-xs font-medium truncate">{project.name}</span>
+                          </Link>
+                        ))}
+                        {workspace.projects.length === 0 && (
+                          <p className="text-[10px] text-muted-foreground italic px-4 py-2">No projects</p>
+                        )}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+               </div>
+             ))}
+             
+             {(!workspaces || workspaces.length === 0) && (
+               <div className="px-4 py-8 text-center glass rounded-[2rem] border-dashed border-white/40">
+                  <FolderOpen size={24} className="mx-auto text-muted-foreground/30 mb-2" />
+                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">No Workspaces</p>
+               </div>
+             )}
+          </div>
         </div>
+
+        {/* Footer Area */}
+        <div className="mt-8 pt-8 border-t border-white/20">
+          <button className="flex items-center gap-4 px-4 py-3.5 w-full rounded-2xl text-muted-foreground hover:bg-red-500/10 hover:text-red-500 transition-all group">
+            <LogOut size={18} className="group-hover:translate-x-0.5 transition-transform" />
+            <span className="text-sm font-bold">Sign Out</span>
+          </button>
+        </div>
+      </div>
     </aside>
   );
 }

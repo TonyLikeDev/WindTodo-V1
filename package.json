@@ -10,15 +10,31 @@
     "postinstall": "prisma generate"
   },
   "dependencies": {
+    "@hello-pangea/dnd": "^18.0.1",
     "@prisma/client": "^6.19.3",
     "@supabase/ssr": "^0.10.3",
     "@supabase/supabase-js": "^2.105.4",
+    "@tailwindcss/typography": "^0.5.19",
+    "@tiptap/extension-code-block-lowlight": "^3.23.4",
+    "@tiptap/extension-highlight": "^3.23.4",
+    "@tiptap/extension-link": "^3.23.4",
+    "@tiptap/extension-placeholder": "^3.23.4",
+    "@tiptap/extension-task-item": "^3.23.4",
+    "@tiptap/extension-task-list": "^3.23.4",
+    "@tiptap/extension-typography": "^3.23.4",
+    "@tiptap/pm": "^3.23.4",
+    "@tiptap/react": "^3.23.4",
+    "@tiptap/starter-kit": "^3.23.4",
+    "date-fns": "^4.1.0",
+    "framer-motion": "^12.38.0",
+    "lowlight": "^3.3.0",
     "lucide-react": "^1.14.0",
     "next": "16.2.6",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "recharts": "^3.8.1",
-    "swr": "^2.4.1"
+    "swr": "^2.4.1",
+    "zustand": "^5.0.13"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
