@@ -1,36 +1,64 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🌌 SkyTodo - Peaceful Productivity & Enterprise Suite
 
-## Getting Started
+Chào mừng bạn đến với **SkyTodo** - Hệ sinh thái quản lý công việc và tài liệu cộng tác doanh nghiệp thế hệ mới, sở hữu phong cách thiết kế kính mờ (Glassmorphism) thời thượng, tích hợp gamification tăng cấp hứng khởi và tương thích thích ứng thông minh trên mọi kích thước màn hình!
 
-First, run the development server:
+🚀 **Đường dẫn truy cập cục bộ (Local Access Link):** 
+[http://localhost:3000/dashboard](http://localhost:3000/dashboard)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+---
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## ✨ Các tính năng đột phá vừa được nâng cấp:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 1. 👥 Quản lý Nhân sự & Đánh giá Hiệu suất nâng cao
+* Giao diện quản lý đội ngũ tại `/dashboard/users` được thiết kế mới hoàn toàn.
+* **Thanh tiến độ công việc (Task Progress Bar):** Hiển thị trực quan tiến trình hoàn thành chỉ tiêu nhiệm vụ của từng người qua dải màu chuyển sắc sinh động.
+* **Chấm sao năng lực (Star Ratings):** Hệ thống chấm điểm 5 sao lấp lánh kèm theo nhãn đánh giá hiệu suất tự động (*Xuất sắc • Vượt tiến độ*, *Tốt • Đúng tiến độ*, *Cần cố gắng*...).
+* Biểu mẫu thêm mới nhân sự dạng kính mờ (Modal Popup) và nút xóa nhanh đồng bộ tức thời với cơ sở lưu trữ LocalStorage.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 📊 2. Biểu đồ tròn Phân bổ công việc tổng thể (Donut Chart)
+* Chuyển đổi biểu đồ cột cũ thành **Biểu đồ tròn khuyết giữa (Donut Pie Chart)** hiện đại ở trang chủ Dashboard.
+* **Bộ đếm trung tâm thông minh (Centered Total Counter):** Tự động thống kê tổng chỉ tiêu nhiệm vụ toàn đội ngũ ở giữa lỗ tròn biểu đồ.
+* **Hộp thoại kính mờ (Glassmorphic Tooltip):** Hiện chi tiết chỉ số Hoàn thành, Đang làm, Quá hạn khi di chuột qua từng phần biểu đồ của thành viên.
 
-## Learn More
+### 💬 3. Bong bóng Chat Messenger nổi trượt mượt mà
+* Loại bỏ thanh chat tĩnh bên phải giúp giải phóng không gian hiển thị, hỗ trợ co giãn responsive 100% cửa sổ trình duyệt mượt mà.
+* Tích hợp **Bong bóng tròn nổi Messenger** ở góc phải, khi click sẽ trượt mở cửa sổ chat kính mờ có hiệu ứng lò xo (`framer-motion`) và nút đóng `X` cực kỳ cao cấp.
 
-To learn more about Next.js, take a look at the following resources:
+### 📅 4. Tự soạn thảo tài liệu Notion cho Lịch biểu (Calendar)
+* Click trực tiếp vào một sự kiện/nhiệm vụ bất kỳ trên Lịch biểu (ở tất cả các chế độ xem Tháng/Tuần/Năm) để mở hộp thoại chi tiết nhiệm vụ.
+* Hộp thoại tích hợp **Trình soạn thảo văn bản kiểu Notion** giúp biên tập ghi chú, check-list, tiêu đề và đồng bộ hóa trực tiếp 2 chiều về hệ thống.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 📐 5. Tự động thích ứng co giãn Responsive (Fluid Scaling)
+* Loại bỏ hoàn toàn các khung giới hạn chiều rộng cứng nhắc, cho phép toàn bộ bảng Kanban, biểu đồ và các panel co giãn, thu nhỏ hoặc phóng to lấp đầy 100% không gian trình duyệt theo thời gian thực.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## 🛠️ Hướng dẫn Khởi chạy Dự án (Local Setup)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Để khởi chạy dự án dưới máy tính của bạn:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. **Cài đặt các thư viện phụ thuộc:**
+   ```bash
+   npm install
+   ```
+
+2. **Khởi chạy môi trường Phát triển:**
+   ```bash
+   npm run dev
+   ```
+
+3. **Truy cập trang quản trị:**
+   Mở trình duyệt (như Cốc Cốc, Chrome) và truy cập đường dẫn:
+   👉 **[http://localhost:3000/dashboard](http://localhost:3000/dashboard)**
+
+---
+
+## 🌐 Hướng dẫn đẩy lên Vercel chạy Online (Deploy to Vercel)
+
+Để trang web có đường dẫn chạy trực tuyến online trên Internet chia sẻ cho mọi người:
+
+1. Truy cập trang web **[Vercel](https://vercel.com/)** và đăng nhập bằng tài khoản GitHub của bạn.
+2. Click nút **"Add New"** -> chọn **"Project"**.
+3. Chọn kho lưu trữ **`xuanmai171202-spec/to`** của bạn và ấn **Import**.
+4. Trong mục thiết lập biến môi trường (Environment Variables), hãy thêm các biến kết nối database Supabase của bạn (nếu có) hoặc để mặc định để chạy chế độ Offline Demo cực đỉnh.
+5. Ấn **Deploy**. Sau 1 phút, bạn sẽ có ngay một đường dẫn link web online chính thức (ví dụ: `https://to-xyz.vercel.app`) chạy trực tuyến trên Cốc Cốc!
