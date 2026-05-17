@@ -114,7 +114,7 @@ export default function TaskList({ title, listId, placeholder, bgColor }: { titl
         <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
           {title}
         </h3>
-        <span className="text-xs bg-white/60 text-foreground px-2 py-0.5 rounded-full font-bold border border-white/60">
+        <span className="text-xs bg-white/60 dark:bg-black/25 text-foreground px-2 py-0.5 rounded-full font-bold border border-white/60 dark:border-white/5">
           {tasks.length}
         </span>
       </div>
@@ -123,7 +123,7 @@ export default function TaskList({ title, listId, placeholder, bgColor }: { titl
         {tasks.map(task => {
           const priority = task.priority ?? 'MEDIUM';
           return (
-            <div key={task.id} className={`bg-white/50 border border-white/60 p-3 rounded-xl flex items-center justify-between group transition-all hover:bg-white/70 ${task.status === 'DONE' ? 'opacity-50' : 'opacity-100'} ${task.id.startsWith('temp-') ? 'animate-pulse' : ''}`}>
+            <div key={task.id} className={`bg-white dark:bg-black/20 border border-white/60 dark:border-white/5 p-3 rounded-xl flex items-center justify-between group transition-all hover:bg-white/90 dark:hover:bg-black/35 ${task.status === 'DONE' ? 'opacity-50' : 'opacity-100'} ${task.id.startsWith('temp-') ? 'animate-pulse' : ''}`}>
               <div className="flex flex-col gap-2 min-w-0 flex-1">
                 <div className="flex items-center gap-2 min-w-0">
                   <span
@@ -144,14 +144,14 @@ export default function TaskList({ title, listId, placeholder, bgColor }: { titl
                     value={task.status}
                     onChange={(e) => updateStatus(task.id, e.target.value as 'TODO' | 'IN_PROGRESS' | 'DONE')}
                     className={`text-[9px] font-bold uppercase tracking-wider rounded-md px-1.5 py-0.5 border transition-all cursor-pointer outline-none ${
-                      task.status === 'DONE' ? 'bg-green-100 border-green-300/60 text-green-700' :
-                      task.status === 'IN_PROGRESS' ? 'bg-blue-100 border-blue-300/60 text-blue-700' :
-                      'bg-white/60 border-white/60 text-muted-foreground'
+                      task.status === 'DONE' ? 'bg-green-100 dark:bg-green-950/30 border-green-300/60 dark:border-green-800/30 text-green-700 dark:text-green-400' :
+                      task.status === 'IN_PROGRESS' ? 'bg-blue-100 dark:bg-blue-950/30 border-blue-300/60 dark:border-blue-800/30 text-blue-700 dark:text-blue-400' :
+                      'bg-white/60 dark:bg-black/25 border-white/60 dark:border-white/5 text-muted-foreground'
                     }`}
                   >
-                    <option value="TODO">To Do</option>
-                    <option value="IN_PROGRESS">In Progress</option>
-                    <option value="DONE">Done</option>
+                    <option value="TODO" className="dark:bg-slate-900">To Do</option>
+                    <option value="IN_PROGRESS" className="dark:bg-slate-900">In Progress</option>
+                    <option value="DONE" className="dark:bg-slate-900">Done</option>
                   </select>
                 </div>
               </div>
@@ -165,7 +165,7 @@ export default function TaskList({ title, listId, placeholder, bgColor }: { titl
           );
         })}
         {tasks.length === 0 && (
-          <div className="text-center text-sm text-muted-foreground py-12 italic bg-white/30 rounded-2xl border border-dashed border-white/50">
+          <div className="text-center text-sm text-muted-foreground py-12 italic bg-white/30 dark:bg-black/15 rounded-2xl border border-dashed border-white/50 dark:border-white/5">
             No tasks found.
           </div>
         )}
@@ -177,7 +177,7 @@ export default function TaskList({ title, listId, placeholder, bgColor }: { titl
             value={effectiveProjectId}
             onChange={(e) => setSelectedProjectId(e.target.value)}
             disabled={projects.length === 0}
-            className="bg-white border border-white/80 rounded-xl px-3 text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 shadow-sm transition-all min-w-[8rem] max-w-[12rem] truncate disabled:opacity-50 disabled:cursor-not-allowed"
+            className="bg-white dark:bg-black/35 border border-white/80 dark:border-white/5 rounded-xl px-3 text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 shadow-sm transition-all min-w-[8rem] max-w-[12rem] truncate disabled:opacity-50 disabled:cursor-not-allowed"
             title="Project for new task (assigned to me)"
           >
             {projects.length === 0 && <option value="">No projects</option>}
@@ -192,7 +192,7 @@ export default function TaskList({ title, listId, placeholder, bgColor }: { titl
             type="text"
             placeholder={isVirtual && projects.length === 0 ? 'Create a project first…' : placeholder}
             disabled={isVirtual && projects.length === 0}
-            className="w-full bg-white border border-white/80 rounded-xl py-3 pl-4 pr-12 text-sm font-medium text-foreground placeholder-muted-foreground focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/20 transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full bg-white dark:bg-black/25 border border-white/80 dark:border-white/5 rounded-xl py-3 pl-4 pr-12 text-sm font-medium text-foreground placeholder-muted-foreground focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/20 transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             onKeyDown={(e) => { if (e.key === 'Enter') handleAddTask(); }}

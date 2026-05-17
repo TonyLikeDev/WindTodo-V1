@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --color-sky-blue: #A3C9E2;
   --color-sky-light: #E0F2F1;
@@ -8,41 +10,71 @@
   --color-accent-lavender: #E1BEE7;
   --color-accent-green: #C8E6C9;
 
-  --color-background: #F0F4F8;
-  --color-foreground: #2C3E50;
-  --color-primary: #5D9CEC;
-  --color-primary-foreground: #FFFFFF;
-  --color-secondary: #BEE3F8;
-  --color-secondary-foreground: #2C3E50;
-  --color-muted: rgba(255, 255, 255, 0.4);
-  --color-muted-foreground: #546E7A;
-  --color-accent: #81D4FA;
-  --color-accent-foreground: #2C3E50;
-  --color-border: rgba(255, 255, 255, 0.3);
-  --color-input: rgba(255, 255, 255, 0.5);
-  --color-ring: #5D9CEC;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
   --radius-xl: 28px;
   --radius-2xl: 36px;
 }
 
 :root {
-  --background: var(--color-background);
-  --foreground: var(--color-foreground);
-  --primary: var(--color-primary);
-  --primary-foreground: var(--color-primary-foreground);
-  --secondary: var(--color-secondary);
-  --secondary-foreground: var(--color-secondary-foreground);
-  --muted: var(--color-muted);
-  --muted-foreground: var(--color-muted-foreground);
-  --accent: var(--color-accent);
-  --accent-foreground: var(--color-accent-foreground);
-  --border: var(--color-border);
-  --input: var(--color-input);
-  --ring: var(--color-ring);
+  --background: #F0F4F8;
+  --foreground: #2C3E50;
+  --primary: #5D9CEC;
+  --primary-foreground: #FFFFFF;
+  --secondary: #BEE3F8;
+  --secondary-foreground: #2C3E50;
+  --muted: rgba(255, 255, 255, 0.4);
+  --muted-foreground: #546E7A;
+  --accent: #81D4FA;
+  --accent-foreground: #2C3E50;
+  --border: rgba(255, 255, 255, 0.3);
+  --input: rgba(255, 255, 255, 0.5);
+  --ring: #5D9CEC;
 
   --glass-bg: rgba(255, 255, 255, 0.5);
   --glass-border: rgba(255, 255, 255, 0.4);
   --glass-shadow: 0 8px 32px 0 rgba(163, 201, 226, 0.3);
+
+  --glass-dark-bg: rgba(255, 255, 255, 0.7);
+  --glass-dark-border: rgba(255, 255, 255, 0.5);
+  --glass-sidebar-bg: rgba(255, 255, 255, 0.5);
+  --glass-sidebar-border: rgba(255, 255, 255, 0.4);
+}
+
+.dark {
+  --background: #0B132B;
+  --foreground: #F1F5F9;
+  --primary: #5D9CEC;
+  --primary-foreground: #FFFFFF;
+  --secondary: #1C2541;
+  --secondary-foreground: #F1F5F9;
+  --muted: rgba(0, 0, 0, 0.4);
+  --muted-foreground: #94A3B8;
+  --accent: #3A506B;
+  --accent-foreground: #F1F5F9;
+  --border: rgba(255, 255, 255, 0.08);
+  --input: rgba(0, 0, 0, 0.3);
+  --ring: #5D9CEC;
+
+  --glass-bg: rgba(15, 23, 42, 0.45);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+
+  --glass-dark-bg: rgba(15, 23, 42, 0.6);
+  --glass-dark-border: rgba(255, 255, 255, 0.08);
+  --glass-sidebar-bg: rgba(11, 19, 43, 0.4);
+  --glass-sidebar-border: rgba(255, 255, 255, 0.08);
 }
 
 html, body {
@@ -50,6 +82,7 @@ html, body {
   margin: 0;
   font-family: 'Poppins', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   color: var(--foreground);
+  transition: color 0.3s ease;
 }
 
 .glass {
@@ -58,29 +91,44 @@ html, body {
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--glass-border);
   box-shadow: var(--glass-shadow);
+  transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .glass-dark {
-  background: rgba(255, 255, 255, 0.7);
+  background: var(--glass-dark-bg);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.5);
+  border: 1px solid var(--glass-dark-border);
+  transition: background 0.3s ease, border-color 0.3s ease;
 }
 
 .sidebar-glass {
-  background: rgba(255, 255, 255, 0.5);
+  background: var(--glass-sidebar-bg);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border-right: 1px solid rgba(255, 255, 255, 0.4);
+  border-right: 1px solid var(--glass-sidebar-border);
   box-shadow: var(--glass-shadow);
+  transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .sky-gradient {
   background: linear-gradient(180deg, #A3C9E2 0%, #E0F2F1 100%);
+  transition: background 0.5s ease;
+}
+
+.dark .sky-gradient {
+  background: linear-gradient(180deg, #0B132B 0%, #1C2541 100%);
 }
 
 .cloud-anim {
   animation: float 120s linear infinite;
+  transition: fill 0.5s ease, opacity 0.5s ease, filter 0.5s ease;
+}
+
+.dark .cloud-anim {
+  fill: #81D4FA;
+  opacity: 0.12;
+  filter: blur(1px) drop-shadow(0 0 8px rgba(129, 212, 250, 0.2));
 }
 
 @keyframes float {
