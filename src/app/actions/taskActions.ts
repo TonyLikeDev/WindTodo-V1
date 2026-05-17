@@ -174,6 +174,10 @@ export async function updateTask(taskId: string, data: {
   startDate?: Date | null
   endDate?: Date | null
 }) {
+  // Optimistic / draft tasks have ids like "temp-<timestamp>".
+  // They don't exist in the DB yet, so skip silently.
+  if (taskId.startsWith('temp-')) return null
+
   const userId = await requireUserId()
 
   const existing = await loadTaskForUser(taskId, userId)
@@ -269,4 +273,41 @@ export async function deleteTask(taskId: string) {
   if (!existing) return
   await prisma.task.delete({ where: { id: taskId } })
   revalidatePath('/')
+}
+
+// Returns all tasks (with startDate or endDate) accessible to the current user,
+// including project name/color and list name for calendar display.
+export async function getCalendarTasks() {
+  const user = await getAuthUser()
+  if (!user) return []
+
+  return prisma.task.findMany({
+    where: {
+      list: {
+        project: {
+          OR: [
+            { userId: user.id },
+            { members: { some: { userId: user.id } } },
+          ],
+        },
+      },
+      OR: [
+        { startDate: { not: null } },
+        { endDate: { not: null } },
+      ],
+    },
+    include: {
+      creator: true,
+      assignee: true,
+      list: {
+        select: {
+          name: true,
+          project: {
+            select: { id: true, name: true, color: true },
+          },
+        },
+      },
+    },
+    orderBy: [{ startDate: 'asc' }, { createdAt: 'asc' }],
+  })
 }
