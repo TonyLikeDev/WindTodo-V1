@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import EffectsCanvas from "@/components/EffectsCanvas";
 
 const poppins = Poppins({
   variable: "--font-poppins",
@@ -33,6 +34,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           {children}
+          <EffectsCanvas />
         </ThemeProvider>
       </body>
     </html>

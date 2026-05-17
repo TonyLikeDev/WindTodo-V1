@@ -11,6 +11,7 @@ import {
 } from '@/app/actions/taskActions';
 import { getProjects } from '@/app/actions/projectActions';
 import useSWR from 'swr';
+import { playCelestialChime } from './EffectsCanvas';
 import { Plus, Trash2 } from 'lucide-react';
 
 type Task = {
@@ -142,7 +143,17 @@ export default function TaskList({ title, listId, placeholder, bgColor }: { titl
                 <div className="flex items-center gap-2">
                   <select
                     value={task.status}
-                    onChange={(e) => updateStatus(task.id, e.target.value as 'TODO' | 'IN_PROGRESS' | 'DONE')}
+                    onChange={(e) => {
+                      const nextVal = e.target.value as 'TODO' | 'IN_PROGRESS' | 'DONE';
+                      if (nextVal === 'DONE' && task.status !== 'DONE') {
+                        playCelestialChime();
+                        const rect = e.currentTarget.getBoundingClientRect();
+                        const x = rect.left + rect.width / 2;
+                        const y = rect.top + rect.height / 2;
+                        window.dispatchEvent(new CustomEvent('star-confetti', { detail: { x, y } }));
+                      }
+                      updateStatus(task.id, nextVal);
+                    }}
                     className={`text-[9px] font-bold uppercase tracking-wider rounded-md px-1.5 py-0.5 border transition-all cursor-pointer outline-none ${
                       task.status === 'DONE' ? 'bg-green-100 dark:bg-green-950/30 border-green-300/60 dark:border-green-800/30 text-green-700 dark:text-green-400' :
                       task.status === 'IN_PROGRESS' ? 'bg-blue-100 dark:bg-blue-950/30 border-blue-300/60 dark:border-blue-800/30 text-blue-700 dark:text-blue-400' :
