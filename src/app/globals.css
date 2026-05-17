@@ -221,3 +221,14 @@ html, body {
     flex-direction: column;
   }
 }
+
+/* Force light autofill on login and signup forms even if parent has dark class */
+.light-autofill input:-webkit-autofill,
+.light-autofill input:-webkit-autofill:hover, 
+.light-autofill input:-webkit-autofill:focus, 
+.light-autofill input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px rgba(255, 255, 255, 0.85) inset !important;
+  -webkit-text-fill-color: #2C3E50 !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+

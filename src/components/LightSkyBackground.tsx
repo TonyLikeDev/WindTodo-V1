@@ -17,7 +17,7 @@ const Cloud = ({ className, style }: { className?: string; style?: React.CSSProp
 
 export default function LightSkyBackground({ children }: { children: React.ReactNode }) {
   return (
-    <div className="relative min-h-screen w-full bg-gradient-to-b from-[#A3C9E2] to-[#E0F2F1] overflow-hidden flex flex-col">
+    <div className="relative min-h-screen w-full bg-gradient-to-b from-[#A3C9E2] to-[#E0F2F1] overflow-hidden flex flex-col light-autofill">
       <div className="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] bg-white/20 blur-[120px] rounded-full pointer-events-none" />
       <div className="absolute bottom-[-10%] left-[-5%] w-[400px] h-[400px] bg-purple-200/20 blur-[100px] rounded-full pointer-events-none" />
 
