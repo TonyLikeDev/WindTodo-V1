@@ -98,6 +98,76 @@ export async function getAllUsers() {
   });
 }
 
+export type ProjectPeerRow = {
+  user: {
+    id: string;
+    email: string;
+    name: string | null;
+    avatarUrl: string | null;
+    isPending: boolean;
+  };
+  projectId: string;
+  projectName: string;
+  role: 'ADMIN' | 'MEMBER';
+};
+
+// One row per (user × shared project). Returns every membership across every
+// project the current user is in or created — including the current user's own
+// rows so they can see their own roles.
+export async function getProjectPeers(): Promise<ProjectPeerRow[]> {
+  const me = await getAuthUser();
+  if (!me) return [];
+
+  const projects = await prisma.project.findMany({
+    where: {
+      OR: [
+        { userId: me.id },
+        { members: { some: { userId: me.id } } },
+      ],
+    },
+    select: {
+      id: true,
+      name: true,
+      userId: true,
+      members: {
+        include: { user: true },
+        orderBy: { user: { name: 'asc' } },
+      },
+    },
+    orderBy: { name: 'asc' },
+  });
+
+  const rows: ProjectPeerRow[] = [];
+  for (const project of projects) {
+    for (const m of project.members) {
+      // Creator is implicitly ADMIN even if their stored role drifted.
+      const effectiveRole: 'ADMIN' | 'MEMBER' =
+        project.userId === m.userId ? 'ADMIN' : m.role;
+      rows.push({
+        user: {
+          id: m.user.id,
+          email: m.user.email,
+          name: m.user.name,
+          avatarUrl: m.user.avatarUrl,
+          isPending: m.user.id.startsWith('pending:'),
+        },
+        projectId: project.id,
+        projectName: project.name,
+        role: effectiveRole,
+      });
+    }
+  }
+
+  rows.sort((a, b) => {
+    const an = (a.user.name || a.user.email).toLowerCase();
+    const bn = (b.user.name || b.user.email).toLowerCase();
+    if (an !== bn) return an.localeCompare(bn);
+    return a.projectName.localeCompare(b.projectName);
+  });
+
+  return rows;
+}
+
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export async function addUserByEmail(emailRaw: string) {

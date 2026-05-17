@@ -41,22 +41,22 @@ export type TaskPatch = {
 };
 
 const PRIORITY_STYLES: Record<TaskPriority, string> = {
-  LOW: 'bg-slate-500/20 text-slate-300 border-slate-500/30',
-  MEDIUM: 'bg-blue-500/20 text-blue-300 border-blue-500/30',
+  LOW: 'bg-muted/20 text-muted-foreground border-muted/30',
+  MEDIUM: 'bg-primary/20 text-primary border-primary/30',
   HIGH: 'bg-orange-500/20 text-orange-300 border-orange-500/30',
   URGENT: 'bg-red-500/25 text-red-300 border-red-500/40',
 };
 
 const STATUS_STYLES: Record<TaskStatus, string> = {
-  TODO: 'bg-slate-500/20 text-slate-300 border-slate-500/30',
-  IN_PROGRESS: 'bg-blue-500/20 text-blue-300 border-blue-500/30',
-  DONE: 'bg-green-500/20 text-green-300 border-green-500/30',
+  TODO: 'bg-muted/20 text-muted-foreground border-muted/30',
+  IN_PROGRESS: 'bg-primary/20 text-primary border-primary/30',
+  DONE: 'bg-accent-green/20 text-accent-green border-accent-green/30',
 };
 
 const TYPE_STYLES: Record<TaskType, string> = {
-  TASK: 'bg-white/10 text-gray-200 border-white/15',
-  STORY: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30',
-  BUG: 'bg-rose-500/20 text-rose-300 border-rose-500/30',
+  TASK: 'bg-gray-200/80 text-gray-700 border-gray-300',
+  STORY: 'bg-green-100/80 text-green-700 border-green-300',
+  BUG: 'bg-rose-100/80 text-rose-700 border-rose-300',
 };
 
 function toDateInput(d: Date | null): string {
@@ -134,9 +134,9 @@ export default function TaskDetailModal({
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div className="w-full max-w-4xl my-12 bg-[#1a1a1a] border border-white/10 rounded-2xl shadow-2xl overflow-hidden animate-bubble-pop">
+      <div className="w-full max-w-4xl my-12 bg-background border border-border rounded-2xl shadow-2xl overflow-hidden animate-bubble-pop">
         {/* Header */}
-        <div className="flex items-start justify-between px-6 pt-5 pb-4 border-b border-white/5">
+        <div className="flex items-start justify-between px-6 pt-5 pb-4 border-b border-border/50">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-2">
               <span className={`text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded border ${TYPE_STYLES[task.type]}`}>
@@ -157,20 +157,20 @@ export default function TaskDetailModal({
                   (e.target as HTMLInputElement).blur();
                 }
               }}
-              className="w-full text-2xl font-bold text-white bg-transparent border-0 focus:outline-none focus:ring-1 focus:ring-white/20 rounded px-2 py-1 -mx-2"
+              className="w-full text-2xl font-bold text-foreground bg-transparent border-0 focus:outline-none focus:ring-1 focus:ring-ring/20 rounded px-2 py-1 -mx-2"
             />
           </div>
           <div className="flex items-center gap-1 ml-4 flex-shrink-0">
             <button
               onClick={onDelete}
-              className="text-gray-400 hover:text-red-400 hover:bg-red-500/10 p-2 rounded-lg transition-colors"
+              className="text-muted-foreground hover:text-red-400 hover:bg-red-500/10 p-2 rounded-lg transition-colors"
               title="Delete task"
             >
               <Trash2 className="w-4 h-4" />
             </button>
             <button
               onClick={onClose}
-              className="text-gray-400 hover:text-white hover:bg-white/10 p-2 rounded-lg transition-colors"
+              className="text-muted-foreground hover:text-foreground hover:bg-white/10 p-2 rounded-lg transition-colors"
               title="Close"
             >
               <X className="w-4 h-4" />
@@ -182,7 +182,7 @@ export default function TaskDetailModal({
         <div className="grid grid-cols-1 md:grid-cols-[1fr_280px] gap-6 px-6 py-6">
           {/* Left: description */}
           <div>
-            <div className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">
+            <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-2">
               Description
             </div>
             <textarea
@@ -191,13 +191,13 @@ export default function TaskDetailModal({
               onChange={(e) => setDescription(e.target.value)}
               onBlur={commitDescription}
               placeholder="Add a description…"
-              className="w-full min-h-[120px] bg-white/[0.04] border border-white/10 rounded-xl px-3 py-2.5 text-sm text-gray-100 placeholder-gray-600 focus:outline-none focus:ring-1 focus:ring-white/20 resize-none transition-all"
+              className="w-full min-h-[120px] bg-white/[0.04] border border-border rounded-xl px-3 py-2.5 text-sm text-foreground placeholder-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring/20 resize-none transition-all"
             />
           </div>
 
           {/* Right: properties */}
           <div className="space-y-3">
-            <div className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">
+            <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1">
               Properties
             </div>
 
@@ -205,11 +205,11 @@ export default function TaskDetailModal({
               <select
                 value={task.status}
                 onChange={(e) => onChange({ status: e.target.value as TaskStatus })}
-                className={`text-xs font-semibold px-2.5 py-1 rounded-md border focus:outline-none focus:ring-1 focus:ring-white/30 cursor-pointer ${STATUS_STYLES[task.status]}`}
+                className={`text-xs font-semibold px-2.5 py-1 rounded-md border focus:outline-none focus:ring-1 focus:ring-ring/30 cursor-pointer ${STATUS_STYLES[task.status]}`}
               >
-                <option value="TODO" className="bg-[#1a1a1a]">To Do</option>
-                <option value="IN_PROGRESS" className="bg-[#1a1a1a]">In Progress</option>
-                <option value="DONE" className="bg-[#1a1a1a]">Done</option>
+                <option value="TODO" className="bg-background">To Do</option>
+                <option value="IN_PROGRESS" className="bg-background">In Progress</option>
+                <option value="DONE" className="bg-background">Done</option>
               </select>
             </PropRow>
 
@@ -217,12 +217,12 @@ export default function TaskDetailModal({
               <select
                 value={task.priority}
                 onChange={(e) => onChange({ priority: e.target.value as TaskPriority })}
-                className={`text-xs font-semibold px-2.5 py-1 rounded-md border focus:outline-none focus:ring-1 focus:ring-white/30 cursor-pointer ${PRIORITY_STYLES[task.priority]}`}
+                className={`text-xs font-semibold px-2.5 py-1 rounded-md border focus:outline-none focus:ring-1 focus:ring-ring/30 cursor-pointer ${PRIORITY_STYLES[task.priority]}`}
               >
-                <option value="LOW" className="bg-[#1a1a1a]">Low</option>
-                <option value="MEDIUM" className="bg-[#1a1a1a]">Medium</option>
-                <option value="HIGH" className="bg-[#1a1a1a]">High</option>
-                <option value="URGENT" className="bg-[#1a1a1a]">Urgent</option>
+                <option value="LOW" className="bg-background">Low</option>
+                <option value="MEDIUM" className="bg-background">Medium</option>
+                <option value="HIGH" className="bg-background">High</option>
+                <option value="URGENT" className="bg-background">Urgent</option>
               </select>
             </PropRow>
 
@@ -230,11 +230,11 @@ export default function TaskDetailModal({
               <select
                 value={task.type}
                 onChange={(e) => onChange({ type: e.target.value as TaskType })}
-                className={`text-xs font-semibold px-2.5 py-1 rounded-md border focus:outline-none focus:ring-1 focus:ring-white/30 cursor-pointer ${TYPE_STYLES[task.type]}`}
+                className={`text-xs font-semibold px-2.5 py-1 rounded-md border focus:outline-none focus:ring-1 focus:ring-ring/30 cursor-pointer ${TYPE_STYLES[task.type]}`}
               >
-                <option value="TASK" className="bg-[#1a1a1a]">Task</option>
-                <option value="STORY" className="bg-[#1a1a1a]">Story</option>
-                <option value="BUG" className="bg-[#1a1a1a]">Bug</option>
+                <option value="TASK" className="bg-background">Task</option>
+                <option value="STORY" className="bg-background">Story</option>
+                <option value="BUG" className="bg-background">Bug</option>
               </select>
             </PropRow>
 
@@ -242,11 +242,11 @@ export default function TaskDetailModal({
               <select
                 value={task.assigneeId ?? ''}
                 onChange={(e) => onChange({ assigneeId: e.target.value || null })}
-                className="text-xs px-2.5 py-1 rounded-md border bg-white/5 border-white/10 text-gray-100 focus:outline-none focus:ring-1 focus:ring-white/30 cursor-pointer min-w-[140px]"
+                className="text-xs px-2.5 py-1 rounded-md border bg-white/5 border-border text-foreground focus:outline-none focus:ring-1 focus:ring-ring/30 cursor-pointer min-w-[140px]"
               >
-                <option value="" className="bg-[#1a1a1a]">Unassigned</option>
+                <option value="" className="bg-background">Unassigned</option>
                 {members.map((m) => (
-                  <option key={m.id} value={m.id} className="bg-[#1a1a1a]">
+                  <option key={m.id} value={m.id} className="bg-background">
                     {m.name || m.email}
                   </option>
                 ))}
@@ -258,7 +258,7 @@ export default function TaskDetailModal({
                 type="date"
                 value={toDateInput(task.startDate)}
                 onChange={(e) => onChange({ startDate: fromDateInput(e.target.value) })}
-                className="text-xs px-2 py-1 rounded-md border bg-white/5 border-white/10 text-gray-100 focus:outline-none focus:ring-1 focus:ring-white/30 cursor-pointer"
+                className="text-xs px-2 py-1 rounded-md border bg-white/5 border-border text-foreground focus:outline-none focus:ring-1 focus:ring-ring/30 cursor-pointer"
               />
             </PropRow>
 
@@ -267,17 +267,17 @@ export default function TaskDetailModal({
                 type="date"
                 value={toDateInput(task.endDate)}
                 onChange={(e) => onChange({ endDate: fromDateInput(e.target.value) })}
-                className="text-xs px-2 py-1 rounded-md border bg-white/5 border-white/10 text-gray-100 focus:outline-none focus:ring-1 focus:ring-white/30 cursor-pointer"
+                className="text-xs px-2 py-1 rounded-md border bg-white/5 border-border text-foreground focus:outline-none focus:ring-1 focus:ring-ring/30 cursor-pointer"
               />
             </PropRow>
           </div>
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-3 border-t border-white/5 text-[11px] text-gray-500">
+        <div className="px-6 py-3 border-t border-border/50 text-[11px] text-muted-foreground">
           Created {new Date(task.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
           {task.creator && (
-            <> · by <span className="text-gray-300">{task.creator.name || task.creator.email}</span></>
+            <> · by <span className="text-foreground/70">{task.creator.name || task.creator.email}</span></>
           )}
         </div>
       </div>
@@ -296,8 +296,8 @@ function PropRow({
 }) {
   return (
     <div className="flex items-center justify-between gap-2 py-1">
-      <div className="flex items-center gap-2 text-xs text-gray-400">
-        <span className="text-gray-500">{icon}</span>
+      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+        <span className="text-muted-foreground/70">{icon}</span>
         <span>{label}</span>
       </div>
       <div className="flex-shrink-0">{children}</div>

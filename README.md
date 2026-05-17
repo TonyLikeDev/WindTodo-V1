@@ -1,36 +1,134 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# WindTodo — The Purified Kanban Workspace
 
-## Getting Started
+A peaceful, sky-inspired collaborative task and project management system. Built with a glassmorphism-first philosophy, optimized for real-time collaboration, and hardened for performance.
 
-First, run the development server:
+## 🚀 Tech Stack
+
+- **Frontend:** Next.js 16 (App Router), React 19, TypeScript
+- **Styling:** Tailwind CSS 4, Custom Glassmorphism Design System
+- **Database:** PostgreSQL (Supabase)
+- **ORM:** Prisma 6
+- **Auth:** Supabase Authentication (SSR + Session Cookies)
+- **Data Fetching:** SWR (Optimistic UI, Stale-While-Revalidate)
+- **Charts:** Recharts (Analytics Dashboard)
+- **Icons:** Lucide React
+- **Deployment:** Vercel (Tokyo Region)
+
+## ️ Project Structure
+
+```
+WindTodo-V1/
+├── prisma/
+│   ── schema.prisma              # Database schema (User, Task, Project, ProjectMember, BoardList)
+├── src/
+│   ├── app/                       # Next.js App Router
+│   │   ├── actions/               # Server Actions (auth, tasks, projects, stats)
+│   │   ├── dashboard/             # Authenticated workspace (overview, stats, users, settings)
+│   │   ├── projects/[projectId]/  # Dynamic Kanban board per project
+│   │   ├── login/ & signup/       # Auth pages
+│   │   └── layout.tsx             # Root layout (Poppins font, metadata)
+│   ├── components/
+│   │   ├── ProjectBoard.tsx       # Full Kanban board with custom drag-and-drop
+│   │   ├── BoardColumn.tsx        # Individual column with task cards
+│   │   ├── BoardDragContext.tsx   # Custom DnD implementation (no external library)
+│   │   ├── TaskDetailModal.tsx    # Task edit modal with properties panel
+│   │   ├── StatsDashboard.tsx     # Analytics with pie, bar, and radial charts
+│   │   ├── SkyBackground.tsx      # Animated sky/cloud background
+│   │   ├── GlassCard.tsx          # Reusable glassmorphism card
+│   │   └── Sidebar.tsx            # Dashboard navigation
+│   ├── lib/
+│   │   └── prisma.ts              # PrismaClient singleton (PgBouncer-aware)
+│   └── utils/supabase/            # Supabase SSR client, browser client, middleware
+├── next.config.ts                 # Image config, Prisma engine tracing
+├── vercel.json                    # Deploy region configuration
+└── package.json                   # Dependencies and scripts
+```
+
+## ⚙️ Core Principles
+
+### Collaboration-First
+- Role-based access control per project (ADMIN / MEMBER)
+- Share boards by email or username
+- Real-time member avatars in board headers
+- Project creator is implicit ADMIN
+
+### Performance Optimized
+- Custom drag-and-drop implementation (zero external DnD dependencies)
+- SWR with optimistic updates and deduping intervals
+- `React.cache()` for auth user resolution to avoid redundant DB calls
+- In-memory sync cache to skip redundant user syncs per server instance
+- PgBouncer connection pooling for serverless environments
+
+### Data Integrity
+- Server Actions handle all mutations with authorization checks
+- Cascade deletes: BoardList → Tasks, Project → ProjectMember
+- Composite unique constraints on ProjectMember (projectId, userId)
+- Indexed queries on frequently accessed fields (userId, listId, position)
+
+### UI/UX
+- Glassmorphism design system (`.glass`, `.glass-dark`, `.sidebar-glass`)
+- Sky-themed animated background with cloud layers
+- Poppins font family for clean typography
+- Responsive design with mobile sidebar toggle
+- Loading skeletons and smooth animations throughout
+
+## ️ Getting Started
+
+### Prerequisites
+- Node.js 20+
+- npm or pnpm
+- Supabase project (for Auth + PostgreSQL)
+
+### Installation
+
+```bash
+npm install
+```
+
+### Environment Setup
+
+Copy `.env.example` to `.env.local` and fill in:
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=<your-supabase-project-url>
+NEXT_PUBLIC_SUPABASE_ANON_KEY=<your-supabase-anon-key>
+DATABASE_URL=postgresql://<user>:<pass>@<pooler-host>:6543/<db>?pgbouncer=true&connection_limit=1
+DIRECT_URL=postgresql://<user>:<pass>@<pooler-host>:5432/<db>
+```
+
+### Database Management
+
+```bash
+npx prisma generate    # Generate Prisma Client
+npx prisma db push     # Apply schema to database
+```
+
+### Development
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Build for Production
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run build    # Generates Prisma Client + builds Next.js
+npm run start    # Starts production server
+```
 
-## Learn More
+## 🧪 Quality Assurance
 
-To learn more about Next.js, take a look at the following resources:
+- **Typecheck:** `npx tsc --noEmit`
+- **Lint:** `npm run lint`
+- **Schema Validation:** `npx prisma validate`
+- **Health Check:** `npx prisma db pull` to verify schema sync
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+##  Deployment
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Deployed on Vercel in the Tokyo region (`hnd1`). Prisma engine binaries are included in output tracing for serverless compatibility.
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+vercel --prod
+```

@@ -96,7 +96,7 @@ export async function createMyTaskInProject(title: string, projectId: string) {
       project: {
         OR: [
           { userId },
-          { members: { some: { id: userId } } },
+          { members: { some: { userId } } },
         ],
       },
     },
