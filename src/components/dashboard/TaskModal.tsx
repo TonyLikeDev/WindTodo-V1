@@ -39,7 +39,7 @@ export default function TaskModal({ task, colTitle, onClose, onUpdate }: TaskMod
         className="glass-dark relative w-full max-w-6xl h-full max-h-[90vh] bg-white/80 rounded-[3.5rem] shadow-2xl border border-white/60 overflow-hidden flex flex-col md:flex-row z-[201]"
       >
         {/* Sidebar Info */}
-        <aside className="w-full md:w-80 border-b md:border-b-0 md:border-r border-white/40 p-8 flex flex-col bg-white/30 backdrop-blur-md">
+        <aside className="w-full md:w-80 border-b md:border-b-0 md:border-r border-white/40 p-8 flex flex-col bg-white/30 backdrop-blur-md overflow-y-auto custom-scrollbar">
           <div className="flex items-center gap-3 mb-12 text-primary">
              <Hash size={28} className="drop-shadow-lg" />
              <span className="text-[10px] font-black uppercase tracking-[0.4em] opacity-60">Chi tiết nhiệm vụ</span>
@@ -66,7 +66,7 @@ export default function TaskModal({ task, colTitle, onClose, onUpdate }: TaskMod
                   value={task.title}
                   onChange={(e) => onUpdate({ ...task, title: e.target.value })}
                   rows={2}
-                  className={`text-2xl font-black bg-white/40 border border-white/60 rounded-3xl px-6 py-5 w-full outline-none focus:ring-4 focus:ring-primary/20 transition-all resize-none shadow-inner ${
+                  className={`text-2xl font-black bg-white/40 border border-white/60 rounded-3xl px-6 py-5 w-full outline-none focus:ring-4 focus:ring-primary/20 transition-all resize-y shadow-inner ${
                     task.isCompleted ? 'line-through text-muted-foreground opacity-60' : 'text-foreground'
                   }`}
                 />
@@ -74,7 +74,7 @@ export default function TaskModal({ task, colTitle, onClose, onUpdate }: TaskMod
 
              <div className="space-y-4">
                 <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-4">Thuộc tính</p>
-                <InfoItem icon={<Calendar size={14} />} label="Hạn chót" value={task.dueDate} isDate onUpdate={(v) => onUpdate({ ...task, dueDate: v })} />
+                <InfoItem icon={<Calendar size={14} />} label="Hạn chót" value={task.dueDate || ""} isDate onUpdate={(v) => onUpdate({ ...task, dueDate: v || null })} />
                 <InfoItem icon={<Tag size={14} />} label="Phân loại" value={task.label} onUpdate={(v) => onUpdate({ ...task, label: v })} />
                 <InfoItem icon={<ChevronRight size={14} />} label="Danh sách" value={colTitle} disabled />
              </div>

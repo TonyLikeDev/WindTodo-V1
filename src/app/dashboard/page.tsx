@@ -25,7 +25,11 @@ export default async function DashboardPage() {
     // 2. If no project exists, create a default "Team Board"
     if (!targetProject) {
       const defaultWorkspace = workspaces[0] || { id: undefined };
-      targetProject = await createProject("SkyTodo Workspace", "#5D9CEC", defaultWorkspace.id);
+      const newProj = await createProject("SkyTodo Workspace", "#5D9CEC", defaultWorkspace.id);
+      targetProject = {
+        ...newProj,
+        _count: { lists: 3 }
+      };
     }
 
     projectId = targetProject.id;

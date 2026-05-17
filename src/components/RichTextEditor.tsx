@@ -23,7 +23,8 @@ import {
 
 interface RichTextEditorProps {
   content: any;
-  onChange: (content: any) => void;
+  onChange: (json: any, html: string) => void;
+  placeholder?: string;
 }
 
 const MenuBar = ({ editor }: { editor: any }) => {
@@ -79,7 +80,7 @@ const MenuBar = ({ editor }: { editor: any }) => {
   );
 };
 
-export default function RichTextEditor({ content, onChange }: RichTextEditorProps) {
+export default function RichTextEditor({ content, onChange, placeholder }: RichTextEditorProps) {
   const editor = useEditor({
     extensions: [
       StarterKit,
@@ -93,12 +94,12 @@ export default function RichTextEditor({ content, onChange }: RichTextEditorProp
         openOnClick: false,
       }),
       Placeholder.configure({
-        placeholder: 'Bắt đầu gõ nội dung công việc (nhấn / để hiện lệnh)...',
+        placeholder: placeholder || 'Bắt đầu gõ nội dung công việc (nhấn / để hiện lệnh)...',
       }),
     ],
     content: content,
     onUpdate: ({ editor }) => {
-      onChange(editor.getJSON());
+      onChange(editor.getJSON(), editor.getHTML());
     },
     editorProps: {
       attributes: {

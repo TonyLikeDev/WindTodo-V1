@@ -5,6 +5,7 @@ import Sidebar from "@/components/Sidebar";
 import ChatSidebar from "@/components/ChatSidebar";
 import SkyBackground from "@/components/SkyBackground";
 import { Menu, X, MessageSquare } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function DashboardLayout({
   children,
@@ -12,7 +13,7 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }>) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isChatOpen, setIsChatOpen] = useState(true);
+  const [isChatOpen, setIsChatOpen] = useState(false);
 
   return (
     <SkyBackground>
@@ -56,23 +57,35 @@ export default function DashboardLayout({
           </div>
 
           <div className="flex-grow overflow-y-auto p-4 md:p-8 custom-scrollbar relative z-10">
-            <div className="max-w-7xl mx-auto w-full min-h-full">
+            <div className="max-w-none w-full min-h-full px-1 md:px-3">
               {children}
             </div>
           </div>
         </main>
 
 
-        {/* Right Sidebar (Chat) */}
-        <div className={`hidden xl:block transition-all duration-500 ease-in-out ${isChatOpen ? "w-80 opacity-100" : "w-0 opacity-0 overflow-hidden"}`}>
-          <ChatSidebar />
-        </div>
+        {/* Floating Chat Sidebar (Messenger Style) */}
+        <AnimatePresence>
+          {isChatOpen && (
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.85, y: 50 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.85, y: 50 }}
+              transition={{ type: "spring", stiffness: 300, damping: 25 }}
+              className="fixed bottom-28 right-8 z-[70] w-96 max-w-[calc(100vw-2rem)] h-[600px] max-h-[80vh] pointer-events-auto p-0"
+            >
+              <ChatSidebar onClose={() => setIsChatOpen(false)} />
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-        {/* Floating Chat Toggle (Desktop) */}
+        {/* Messenger-style Floating Bubble Toggle Button */}
         <button 
           onClick={() => setIsChatOpen(!isChatOpen)}
-          className={`hidden md:flex fixed bottom-8 right-8 z-[70] w-14 h-14 items-center justify-center rounded-2xl shadow-2xl transition-all hover:scale-110 active:scale-95 ${
-            isChatOpen ? 'bg-white/60 text-primary border border-white/60 backdrop-blur-md' : 'bg-primary text-white shadow-primary/30'
+          className={`fixed bottom-8 right-8 z-[80] w-14 h-14 flex items-center justify-center rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.12)] transition-all hover:scale-110 active:scale-95 border cursor-pointer ${
+            isChatOpen 
+              ? 'bg-white text-primary border-white/60 backdrop-blur-md ring-4 ring-primary/20' 
+              : 'bg-primary text-white border-transparent shadow-primary/20'
           }`}
         >
           {isChatOpen ? <X size={24} /> : <MessageSquare size={24} />}

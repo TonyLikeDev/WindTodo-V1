@@ -15,7 +15,8 @@ import {
   ArrowLeft,
   Loader2,
   ChevronRight,
-  UserCheck
+  UserCheck,
+  CheckCircle2
 } from 'lucide-react';
 import useSWR from 'swr';
 import { getCardById, updateCard, createSubCard, deleteCard } from '@/app/actions/taskActions';

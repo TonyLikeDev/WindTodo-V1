@@ -63,17 +63,17 @@ export async function getProjectStats(projectId: string) {
 
   const tasks = await prisma.task.findMany({
     where: { listId: { in: listIds } },
-    include: { assignee: true }
+    include: { assignees: true }
   });
 
   const totalTasks = tasks.length;
   const completedTasks  = tasks.filter(t => t.status === 'DONE').length;
   const inProgressTasks = tasks.filter(t => t.status === 'IN_PROGRESS').length;
   const todoTasks       = tasks.filter(t => t.status === 'TODO').length;
-  const unassignedCount = tasks.filter(t => !t.assigneeId).length;
+  const unassignedCount = tasks.filter(t => !t.assignees || t.assignees.length === 0).length;
 
   const userStats = project.members.map((member, idx) => {
-    const userTasks   = tasks.filter(t => t.assigneeId === member.id);
+    const userTasks   = tasks.filter(t => t.assignees?.some(a => a.id === member.id));
     const done        = userTasks.filter(t => t.status === 'DONE').length;
     const inProg      = userTasks.filter(t => t.status === 'IN_PROGRESS').length;
     const todo        = userTasks.filter(t => t.status === 'TODO').length;

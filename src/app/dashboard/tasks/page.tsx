@@ -1,29 +1,44 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import TaskList from "@/components/TaskList";
 import { Sparkles, Filter, Search, CheckCircle2, Loader2, Calendar, Target } from "lucide-react";
 import useSWR from "swr";
 import { getAllUserTasks } from "@/app/actions/taskActions";
 import { motion } from "framer-motion";
+import { getDemoColumns } from "@/utils/demoHelper";
 
 export default function TasksPage() {
   const { data: tasks = [], isLoading } = useSWR("all-tasks", getAllUserTasks);
   const [search, setSearch] = useState("");
+  const [demoTasks, setDemoTasks] = useState<any[]>([]);
+
+  useEffect(() => {
+    const cols = getDemoColumns();
+    const flattened = cols.flatMap((col: any) => col.cards.map((card: any) => ({
+      ...card,
+      list: { project: { name: "SkyTodo Workspace" } }
+    })));
+    setDemoTasks(flattened);
+  }, []);
+
+  const effectiveTasks = useMemo(() => {
+    return tasks.length > 0 ? tasks : demoTasks;
+  }, [tasks, demoTasks]);
 
   const filteredTasks = useMemo(() => {
-    return tasks.filter((t: any) => 
+    return effectiveTasks.filter((t: any) => 
       t.title.toLowerCase().includes(search.toLowerCase()) ||
       t.list?.project?.name?.toLowerCase().includes(search.toLowerCase())
     );
-  }, [tasks, search]);
+  }, [effectiveTasks, search]);
 
   const stats = useMemo(() => {
-    const total = tasks.length;
-    const completed = tasks.filter((t: any) => t.status === 'DONE').length;
+    const total = effectiveTasks.length;
+    const completed = effectiveTasks.filter((t: any) => t.status === 'DONE').length;
     const active = total - completed;
     return { total, completed, active };
-  }, [tasks]);
+  }, [effectiveTasks]);
 
   if (isLoading) {
     return (

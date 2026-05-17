@@ -59,19 +59,19 @@ export default function GamificationBar() {
         </div>
 
         {/* XP Progress Bar */}
-        <div className="flex-1 max-w-48">
-          <div className="flex items-center justify-between mb-1">
-            <span className="text-[9px] font-black text-muted-foreground uppercase tracking-widest flex items-center gap-1">
-              <Zap size={10} className="text-yellow-500" /> XP
+        <div className="flex-1 max-w-[280px]">
+          <div className="flex items-center justify-between mb-1.5">
+            <span className="text-[9px] font-black text-muted-foreground uppercase tracking-widest flex items-center gap-1.5">
+              <Zap size={11} className="text-yellow-500 animate-pulse" /> XP Tích lũy
             </span>
-            <span className="text-[9px] font-black text-primary">{progress}/{XP_PER_LEVEL}</span>
+            <span className="text-[9px] font-black text-primary bg-primary/10 px-2 py-0.5 rounded-full border border-primary/20">{progress}/{XP_PER_LEVEL} XP</span>
           </div>
-          <div className="w-full h-2 bg-white/40 rounded-full overflow-hidden border border-white/40">
+          <div className="w-full h-3.5 bg-white/40 rounded-full overflow-hidden border border-white/40 p-0.5 shadow-inner">
             <motion.div
-              className="h-full bg-gradient-to-r from-primary to-accent rounded-full"
+              className="h-full bg-gradient-to-r from-primary to-accent rounded-full shadow-md"
               initial={{ width: 0 }}
               animate={{ width: `${progressPct}%` }}
-              transition={{ duration: 1, ease: "easeOut" }}
+              transition={{ duration: 1.2, ease: "easeOut" }}
             />
           </div>
         </div>

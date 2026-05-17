@@ -13,14 +13,19 @@ import {
   Smile,
   Image as ImageIcon,
   Paperclip,
-  User
+  User,
+  X
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { getProjectMessages, getWorkspaceMessages, sendMessage } from "@/app/actions/chatActions";
 import { getWorkspacesWithProjects } from "@/app/actions/projectActions";
 import { useRealtimeChat } from "@/lib/useRealtimeChat";
 
-export default function ChatSidebar() {
+interface ChatSidebarProps {
+  onClose?: () => void;
+}
+
+export default function ChatSidebar({ onClose }: ChatSidebarProps = {}) {
   const params = useParams();
   const projectId = params?.id as string;
   const [message, setMessage] = useState("");
@@ -92,7 +97,7 @@ export default function ChatSidebar() {
   }, [messages, activeTab]);
 
   return (
-    <aside className="h-full w-80 p-6 flex flex-col animate-in slide-in-from-right duration-500">
+    <aside className="h-full w-full flex flex-col">
       <div className="flex flex-col h-full bg-white/20 backdrop-blur-2xl rounded-[2.5rem] border border-white/60 shadow-2xl shadow-sky-dark/10 overflow-hidden relative ring-1 ring-white/20">
         
         {/* Messenger-style Header */}
@@ -122,9 +127,19 @@ export default function ChatSidebar() {
                    </div>
                 </div>
              </div>
-             <button className="p-3 hover:bg-white/60 rounded-2xl transition-all text-muted-foreground/40 hover:text-foreground">
-                <MoreVertical size={20} />
-             </button>
+             <div className="flex items-center gap-1">
+               <button className="p-3 hover:bg-white/60 rounded-2xl transition-all text-muted-foreground/40 hover:text-foreground">
+                  <MoreVertical size={20} />
+               </button>
+               {onClose && (
+                 <button 
+                   onClick={onClose}
+                   className="p-3 hover:bg-red-500/10 hover:text-red-500 rounded-2xl transition-all text-muted-foreground/40 hover:text-red-500"
+                 >
+                    <X size={20} />
+                 </button>
+               )}
+             </div>
           </div>
 
           {/* Tab Switcher */}

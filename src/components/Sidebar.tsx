@@ -16,7 +16,8 @@ import {
   ChevronRight,
   FolderOpen,
   ChevronDown,
-  Layers
+  Layers,
+  Users
 } from "lucide-react";
 import { getWorkspacesWithProjects, createWorkspace } from "@/app/actions/projectActions";
 import { motion, AnimatePresence } from "framer-motion";
@@ -35,6 +36,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
     { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
     { href: "/dashboard/tasks", label: "My Tasks", icon: CheckCircle2 },
     { href: "/dashboard/calendar", label: "Calendar", icon: Calendar },
+    { href: "/dashboard/users", label: "Thành viên", icon: Users },
     { href: "/dashboard/settings", label: "Settings", icon: Settings },
   ];
 
@@ -135,7 +137,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                           className="p-1.5 hover:bg-white/40 rounded-lg text-muted-foreground hover:text-primary transition-all opacity-0 group-hover:opacity-100"
                           onClick={(e) => {
                             e.stopPropagation();
-                            alert('Member management coming soon!');
+                            window.location.href = '/dashboard/users';
                           }}
                         >
                           <Settings size={12} />

@@ -58,7 +58,7 @@ export default function NotionEditor({ content, onChange }: NotionEditorProps) {
     },
     editorProps: {
       attributes: {
-        class: 'prose prose-sm md:prose-base prose-primary max-w-none focus:outline-none min-h-[400px] text-foreground font-medium p-4',
+        class: 'prose prose-sm md:prose-base prose-primary max-w-none focus:outline-none min-h-[250px] text-foreground font-medium p-4',
       },
     },
   });

@@ -12,6 +12,7 @@ import { AnimatePresence } from "framer-motion";
 import TaskModal from "./TaskModal";
 import { moveTask, createTask, updateTask } from "@/app/actions/taskActions";
 import { useRealtimeBoard } from "@/lib/useRealtimeBoard";
+import { getDemoColumns, saveDemoColumns } from "@/utils/demoHelper";
 
 interface KanbanBoardProps {
   initialData: ColumnData[];
@@ -25,8 +26,18 @@ const KanbanBoard = memo(({ initialData, projectId }: KanbanBoardProps) => {
 
   useEffect(() => {
     setIsMounted(true);
-    setColumns(initialData);
-  }, [initialData]);
+    if (projectId === "demo-project") {
+      setColumns(getDemoColumns());
+    } else {
+      setColumns(initialData);
+    }
+  }, [initialData, projectId]);
+
+  useEffect(() => {
+    if (isMounted && projectId === "demo-project") {
+      saveDemoColumns(columns as any);
+    }
+  }, [columns, projectId, isMounted]);
 
   // --- Realtime Sync ---
   useRealtimeBoard(projectId);
@@ -110,8 +121,7 @@ const KanbanBoard = memo(({ initialData, projectId }: KanbanBoardProps) => {
     } : c));
   }, [projectId]);
 
-  const handleAdd = useCallback(async (colId: string) => {
-    const title = window.prompt("Tên nhiệm vụ:");
+  const handleAdd = useCallback(async (colId: string, title: string) => {
     if (!title) return;
     
     if (projectId === "demo-project") {
@@ -154,7 +164,7 @@ const KanbanBoard = memo(({ initialData, projectId }: KanbanBoardProps) => {
                 column={col} 
                 onTaskClick={(t) => setSelectedTask({ colId: col.id, task: t })} 
                 onToggleComplete={handleToggle}
-                onAddTask={() => handleAdd(col.id)} 
+                onAddTask={(title) => handleAdd(col.id, title)} 
               />
             ))}
             

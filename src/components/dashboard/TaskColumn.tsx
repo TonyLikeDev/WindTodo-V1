@@ -10,10 +10,19 @@ interface TaskColumnProps {
   column: ColumnData;
   onTaskClick: (task: Task) => void;
   onToggleComplete: (colId: string, cardId: string, e: React.MouseEvent) => void;
-  onAddTask: () => void;
+  onAddTask: (title: string) => void;
 }
 
 const TaskColumn = memo(({ column, onTaskClick, onToggleComplete, onAddTask }: TaskColumnProps) => {
+  const [isAdding, setIsAdding] = React.useState(false);
+  const [title, setTitle] = React.useState("");
+
+  const handleSave = () => {
+    if (!title.trim()) return;
+    onAddTask(title.trim());
+    setTitle("");
+    setIsAdding(false);
+  };
   return (
     <div className="w-80 lg:w-96 flex-shrink-0 flex flex-col h-full min-h-[600px]">
       <div className="flex flex-col h-full bg-white/20 backdrop-blur-2xl rounded-[2.5rem] border border-white/60 shadow-xl shadow-sky-dark/5 overflow-hidden ring-1 ring-white/20">
@@ -29,7 +38,7 @@ const TaskColumn = memo(({ column, onTaskClick, onToggleComplete, onAddTask }: T
             </div>
           </div>
           <button 
-            onClick={onAddTask}
+            onClick={() => setIsAdding(true)}
             className="p-2 hover:bg-primary/10 hover:text-primary rounded-xl transition-all text-muted-foreground/60"
           >
             <Plus size={18} />
@@ -58,6 +67,37 @@ const TaskColumn = memo(({ column, onTaskClick, onToggleComplete, onAddTask }: T
                   />
                 );
               })}
+
+              {isAdding && (
+                <div className="mb-4 bg-white/60 backdrop-blur-md border border-white/60 p-5 rounded-[2rem] shadow-sm animate-in slide-in-from-bottom-2 duration-300">
+                  <textarea
+                    autoFocus
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    placeholder="Tiêu đề nhiệm vụ..."
+                    className="w-full bg-transparent border-none text-xs font-bold text-foreground placeholder-muted-foreground/30 outline-none resize-none mb-3"
+                    rows={2}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSave(); }
+                      if (e.key === "Escape") setIsAdding(false);
+                    }}
+                  />
+                  <div className="flex items-center justify-between">
+                    <button 
+                      onClick={handleSave} 
+                      className="px-4 py-2 bg-primary text-white text-[9px] font-black uppercase tracking-widest rounded-xl hover:scale-105 active:scale-95 transition-all shadow-lg shadow-primary/20"
+                    >
+                      Thêm
+                    </button>
+                    <button 
+                      onClick={() => setIsAdding(false)} 
+                      className="px-4 py-2 bg-black/5 hover:bg-black/10 rounded-xl text-muted-foreground/60 transition-all text-[9px] font-black uppercase tracking-widest"
+                    >
+                      Hủy
+                    </button>
+                  </div>
+                </div>
+              )}
               {provided.placeholder}
             </div>
           )}
@@ -66,7 +106,7 @@ const TaskColumn = memo(({ column, onTaskClick, onToggleComplete, onAddTask }: T
         {/* Quick Add Footer */}
         <div className="p-5 bg-white/20">
           <button 
-            onClick={onAddTask}
+            onClick={() => setIsAdding(true)}
             className="w-full py-4 rounded-2xl border border-dashed border-white/60 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 hover:bg-white/60 hover:border-primary hover:text-primary transition-all flex items-center justify-center gap-2 group"
           >
             <Plus size={14} className="group-hover:rotate-90 transition-transform duration-300" />

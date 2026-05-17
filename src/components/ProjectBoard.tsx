@@ -40,7 +40,7 @@ export default function ProjectBoard({ projectId }: { projectId: string }) {
   // Realtime subscription for tasks in this project
   useRealtimeBoard(projectId);
   
-  const { data: projects = [], mutate: mutateProjects, isLoading: projectsLoading, error: projectsError } = useSWR(
+  const { data: projects = [] as any[], mutate: mutateProjects, isLoading: projectsLoading, error: projectsError } = useSWR<any[]>(
     'projects',
     getProjects,
     { shouldRetryOnError: false }
@@ -94,6 +94,7 @@ export default function ProjectBoard({ projectId }: { projectId: string }) {
     id: projectId,
     name: "Dự án Offline (Demo)",
     color: "#5D9CEC",
+    userId: "system",
     members: project?.members || []
   };
 
@@ -107,11 +108,11 @@ export default function ProjectBoard({ projectId }: { projectId: string }) {
   const renderView = () => {
     switch (currentView) {
       case 'table':
-        return <TableView projectId={projectId} onTaskClick={() => {}} />;
+        return <TableView projectId={projectId} />;
       case 'calendar':
-        return <CalendarView projectId={projectId} onTaskClick={() => {}} />;
+        return <CalendarView projectId={projectId} />;
       case 'document':
-        return <DocumentView projectId={projectId} lists={effectiveLists} onTaskClick={() => {}} />;
+        return <DocumentView projectId={projectId} lists={effectiveLists} />;
       default:
         return (
           <KanbanView 
@@ -243,7 +244,7 @@ export default function ProjectBoard({ projectId }: { projectId: string }) {
 
                 <div className="space-y-4">
                    <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Available Users</p>
-                   {allUsers.filter((u: any) => !project.members.some((m: any) => m.id === u.id)).map((u: any) => (
+                   {allUsers.filter((u: any) => !effectiveProject.members.some((m: any) => m.id === u.id)).map((u: any) => (
                      <div key={u.id} className="flex items-center justify-between p-4 hover:bg-white/20 rounded-[1.5rem] transition-all group">
                         <div className="flex items-center gap-4">
                            <div className="w-10 h-10 rounded-2xl bg-white/40 flex items-center justify-center text-sm font-black text-muted-foreground border border-white/60 overflow-hidden">
