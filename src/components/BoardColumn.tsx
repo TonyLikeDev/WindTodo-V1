@@ -6,6 +6,7 @@ import { createTask, deleteTask, getTasks, updateTask } from '@/app/actions/task
 import { useBoardDrag } from './BoardDragContext';
 import { User, Trash2, MoreHorizontal, Plus, ChevronDown } from 'lucide-react';
 import TaskDetailModal, { TaskPatch } from './TaskDetailModal';
+import { playCelestialChime } from './EffectsCanvas';
 
 type UserProfile = {
   id: string;
@@ -197,6 +198,19 @@ export default function BoardColumn({
   };
 
   const updateStatus = async (taskId: string, newStatus: 'TODO' | 'IN_PROGRESS' | 'DONE') => {
+    const originalTask = tasks.find(t => t.id === taskId);
+    if (newStatus === 'DONE' && originalTask && originalTask.status !== 'DONE') {
+      playCelestialChime();
+      const cardEl = cardRefs.current.get(taskId);
+      if (cardEl) {
+        const rect = cardEl.getBoundingClientRect();
+        const x = rect.left + rect.width / 2;
+        const y = rect.top + rect.height / 2;
+        window.dispatchEvent(new CustomEvent('star-confetti', { detail: { x, y } }));
+      } else {
+        window.dispatchEvent(new CustomEvent('star-confetti', { detail: { x: window.innerWidth / 2, y: window.innerHeight / 3 } }));
+      }
+    }
     mutate(tasks.map(t => t.id === taskId ? { ...t, status: newStatus } : t), false);
     await updateTask(taskId, { status: newStatus });
     mutate();
@@ -216,6 +230,19 @@ export default function BoardColumn({
   };
 
   const patchTask = async (id: string, patch: TaskPatch) => {
+    const originalTask = tasks.find(t => t.id === id);
+    if (patch.status === 'DONE' && originalTask && originalTask.status !== 'DONE') {
+      playCelestialChime();
+      const cardEl = cardRefs.current.get(id);
+      if (cardEl) {
+        const rect = cardEl.getBoundingClientRect();
+        const x = rect.left + rect.width / 2;
+        const y = rect.top + rect.height / 2;
+        window.dispatchEvent(new CustomEvent('star-confetti', { detail: { x, y } }));
+      } else {
+        window.dispatchEvent(new CustomEvent('star-confetti', { detail: { x: window.innerWidth / 2, y: window.innerHeight / 3 } }));
+      }
+    }
     const next = tasks.map((t) => {
       if (t.id !== id) return t;
       const merged: Task = { ...t, ...patch } as Task;

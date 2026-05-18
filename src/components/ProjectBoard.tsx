@@ -6,6 +6,7 @@ import useSWR, { mutate as globalMutate } from 'swr';
 import BoardColumn, { DEFAULT_LIST_COLOR } from './BoardColumn';
 import { BoardDragProvider, DraggableTask } from './BoardDragContext';
 import { moveTask, updateTask } from '@/app/actions/taskActions';
+import { playCelestialChime } from './EffectsCanvas';
 import {
   createBoardList,
   deleteBoardList,
@@ -449,6 +450,11 @@ export default function ProjectBoard({ projectId }: { projectId: string }) {
         await moveTask(task.id, targetListId, targetIndex);
         // Auto-update status based on which column the task was dropped into
         if (newStatus && sourceListId !== targetListId) {
+          const oldStatus = (task as unknown as { status?: string }).status;
+          if (newStatus === 'DONE' && oldStatus !== 'DONE') {
+            playCelestialChime();
+            window.dispatchEvent(new CustomEvent('star-confetti', { detail: { x: window.innerWidth / 2, y: window.innerHeight / 3 } }));
+          }
           await updateTask(task.id, { status: newStatus });
         }
       } finally {

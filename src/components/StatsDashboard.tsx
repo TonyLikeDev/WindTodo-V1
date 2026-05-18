@@ -14,7 +14,7 @@ import { getProjects } from '@/app/actions/projectActions';
 import GlassCard from './GlassCard';
 
 // ─── Colour palette ────────────────────────────────────────────────────────────
-const STATUS_COLORS = { done: '#22c55e', inProgress: '#3b82f6', todo: '#52525b' };
+const STATUS_COLORS = { done: '#22c55e', inProgress: '#3b82f6', todo: '#94a3b8' };
 const AVATAR_PALETTE = ['#8b5cf6', '#ec4899', '#f59e0b', '#10b981', '#3b82f6', '#ef4444'];
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
@@ -362,7 +362,7 @@ export default function StatsDashboard({ minimal = false }: { minimal?: boolean 
               <select
                 value={selectedProjectId}
                 onChange={e => setSelectedProjectId(e.target.value)}
-                className="bg-white/60 border border-white/60 rounded-lg text-xs py-1 px-2 text-foreground font-medium focus:outline-none focus:ring-2 focus:ring-primary/20"
+                className="bg-white/60 dark:bg-black/25 border border-white/60 dark:border-white/5 rounded-lg text-xs py-1 px-2 text-foreground font-medium focus:outline-none focus:ring-2 focus:ring-primary/20"
               >
                 {projects.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
               </select>
