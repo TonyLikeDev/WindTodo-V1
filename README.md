@@ -324,9 +324,35 @@ Full Create / Read / Update / Delete coverage for every model, exposed via typed
 
 ---
 
-## Task 5 — Peer Review & Feedback
+## Task 5 — UI/UX Peer Review & Evaluation
 
-_No review yet._
+### (a) Feedback for Other Teams
+
+#### Reviewed Team: WorldWords
+- **Team / Project:** WorldWords — Vocabulary Learning Application
+- **Repository:** [github.com/Dragons212122/WorldWords](https://github.com/Dragons212122/WorldWords)
+- **Feedback Issue:** [Issue #25](https://github.com/Dragons212122/WorldWords/issues/25)
+
+| Aspect | Strengths | Improvement Suggestions |
+| :--- | :--- | :--- |
+| **Architecture** | Functional "Demo" state with established data structures (`WORDS_BY_TOPIC`). | **Modularize Architecture:** Split the 1,000-line `App.jsx` monolith into separate components and hooks. |
+| **Features** | Core data structures are well-defined and ready for expansion. | **Feature Completion:** Implement the currently disabled Quiz System to allow user testing. |
+| **Hygiene** | Initial logic is clear and focused. | **Repository Hygiene:** Remove legacy files (`app.js`, `db.js`) and fix asset naming conventions. |
+
+#### Reviewed Team: Tracker_yourMoney
+- **Team / Project:** Tracker_yourMoney — Expense Tracking Application
+- **Repository:** [github.com/tducn110/Tracker_yourMoney](https://github.com/tducn110/Tracker_yourMoney)
+- **Feedback Issue:** [Issue #174](https://github.com/tducn110/Tracker_yourMoney/issues/174)
+
+| Aspect | Strengths | Improvement Suggestions |
+| :--- | :--- | :--- |
+| **Data Integrity** | `deleteGoal` method already correctly guards against accidental data loss. | **Prevent Data Loss:** Update `deleteBill` to prevent deletion of bills with historical payment records. |
+| **Validation** | Consistent internal logic patterns for data protection. | **Validation:** Add checks to throw `BadRequestError` if payments exist; advise setting to "inactive" instead. |
+| **Persistence** | Robust integration with SQL backend. | **Soft-Delete:** Implement an `isActive` flag instead of hard SQL deletes to preserve financial history. |
+
+### (b) Feedback Received (Teacher Review)
+
+nothing yet
 
 ---
 
