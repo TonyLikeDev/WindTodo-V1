@@ -26,7 +26,7 @@ This is the Final Project Report for **WindTodo V1**, submitted on **2026-05-17*
 | 2 | Phan Le Phuong Nam | [`PoNamVn`](https://github.com/PoNamVn) | 24020014 | Frontend — Dashboard (Branch 32) & Statistics (Branch 31) |
 | 3 | Tran Le Xuan Mai | [`xuanmai171202-spec`](https://github.com/xuanmai171202-spec) | 24020011 | Frontend — Dashboard upgrade, Statistics charts, Calendar |
 | 4 | Hoang Phuc Hung | [`GabTommy2006`](https://github.com/GabTommy2006) | 24020004 | Frontend — Task detail modal, member assignment + due dates, calendar |
-| 5 | Le Van Cong Nguyen | [`nguyendangban0605-beep`](https://github.com/nguyendangban0605-beep) | 24020006 | Frontend / UI/UX — Celestial theme, Dark mode, Gamification (Star confetti + sound) |
+| 5 | Le Van Cong Nguyen | [`nguyendangban0605-beep`](https://github.com/nguyendangban0605-beep) | 24020006 | Frontend / UI/UX — Glassmorphism polish |
 
 ---
 
@@ -47,9 +47,8 @@ This is the Final Project Report for **WindTodo V1**, submitted on **2026-05-17*
 - Kanban board with reorderable columns and drag-and-drop tasks
 - Task detail with status / priority / type, assignee, start & end dates
 - Statistics dashboard (Workload chart, Member progress)
-- Calendar view for tasks and events
-- Sky-themed glassmorphism design with **light mode** (Tony) and **dark mode + Celestial theme** (Nguyen)
-- Gamification: star-confetti + chime when a task is marked Done
+- Calendar view for tasks
+- Sky-themed glassmorphism design (Tony & Nguyen)
 - Real-time-ish UX via SWR stale-while-revalidate
 
 ---
@@ -103,7 +102,7 @@ pnpm dev
 | Phan Le Phuong Nam | Dashboard upgrade (Branch 32) + Statistics page (Branch 31) |
 | Tran Le Xuan Mai | Dashboard redesign, Workload pie chart + Members progress table, Calendar view (initial), schema design contributions |
 | Hoang Phuc Hung | Task detail modal, member assignment + due dates, Calendar rebuild, drag-and-drop (initial) |
-| Le Van Cong Nguyen | Celestial theme, Dark mode (next-themes + Tailwind v4 `@custom-variant dark`), Gamification (Star confetti + Web Audio chime), Glassmorphism polish |
+| Le Van Cong Nguyen | Celestial design, Glassmorphism polish |
 
 In short: **Tony owned the full-stack core**; the rest of the team built feature areas on top of it (statistics, dashboard, calendar, theming & polish).
 
@@ -154,22 +153,22 @@ The team agreed on eight milestones at the start of the project. The first two s
 | Page | Route | Purpose | Implemented by |
 | --- | --- | --- | --- |
 | Landing | `/` | Hero, tagline, CTAs (Join Now / Sign In) | Nguyen Le Hoang |
-| Sign up / Sign in | `/sign-up`, `/sign-in` | Supabase Auth forms with simulated loading state | Nguyen Le Hoang |
-| Projects dashboard | `/projects` | Grid of project cards (color + name + member count) | Phan Le Phuong Nam (Branch 32) + Tran Le Xuan Mai |
+| Sign up / Sign in | `/signup`, `/login` | Supabase Auth forms with simulated loading state | Nguyen Le Hoang |
+| Projects dashboard | `/dashboard` | Grid of project cards (color + name + member count) | Phan Le Phuong Nam (Branch 32) + Tran Le Xuan Mai |
 | Project board (Kanban) | `/projects/[id]` | Horizontal Kanban with reorderable columns and tasks | Nguyen Le Hoang (board + DnD), Hoang Phuc Hung (task detail) |
 | Task detail | modal | Edit title, description, status, priority, type, assignee, dates | Hoang Phuc Hung + Nguyen Le Hoang |
 | Share modal | modal | Invite by email, set role, list members | Nguyen Le Hoang |
-| Statistics | `/statistics` | Workload pie chart + member progress table | Phan Le Phuong Nam (Branch 31) + Tran Le Xuan Mai |
-| Calendar | `/calendar` | Week / month / year view, event sync | Tran Le Xuan Mai (initial) + Hoang Phuc Hung (rebuild) |
-| Account | `/account` | Profile, sign-out, theme toggle | Le Van Cong Nguyen (theme), Nguyen Le Hoang (auth) |
+| Statistics | `/dashboard/stats` | Workload pie chart + member progress table | Phan Le Phuong Nam (Branch 31) + Tran Le Xuan Mai |
+| Calendar | `/dashboard/calendar` | Week / month / year view | Tran Le Xuan Mai (initial) + Hoang Phuc Hung (rebuild) |
+| Settings | `/dashboard/settings` | Profile, sign-out | Le Van Cong Nguyen (ui), Nguyen Le Hoang (auth) |
 
 ### 2.2 Styling
 
 - **Tailwind CSS v4** with `@tailwindcss/postcss`
 - **Custom palette:** sky-50 → sky-900 plus translucent white surfaces for the glassmorphism look
-- **Typography:** Geist font family loaded via `next/font` for layout-stable text
+- **Typography:** Poppins font family loaded via `next/font` for layout-stable text
 - **Icons:** `lucide-react` for a unified line-icon look
-- **Theme:** sky-themed *light* design with optional dark surfaces in modals
+- **Theme:** sky-themed glassmorphism design
 
 ### 2.3 Components
 
@@ -179,7 +178,7 @@ The `src/components/` tree is organized by feature:
 - **Lists** — list header, reorder handle, add-list button
 - **Tasks** — task card, badge stack (status / priority / type), assignee avatar
 - **Modals** — task detail, share, confirm-delete; all share the glass panel pattern
-- **Layout & nav** — top bar, brand mark, sign-out
+- **Layout & nav** — sidebar, brand mark, sign-out
 - **Theming** — color tokens, glass panel, soft gradients
 
 ### 2.4 Interactive Elements
@@ -194,10 +193,8 @@ The `src/components/` tree is organized by feature:
 | Assign member + due date | Pick assignee, set start/end date when creating a task | Hoang Phuc Hung |
 | SWR-powered lists | Background revalidation after mutations | Nguyen Le Hoang |
 | Loading skeletons | Skeleton placeholders during data fetches | Nguyen Le Hoang |
-| Light / Dark mode toggle | `next-themes` with custom Tailwind v4 dark variant | Le Van Cong Nguyen |
-| Star confetti + chime on Done | Web Audio + canvas animation when a task is completed | Le Van Cong Nguyen |
 | Statistics charts | Workload pie chart + member-progress table | Phan Le Phuong Nam + Tran Le Xuan Mai |
-| Calendar view | Week / month / year, drag-and-drop events | Tran Le Xuan Mai (initial) + Hoang Phuc Hung (rebuild) |
+| Calendar view | Week / month / year | Tran Le Xuan Mai (initial) + Hoang Phuc Hung (rebuild) |
 
 ### 2.5 Responsiveness
 
