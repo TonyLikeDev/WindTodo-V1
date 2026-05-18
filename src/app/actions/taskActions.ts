@@ -47,6 +47,35 @@ async function loadTaskForUser(taskId: string, userId: string) {
 
 const TASK_INCLUDE = { creator: true, assignee: true } as const
 
+// Every task in the project (across every BoardList) with its parent list info,
+// for the roadmap timeline. Caller is responsible for filtering to ones with
+// dates if they want to draw bars.
+export async function getProjectTasks(projectId: string) {
+  const user = await getAuthUser()
+  if (!user) return []
+
+  const project = await prisma.project.findFirst({
+    where: {
+      id: projectId,
+      OR: [
+        { userId: user.id },
+        { members: { some: { userId: user.id } } },
+      ],
+    },
+    select: { id: true },
+  })
+  if (!project) return []
+
+  return prisma.task.findMany({
+    where: { list: { projectId } },
+    include: {
+      assignee: true,
+      list: { select: { id: true, name: true, color: true, position: true } },
+    },
+    orderBy: [{ startDate: 'asc' }, { createdAt: 'asc' }],
+  })
+}
+
 // `listId` may be either a real BoardList id, or one of the "virtual" sentinels
 // used by the dashboard widgets:
 //   - "recent_assignments": tasks assigned to the current user (newest first)
@@ -117,6 +146,7 @@ export async function createMyTaskInProject(title: string, projectId: string) {
     select: { position: true },
   })
 
+  const today = new Date()
   const task = await prisma.task.create({
     data: {
       title,
@@ -124,6 +154,8 @@ export async function createMyTaskInProject(title: string, projectId: string) {
       listId: todoList.id,
       assigneeId: userId,
       position: (last?.position ?? -1) + 1,
+      startDate: today,
+      endDate: today,
     },
     include: TASK_INCLUDE,
   })
@@ -149,6 +181,7 @@ export async function createTask(title: string, listId: string, assigneeId?: str
     select: { position: true },
   })
 
+  const today = new Date()
   const task = await prisma.task.create({
     data: {
       title,
@@ -156,6 +189,8 @@ export async function createTask(title: string, listId: string, assigneeId?: str
       listId,
       assigneeId,
       position: (last?.position ?? -1) + 1,
+      startDate: today,
+      endDate: today,
     },
     include: TASK_INCLUDE,
   })
@@ -174,6 +209,10 @@ export async function updateTask(taskId: string, data: {
   startDate?: Date | null
   endDate?: Date | null
 }) {
+  // Optimistic / draft tasks have ids like "temp-<timestamp>".
+  // They don't exist in the DB yet, so skip silently.
+  if (taskId.startsWith('temp-')) return null
+
   const userId = await requireUserId()
 
   const existing = await loadTaskForUser(taskId, userId)
@@ -269,4 +308,41 @@ export async function deleteTask(taskId: string) {
   if (!existing) return
   await prisma.task.delete({ where: { id: taskId } })
   revalidatePath('/')
+}
+
+// Returns all tasks (with startDate or endDate) accessible to the current user,
+// including project name/color and list name for calendar display.
+export async function getCalendarTasks() {
+  const user = await getAuthUser()
+  if (!user) return []
+
+  return prisma.task.findMany({
+    where: {
+      list: {
+        project: {
+          OR: [
+            { userId: user.id },
+            { members: { some: { userId: user.id } } },
+          ],
+        },
+      },
+      OR: [
+        { startDate: { not: null } },
+        { endDate: { not: null } },
+      ],
+    },
+    include: {
+      creator: true,
+      assignee: true,
+      list: {
+        select: {
+          name: true,
+          project: {
+            select: { id: true, name: true, color: true },
+          },
+        },
+      },
+    },
+    orderBy: [{ startDate: 'asc' }, { createdAt: 'asc' }],
+  })
 }
