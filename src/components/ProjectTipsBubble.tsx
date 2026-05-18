@@ -32,13 +32,19 @@ export default function ProjectTipsBubble() {
     dismissTimerRef.current = setTimeout(() => setOpen(false), AUTO_DISMISS_MS);
   }, []);
 
+  const scheduleNextRef = useRef<() => void>(() => {});
+
   const scheduleNext = useCallback(() => {
     if (nextTimerRef.current) clearTimeout(nextTimerRef.current);
     nextTimerRef.current = setTimeout(() => {
       showNextTip();
-      scheduleNext();
+      scheduleNextRef.current();
     }, randomInterval());
   }, [showNextTip]);
+
+  useEffect(() => {
+    scheduleNextRef.current = scheduleNext;
+  }, [scheduleNext]);
 
   useEffect(() => {
     scheduleNext();

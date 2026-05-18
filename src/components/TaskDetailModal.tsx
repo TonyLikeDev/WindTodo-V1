@@ -93,7 +93,6 @@ export default function TaskDetailModal({
   const titleRef = useRef<HTMLInputElement>(null);
   const descRef = useRef<HTMLTextAreaElement>(null);
 
-  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => {
     setTitle(task.title);
     setDescription(task.description ?? '');

@@ -450,7 +450,7 @@ export default function ProjectBoard({ projectId }: { projectId: string }) {
         await moveTask(task.id, targetListId, targetIndex);
         // Auto-update status based on which column the task was dropped into
         if (newStatus && sourceListId !== targetListId) {
-          const oldStatus = (task as any).status;
+          const oldStatus = (task as unknown as { status?: string }).status;
           if (newStatus === 'DONE' && oldStatus !== 'DONE') {
             playCelestialChime();
             window.dispatchEvent(new CustomEvent('star-confetti', { detail: { x: window.innerWidth / 2, y: window.innerHeight / 3 } }));
