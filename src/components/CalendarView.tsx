@@ -228,7 +228,7 @@ export default function CalendarView() {
                           key={task.id}
                           onMouseEnter={() => setHoveredTask(task)}
                           onMouseLeave={() => setHoveredTask(null)}
-                          className="relative flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold text-white truncate cursor-pointer hover:brightness-110 transition-all"
+                          className="relative flex items-center gap-1 px-2 py-1 rounded text-xs font-semibold text-black truncate cursor-pointer hover:brightness-110 transition-all"
                           style={{ backgroundColor: task.list.project.color + 'cc' }}
                         >
                           <span

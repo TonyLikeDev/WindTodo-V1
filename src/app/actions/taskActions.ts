@@ -47,6 +47,35 @@ async function loadTaskForUser(taskId: string, userId: string) {
 
 const TASK_INCLUDE = { creator: true, assignee: true } as const
 
+// Every task in the project (across every BoardList) with its parent list info,
+// for the roadmap timeline. Caller is responsible for filtering to ones with
+// dates if they want to draw bars.
+export async function getProjectTasks(projectId: string) {
+  const user = await getAuthUser()
+  if (!user) return []
+
+  const project = await prisma.project.findFirst({
+    where: {
+      id: projectId,
+      OR: [
+        { userId: user.id },
+        { members: { some: { userId: user.id } } },
+      ],
+    },
+    select: { id: true },
+  })
+  if (!project) return []
+
+  return prisma.task.findMany({
+    where: { list: { projectId } },
+    include: {
+      assignee: true,
+      list: { select: { id: true, name: true, color: true, position: true } },
+    },
+    orderBy: [{ startDate: 'asc' }, { createdAt: 'asc' }],
+  })
+}
+
 // `listId` may be either a real BoardList id, or one of the "virtual" sentinels
 // used by the dashboard widgets:
 //   - "recent_assignments": tasks assigned to the current user (newest first)
@@ -117,6 +146,7 @@ export async function createMyTaskInProject(title: string, projectId: string) {
     select: { position: true },
   })
 
+  const today = new Date()
   const task = await prisma.task.create({
     data: {
       title,
@@ -124,6 +154,8 @@ export async function createMyTaskInProject(title: string, projectId: string) {
       listId: todoList.id,
       assigneeId: userId,
       position: (last?.position ?? -1) + 1,
+      startDate: today,
+      endDate: today,
     },
     include: TASK_INCLUDE,
   })
@@ -149,6 +181,7 @@ export async function createTask(title: string, listId: string, assigneeId?: str
     select: { position: true },
   })
 
+  const today = new Date()
   const task = await prisma.task.create({
     data: {
       title,
@@ -156,6 +189,8 @@ export async function createTask(title: string, listId: string, assigneeId?: str
       listId,
       assigneeId,
       position: (last?.position ?? -1) + 1,
+      startDate: today,
+      endDate: today,
     },
     include: TASK_INCLUDE,
   })

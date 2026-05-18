@@ -1,7 +1,7 @@
 'use client';
 
 import { use } from 'react';
-import ProjectBoard from '@/components/ProjectBoard';
+import ProjectViewSwitcher from '@/components/ProjectViewSwitcher';
 
 export default function ProjectPage({
   params,
@@ -9,5 +9,5 @@ export default function ProjectPage({
   params: Promise<{ projectId: string }>;
 }) {
   const { projectId } = use(params);
-  return <ProjectBoard projectId={projectId} />;
+  return <ProjectViewSwitcher projectId={projectId} />;
 }

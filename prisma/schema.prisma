@@ -56,6 +56,8 @@ model Task {
   assignee    User?        @relation("TaskAssignee", fields: [assigneeId], references: [id])
   listId      String
   list        BoardList    @relation(fields: [listId], references: [id], onDelete: Cascade)
+  sprintId    String?
+  sprint      Sprint?      @relation(fields: [sprintId], references: [id], onDelete: SetNull)
   position    Int          @default(0)
   status      TaskStatus   @default(TODO)
   priority    TaskPriority @default(MEDIUM)
@@ -66,6 +68,7 @@ model Task {
 
   @@index([userId, listId])
   @@index([listId, position])
+  @@index([sprintId])
 }
 
 model Project {
@@ -77,8 +80,23 @@ model Project {
   members   ProjectMember[]
   createdAt DateTime        @default(now())
   lists     BoardList[]
+  sprints   Sprint[]
 
   @@index([userId])
+}
+
+model Sprint {
+  id        String   @id @default(uuid())
+  name      String
+  startDate DateTime
+  endDate   DateTime
+  position  Int      @default(0)
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  tasks     Task[]
+  createdAt DateTime @default(now())
+
+  @@index([projectId, position])
 }
 
 model ProjectMember {
