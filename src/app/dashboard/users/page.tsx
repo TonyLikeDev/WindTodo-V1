@@ -1,62 +1,74 @@
-import { getAllUsers } from '@/app/actions/userActions';
+import { getProjectPeers } from '@/app/actions/userActions';
 import AddUserForm from '@/components/AddUserForm';
 
 export const dynamic = 'force-dynamic';
 
 export default async function UsersPage() {
-  const users = await getAllUsers();
+  const rows = await getProjectPeers();
 
   return (
     <div className="space-y-8">
       <div className="flex items-center justify-between gap-4 flex-wrap">
-        <h1 className="text-2xl font-bold text-white tracking-tight">Users</h1>
+        <h1 className="text-2xl font-bold text-foreground tracking-tight">Users</h1>
         <AddUserForm />
       </div>
       <div className="glass overflow-hidden rounded-2xl">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="bg-white/5 border-b border-white/10">
-              <th className="px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">User</th>
-              <th className="px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Email</th>
-              <th className="px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Status</th>
+            <tr className="bg-white/40 border-b border-border">
+              <th className="px-6 py-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">User</th>
+              <th className="px-6 py-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Role</th>
+              <th className="px-6 py-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Project</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-white/5">
-            {users.length === 0 ? (
+          <tbody className="divide-y divide-border">
+            {rows.length === 0 ? (
               <tr>
-                <td colSpan={3} className="px-6 py-8 text-center text-sm text-gray-500">
-                  No users yet. Add one by email above.
+                <td colSpan={3} className="px-6 py-8 text-center text-sm text-muted-foreground">
+                  You&apos;re not in any shared projects yet.
                 </td>
               </tr>
             ) : (
-              users.map((user) => {
-                const isPending = user.id.startsWith('pending:');
-                const displayName = user.name || user.email.split('@')[0];
+              rows.map((row) => {
+                const displayName = row.user.name || row.user.email.split('@')[0];
                 const initials = displayName.slice(0, 2).toUpperCase();
+                const isAdmin = row.role === 'ADMIN';
                 return (
-                  <tr key={user.id} className="hover:bg-white/5 transition-colors">
+                  <tr key={`${row.user.id}:${row.projectId}`} className="hover:bg-white/40 transition-colors">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center space-x-3">
-                        <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-[10px] font-bold text-white border border-white/10 overflow-hidden">
-                          {user.avatarUrl ? (
+                        <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-[10px] font-bold text-primary border border-primary/20 overflow-hidden">
+                          {row.user.avatarUrl ? (
                             // eslint-disable-next-line @next/next/no-img-element
-                            <img src={user.avatarUrl} alt={displayName} className="w-full h-full object-cover" />
+                            <img src={row.user.avatarUrl} alt={displayName} className="w-full h-full object-cover" />
                           ) : (
                             initials
                           )}
                         </div>
-                        <span className="text-sm font-medium text-white">{displayName}</span>
+                        <div className="flex flex-col">
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-medium text-foreground">{displayName}</span>
+                            {row.user.isPending && (
+                              <span className="px-1.5 py-0.5 rounded-full text-[9px] font-medium bg-yellow-500/15 text-yellow-700">
+                                Pending
+                              </span>
+                            )}
+                          </div>
+                          <span className="text-xs text-muted-foreground">{row.user.email}</span>
+                        </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
-                      {user.email}
-                    </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-2 py-1 rounded-full text-[10px] font-medium ${
-                        isPending ? 'bg-yellow-500/10 text-yellow-400' : 'bg-green-500/10 text-green-400'
+                      <span className={`px-2.5 py-1 rounded-full text-[10px] font-semibold uppercase tracking-wider ${
+                        isAdmin
+                          ? 'bg-primary/15 text-primary'
+                          : 'bg-slate-500/15 text-slate-700'
                       }`}>
-                        {isPending ? 'Pending sign-in' : 'Active'}
+                        {isAdmin ? 'Admin' : 'Member'}
                       </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground">
+                      {row.projectName}
                     </td>
                   </tr>
                 );

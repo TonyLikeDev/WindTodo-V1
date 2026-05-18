@@ -15,8 +15,8 @@ function ErrorMessage({ actionError }: { actionError?: string }) {
   if (!error) return null;
 
   return (
-    <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-center mb-4">
-      <p className="text-sm text-red-400">{error}</p>
+    <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-center mb-4">
+      <p className="text-sm text-red-600">{error}</p>
     </div>
   );
 }
@@ -34,7 +34,6 @@ export default function LoginPage() {
           </div>
           
           <h1 className="text-xl font-bold text-[#2C3E50] mb-5 tracking-tight">WindTodo</h1>
-          
           <form className="w-full space-y-4" action={formAction}>
             <Suspense fallback={null}>
               <ErrorMessage actionError={state?.error} />
@@ -99,5 +98,3 @@ export default function LoginPage() {
     </LightSkyBackground>
   );
 }
-
-
