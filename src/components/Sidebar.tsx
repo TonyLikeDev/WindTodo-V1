@@ -39,20 +39,20 @@ export default function Sidebar({ isOpen = false, onClose = () => {} }: { isOpen
 
             <nav className="space-y-1 mb-8">
                 <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-3 px-4">Menu</p>
-                {navItems.map((item) => {
+                 {navItems.map((item) => {
                   const isActive = pathname === item.href;
                   return (
                     <Link
                       key={item.name}
                       href={item.href}
                       onClick={onClose}
-                      className={`flex items-center gap-4 px-4 py-3 rounded-2xl transition-all group ${
+                      className={`flex items-center gap-4 px-4 py-3 rounded-2xl transition-all group border border-transparent ${
                         isActive
-                          ? "bg-white/60 shadow-sm text-primary font-bold"
-                          : "text-muted-foreground hover:bg-white/30 hover:text-foreground"
+                          ? "bg-white/70 dark:bg-primary/20 shadow-sm text-primary dark:text-white font-bold border-white/20 dark:border-primary/30"
+                          : "text-muted-foreground hover:bg-white/30 dark:hover:bg-white/5 hover:text-foreground dark:hover:text-white"
                       }`}
                     >
-                        <svg className={`w-5 h-5 ${isActive ? "text-primary" : "text-muted-foreground group-hover:text-foreground"}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className={`w-5 h-5 ${isActive ? "text-primary dark:text-white" : "text-muted-foreground group-hover:text-foreground dark:group-hover:text-white"}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           {item.icon}
                         </svg>
                         <span className="text-sm font-medium">{item.name}</span>
@@ -64,13 +64,13 @@ export default function Sidebar({ isOpen = false, onClose = () => {} }: { isOpen
                 <Link
                   href="/dashboard/settings"
                   onClick={onClose}
-                  className={`flex items-center gap-4 px-4 py-3 rounded-2xl transition-all group ${
+                  className={`flex items-center gap-4 px-4 py-3 rounded-2xl transition-all group border border-transparent ${
                     pathname === "/dashboard/settings"
-                      ? "bg-white/60 shadow-sm text-primary font-bold"
-                      : "text-muted-foreground hover:bg-white/30 hover:text-foreground"
+                      ? "bg-white/70 dark:bg-primary/20 shadow-sm text-primary dark:text-white font-bold border-white/20 dark:border-primary/30"
+                      : "text-muted-foreground hover:bg-white/30 dark:hover:bg-white/5 hover:text-foreground dark:hover:text-white"
                   }`}
                 >
-                    <SettingsIcon size={18} className={pathname === "/dashboard/settings" ? "text-primary" : "text-muted-foreground group-hover:text-foreground"} />
+                    <SettingsIcon size={18} className={pathname === "/dashboard/settings" ? "text-primary dark:text-white" : "text-muted-foreground group-hover:text-foreground dark:group-hover:text-white"} />
                     <span className="text-sm font-medium">Settings</span>
                     {pathname === "/dashboard/settings" && <ChevronRight size={14} className="ml-auto opacity-50" />}
                 </Link>
