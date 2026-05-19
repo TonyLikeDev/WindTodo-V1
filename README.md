@@ -242,6 +242,16 @@ The `src/components/` tree is organized by feature:
 
 Verified across Chrome DevTools mobile (< 768px), tablet (768–1024px), and desktop (> 1024px). The board switches from a horizontal scroller (desktop) to a stacked vertical layout (mobile), and modals expand to full-screen sheets below `md`.
 
+#### Responsive Design
+
+- **Mobile (< 768px)** — single-column layout, bottom navigation, collapsible sidebar
+- **Tablet (768px–1024px)** — two-column grid and compact navigation
+- **Desktop (> 1024px)** — full sidebar, multi-column dashboard, and widescreen charts
+
+The site was tested across multiple viewport sizes with a responsive viewer and remains usable and visually consistent across mobile, tablet, and desktop resolutions.
+
+![Responsive Design Testing](/public/performance/responsive.png)
+
 ---
 
 ## Task 3 — Database Integration
