@@ -45,7 +45,7 @@ function BottomPillBar({
   return (
     <div className="pointer-events-none absolute bottom-6 left-0 right-0 flex justify-center z-30">
       <div className="pointer-events-auto flex items-center gap-2">
-        <div className="flex items-center gap-1 bg-white/90 backdrop-blur-md rounded-full border border-border shadow-xl shadow-sky-dark/20 p-1">
+        <div className="flex items-center gap-1 bg-white/90 dark:bg-slate-950/80 backdrop-blur-md rounded-full border border-white/20 dark:border-white/5 shadow-xl dark:shadow-black/50 p-1">
           {VIEW_OPTIONS.map(({ id, label, Icon }) => {
             const active = view === id;
             return (
@@ -106,10 +106,10 @@ function SwitchBoardsPill({ currentProjectId }: { currentProjectId: string }) {
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium bg-white/90 backdrop-blur-md border shadow-xl shadow-sky-dark/20 transition-colors ${
+        className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium bg-white/90 dark:bg-slate-950/80 backdrop-blur-md border shadow-xl dark:shadow-black/50 transition-colors ${
           open
             ? 'border-primary text-primary'
-            : 'border-border text-foreground hover:text-primary'
+            : 'border-white/20 dark:border-white/5 text-foreground hover:text-primary'
         }`}
       >
         <LayoutGrid className="w-4 h-4" />
@@ -117,7 +117,7 @@ function SwitchBoardsPill({ currentProjectId }: { currentProjectId: string }) {
       </button>
 
       {open && (
-        <div className="absolute bottom-full mb-2 right-0 w-64 max-h-80 overflow-y-auto custom-scrollbar bg-white/95 backdrop-blur-md rounded-2xl border border-border shadow-2xl shadow-sky-dark/30 p-2 z-40">
+        <div className="absolute bottom-full mb-2 right-0 w-64 max-h-80 overflow-y-auto custom-scrollbar bg-white/95 dark:bg-slate-950/95 backdrop-blur-md rounded-2xl border border-white/20 dark:border-white/5 shadow-2xl dark:shadow-black/55 p-2 z-40">
           {others.length === 0 ? (
             <div className="px-3 py-4 text-sm text-muted-foreground text-center">
               No other projects yet.
@@ -131,7 +131,7 @@ function SwitchBoardsPill({ currentProjectId }: { currentProjectId: string }) {
                   setOpen(false);
                   router.push(`/projects/${p.id}`);
                 }}
-                className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-sm text-foreground hover:bg-primary/10 transition-colors text-left"
+                className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-sm text-foreground hover:bg-primary/10 dark:hover:bg-primary/20 transition-colors text-left"
               >
                 <span
                   className="w-3 h-3 rounded-full flex-shrink-0"

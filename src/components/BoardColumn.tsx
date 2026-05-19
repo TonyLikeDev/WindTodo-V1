@@ -272,12 +272,12 @@ export default function BoardColumn({
     <>
     <div
       ref={columnRef}
-      className={`rounded-2xl border flex flex-col transition-all duration-300 ${className} ${
+      className={`glass rounded-2xl border flex flex-col transition-all duration-300 ${className} ${
         isHoveredHere && draggingTaskId
-          ? 'border-white/40 ring-2 ring-white/20'
-          : 'border-white/50'
+          ? 'border-primary ring-2 ring-primary/20'
+          : 'border-white/20 dark:border-white/5'
       } ${isDragging ? 'opacity-40' : ''}`}
-      style={{ background: color }}
+      style={{ backgroundColor: color !== DEFAULT_LIST_COLOR ? color : undefined }}
     >
       {/* Column Header */}
       <div
@@ -315,7 +315,7 @@ export default function BoardColumn({
                 }
               }}
               placeholder={isDraft ? 'Enter list title…' : undefined}
-              className="text-sm font-semibold text-foreground bg-white/50 border border-white/50 rounded px-2 py-0.5 min-w-0 flex-1 focus:outline-none focus:ring-1 focus:ring-white/40 placeholder-muted-foreground"
+              className="text-sm font-semibold text-foreground bg-white/30 dark:bg-slate-900/60 border border-white/30 dark:border-white/5 rounded px-2 py-0.5 min-w-0 flex-1 focus:outline-none focus:ring-1 focus:ring-primary/40 placeholder-muted-foreground"
             />
           ) : (
             <h3
@@ -330,7 +330,7 @@ export default function BoardColumn({
             </h3>
           )}
           {!isDraft && (
-            <span className="text-xs bg-white/50 text-foreground px-2 py-0.5 rounded-full flex-shrink-0 font-bold">
+            <span className="text-xs bg-white/30 dark:bg-black/25 text-foreground px-2 py-0.5 rounded-full flex-shrink-0 font-bold border border-white/20 dark:border-white/5 shadow-sm">
               {tasks.length}
             </span>
           )}
@@ -339,12 +339,12 @@ export default function BoardColumn({
           <div className="relative" ref={menuRef}>
             <button
               onClick={() => setMenuOpen((v) => !v)}
-              className="text-muted-foreground hover:text-foreground p-1 rounded hover:bg-white/50 transition-colors"
+              className="text-muted-foreground hover:text-foreground p-1 rounded hover:bg-white/30 dark:hover:bg-black/20 transition-colors"
             >
               <MoreHorizontal className="w-4 h-4" />
             </button>
             {menuOpen && (
-              <div className="absolute right-0 top-full mt-1 z-20 bg-white/80 border border-white/50 rounded-lg shadow-2xl overflow-hidden min-w-[200px] glass animate-in zoom-in-95 duration-200">
+              <div className="absolute right-0 top-full mt-1 z-20 bg-white/95 dark:bg-slate-950/95 border border-white/30 dark:border-white/5 rounded-lg shadow-2xl dark:shadow-black/55 overflow-hidden min-w-[200px] backdrop-blur-lg animate-in zoom-in-95 duration-200">
                 {onChangeColor && (
                   <div className="p-3">
                     <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-3 px-1">
@@ -365,8 +365,8 @@ export default function BoardColumn({
                             style={{ background: c.value }}
                             className={`h-7 rounded-md border transition-all ${
                               selected
-                                ? 'border-white ring-2 ring-white/20'
-                                : 'border-white/50 hover:border-white/60'
+                                ? 'border-foreground ring-2 ring-foreground/20'
+                                : 'border-white/20 dark:border-white/10 hover:border-white/40'
                             }`}
                           />
                         );
@@ -380,7 +380,7 @@ export default function BoardColumn({
                       setMenuOpen(false);
                       onRemoveList();
                     }}
-                    className="flex items-center gap-2 w-full text-left px-3 py-2 text-xs text-red-400 hover:bg-red-500/10 transition-colors border-t border-white/40"
+                    className="flex items-center gap-2 w-full text-left px-3 py-2 text-xs text-red-400 hover:bg-red-500/10 transition-colors border-t border-white/20 dark:border-white/5"
                   >
                     <Trash2 className="w-3 h-3" />
                     Delete list
@@ -395,8 +395,8 @@ export default function BoardColumn({
       <div className="flex-1 overflow-y-auto px-2 pb-2 custom-scrollbar">
         {!isDraft && isLoading && (
           <div className="space-y-3 py-2">
-            <div className="h-16 bg-white/40 rounded-xl animate-pulse" />
-            <div className="h-16 bg-white/40 rounded-xl animate-pulse" />
+            <div className="h-16 bg-white/20 dark:bg-slate-900/40 border border-white/20 dark:border-white/5 rounded-xl animate-pulse" />
+            <div className="h-16 bg-white/20 dark:bg-slate-900/40 border border-white/20 dark:border-white/5 rounded-xl animate-pulse" />
           </div>
         )}
         {!isDraft && !isLoading && (
@@ -450,7 +450,7 @@ export default function BoardColumn({
                       window.addEventListener('pointerup', onUp);
                       window.addEventListener('pointercancel', onCancel);
                     }}
-                    className={`bg-white/40 backdrop-blur-md border border-white/40 px-3 py-3 my-1 rounded-xl text-sm text-foreground flex flex-col gap-2.5 group transition-all duration-200 hover:bg-white/50 hover:border-white/50 hover:shadow-lg ${
+                    className={`bg-white/60 dark:bg-slate-900/40 backdrop-blur-md border border-white/20 dark:border-white/5 px-3 py-3 my-1 rounded-xl text-sm text-foreground flex flex-col gap-2.5 group transition-all duration-200 hover:bg-white/70 dark:hover:bg-slate-800/50 hover:border-white/30 dark:hover:border-white/10 hover:shadow-lg dark:hover:shadow-black/20 ${
                       isTemp ? 'opacity-50 cursor-default' : 'cursor-grab active:cursor-grabbing'
                     } ${t.status === 'DONE' ? 'opacity-60' : ''}`}
                   >
@@ -486,8 +486,8 @@ export default function BoardColumn({
                       {/* Current assignee */}
                       <div className="flex items-center gap-1.5 min-w-0">
                         {t.assignee ? (
-                          <div className="flex items-center gap-1.5 bg-white/40 rounded-full pl-0.5 pr-2 py-0.5 border border-white/40">
-                            <div className="w-5 h-5 rounded-full bg-white/50 flex items-center justify-center text-[10px] font-bold text-foreground overflow-hidden flex-shrink-0">
+                          <div className="flex items-center gap-1.5 bg-white/30 dark:bg-black/20 rounded-full pl-0.5 pr-2 py-0.5 border border-white/20 dark:border-white/5">
+                            <div className="w-5 h-5 rounded-full bg-white/50 dark:bg-slate-800/50 flex items-center justify-center text-[10px] font-bold text-foreground overflow-hidden flex-shrink-0">
                               {t.assignee.avatarUrl ? (
                                 <img src={t.assignee.avatarUrl} alt={t.assignee.name || ''} className="w-full h-full object-cover" />
                               ) : (
@@ -513,7 +513,7 @@ export default function BoardColumn({
                             onPointerDown={(e) => e.stopPropagation()}
                             value={t.assigneeId || ''}
                             onChange={(e) => assignTask(t.id, e.target.value || null)}
-                            className="opacity-0 group-hover/card:opacity-100 text-[9px] bg-white/60 border border-white/50 rounded-md py-0.5 pl-1.5 pr-5 text-foreground focus:outline-none hover:border-white/60 transition-all cursor-pointer appearance-none"
+                            className="opacity-0 group-hover/card:opacity-100 text-[9px] bg-white/60 dark:bg-slate-800/60 border border-white/40 dark:border-white/10 rounded-md py-0.5 pl-1.5 pr-5 text-foreground focus:outline-none hover:border-white/60 dark:hover:border-white/20 transition-all cursor-pointer appearance-none"
                           >
                             <option value="">Assign…</option>
                             {members.map(m => (
@@ -558,7 +558,7 @@ export default function BoardColumn({
                 }}
                 placeholder="What needs to be done?"
                 rows={2}
-                className="w-full bg-white/40 border border-white/50 rounded-xl px-3 py-2.5 text-sm text-foreground placeholder-muted-foreground/70 focus:outline-none focus:ring-1 focus:ring-white/20 resize-none transition-all"
+                className="w-full bg-white/30 dark:bg-slate-900/60 border border-white/20 dark:border-white/5 rounded-xl px-3 py-2.5 text-sm text-foreground placeholder-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary/40 resize-none transition-all shadow-inner"
               />
               <div className="flex items-center gap-2">
                 <button
@@ -566,7 +566,7 @@ export default function BoardColumn({
                     submit();
                     setAdding(true);
                   }}
-                  className="px-4 py-1.5 text-xs bg-white text-black rounded-lg font-bold hover:bg-gray-200 transition-all shadow-lg active:scale-95"
+                  className="px-4 py-1.5 text-xs bg-primary text-primary-foreground rounded-lg font-bold hover:opacity-90 transition-all shadow-md shadow-primary/20 active:scale-95"
                 >
                   Add card
                 </button>
@@ -584,7 +584,7 @@ export default function BoardColumn({
           ) : (
             <button
               onClick={() => setAdding(true)}
-              className="w-full flex items-center gap-2 px-3 py-2.5 text-sm text-muted-foreground hover:bg-white/40 hover:text-foreground rounded-xl transition-all border border-transparent hover:border-white/40 group"
+              className="w-full flex items-center gap-2 px-3 py-2.5 text-sm text-muted-foreground hover:bg-white/30 dark:hover:bg-black/20 hover:text-foreground rounded-xl transition-all border border-transparent hover:border-white/20 dark:hover:border-white/5 group"
             >
               <Plus className="w-4 h-4 group-hover:scale-110 transition-transform" />
               <span className="font-medium">Add a card</span>
@@ -613,7 +613,7 @@ function DropLine({ show }: { show: boolean }) {
   return (
     <div
       aria-hidden
-      className={`h-0.5 rounded-full bg-white/40 transition-all duration-300 ${
+      className={`h-0.5 rounded-full bg-primary/50 transition-all duration-300 ${
         show ? 'opacity-100 my-2' : 'opacity-0 h-0 my-0'
       }`}
     />

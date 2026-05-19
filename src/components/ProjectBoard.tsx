@@ -17,6 +17,7 @@ import {
   updateBoardListColor,
 } from '@/app/actions/projectActions';
 import { getAllUsers, addMemberToProject, removeMemberFromProject, addUserByEmail, getAuthUser, setMemberRole } from '@/app/actions/userActions';
+import { useTheme } from 'next-themes';
 import { Plus, ChevronLeft, BarChart2, X, ChevronDown, Check, Trash2 } from 'lucide-react';
 
 type UserProfile = {
@@ -63,6 +64,7 @@ function avatarBgFor(id: string): string {
 }
 
 export default function ProjectBoard({ projectId }: { projectId: string }) {
+  const { resolvedTheme } = useTheme();
   const { data: projects = [], mutate: mutateProjects, isLoading: projectsLoading } = useSWR<Project[]>(
     'projects',
     getProjects,
@@ -502,18 +504,20 @@ export default function ProjectBoard({ projectId }: { projectId: string }) {
 
   return (
     <BoardDragProvider onDrop={handleDrop}>
-      <div className="flex h-full w-full overflow-hidden bg-white/60">
+      <div className="flex h-full w-full overflow-hidden bg-transparent">
         {/* Main board area */}
         <div
           className="flex-1 flex flex-col overflow-hidden relative"
           style={{
-            background: `radial-gradient(circle at top right, ${project.color}33, transparent), linear-gradient(180deg, rgba(0,0,0,0.4) 0%, #0a0a0a 100%)`,
+            background: resolvedTheme === 'dark'
+              ? `radial-gradient(circle at top right, ${project.color}35, transparent 65%), linear-gradient(180deg, rgba(11,19,43,0.3) 0%, rgba(11,19,43,0.7) 100%)`
+              : `radial-gradient(circle at top right, ${project.color}18, transparent 65%), linear-gradient(180deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.1) 100%)`,
           }}
         >
           {/* Header */}
-          <header className="flex items-center justify-between px-8 py-5 border-b border-white/40 backdrop-blur-md bg-white/40 z-10">
+          <header className="flex items-center justify-between px-8 py-5 border-b border-white/20 dark:border-white/5 backdrop-blur-md bg-white/20 dark:bg-black/35 z-10">
             <div className="flex items-center gap-6 min-w-0">
-              <Link href="/dashboard" className="p-2 hover:bg-white/40 rounded-lg transition-colors text-muted-foreground hover:text-foreground">
+              <Link href="/dashboard" className="p-2 hover:bg-white/30 dark:hover:bg-black/25 rounded-lg transition-colors text-muted-foreground hover:text-foreground">
                 <ChevronLeft className="w-5 h-5" />
               </Link>
               <div>
@@ -531,7 +535,7 @@ export default function ProjectBoard({ projectId }: { projectId: string }) {
               {/* Member Avatars */}
               <div className="flex -space-x-2 overflow-hidden mr-2">
                 {project.members.map(({ user: m }) => (
-                  <div key={m.id} className="inline-block h-8 w-8 rounded-full ring-2 ring-black bg-gray-800 flex items-center justify-center text-[10px] font-bold text-foreground border border-white/50" title={m.name || m.email}>
+                  <div key={m.id} className="inline-block h-8 w-8 rounded-full ring-2 ring-white/10 dark:ring-black/40 bg-gray-850 flex items-center justify-center text-[10px] font-bold text-foreground border border-white/30 dark:border-white/5 shadow-md" title={m.name || m.email}>
                     {m.avatarUrl ? (
                       <img src={m.avatarUrl} alt={m.name || ''} className="h-full w-full object-cover" />
                     ) : (
@@ -541,17 +545,17 @@ export default function ProjectBoard({ projectId }: { projectId: string }) {
                 ))}
                 <button 
                   onClick={() => setShowMemberModal(true)}
-                  className="inline-flex h-8 w-8 rounded-full ring-2 ring-black bg-white/40 items-center justify-center text-muted-foreground hover:bg-white/50 hover:text-foreground transition-all border border-white/50 border-dashed"
+                  className="inline-flex h-8 w-8 rounded-full ring-2 ring-white/10 dark:ring-black/40 bg-white/20 dark:bg-black/25 items-center justify-center text-muted-foreground hover:bg-white/30 dark:hover:bg-black/45 hover:text-foreground transition-all border border-white/30 dark:border-white/5 border-dashed"
                 >
                   <Plus className="w-4 h-4" />
                 </button>
               </div>
 
-              <div className="h-8 w-px bg-white/50 mx-2" />
+              <div className="h-8 w-px bg-white/20 dark:bg-white/5 mx-2" />
 
               <Link 
                 href="/dashboard/stats" 
-                className="flex items-center gap-2 px-4 py-2 bg-white/40 hover:bg-white/50 text-foreground rounded-xl text-sm font-bold transition-all border border-white/40"
+                className="flex items-center gap-2 px-4 py-2 bg-white/25 dark:bg-black/25 hover:bg-white/35 dark:hover:bg-black/45 text-foreground rounded-xl text-sm font-bold transition-all border border-white/20 dark:border-white/5 shadow-md"
               >
                 <BarChart2 className="w-4 h-4" />
                 Stats
@@ -634,7 +638,7 @@ export default function ProjectBoard({ projectId }: { projectId: string }) {
               <button
                 type="button"
                 onClick={() => startDraft(lists.length)}
-                className="w-72 flex-shrink-0 rounded-2xl border-2 border-dashed border-white/40 bg-white/40 hover:bg-white/40 hover:border-white/50 transition-all px-4 py-4 flex items-center justify-center gap-2 text-sm font-bold text-muted-foreground hover:text-foreground group"
+                className="w-72 flex-shrink-0 rounded-2xl border-2 border-dashed border-white/20 dark:border-white/5 bg-white/20 dark:bg-black/20 hover:bg-white/30 dark:hover:bg-black/30 hover:border-white/30 dark:hover:border-white/10 transition-all px-4 py-4 flex items-center justify-center gap-2 text-sm font-bold text-muted-foreground hover:text-foreground group"
               >
                 <Plus className="w-4 h-4 group-hover:scale-110 transition-transform" />
                 {lists.length === 0 ? 'Add First List' : 'Add New Column'}

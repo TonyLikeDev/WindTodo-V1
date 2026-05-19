@@ -72,7 +72,7 @@ export default function BacklogView({ projectId }: { projectId: string }) {
               className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm transition-colors ${
                 selected
                   ? 'bg-primary/15 text-primary border border-primary/30'
-                  : 'bg-white/60 text-foreground border border-border hover:bg-white/80'
+                  : 'bg-white/60 dark:bg-slate-900/60 text-foreground border border-white/20 dark:border-white/5 hover:bg-white/80 dark:hover:bg-slate-800/80'
               }`}
             >
               {tab.active && <span className="w-1.5 h-1.5 rounded-full bg-green-500" />}
@@ -80,7 +80,7 @@ export default function BacklogView({ projectId }: { projectId: string }) {
               {tab.range && (
                 <span className="text-xs text-muted-foreground">{tab.range}</span>
               )}
-              <span className="text-xs font-bold bg-white/70 text-foreground rounded-full px-2 py-0.5">
+              <span className="text-xs font-bold bg-white/75 dark:bg-black/35 text-foreground rounded-full px-2 py-0.5 border border-white/20 dark:border-white/5">
                 {tab.count}
               </span>
             </button>
@@ -89,7 +89,7 @@ export default function BacklogView({ projectId }: { projectId: string }) {
         <button
           type="button"
           onClick={() => setShowNewSprint(true)}
-          className="flex items-center gap-1 px-3 py-2 rounded-full text-sm bg-white/60 text-primary border border-border hover:bg-white/80 transition-colors"
+          className="flex items-center gap-1 px-3 py-2 rounded-full text-sm bg-white/60 dark:bg-slate-900/60 text-primary border border-white/20 dark:border-white/5 hover:bg-white/80 dark:hover:bg-slate-800/80 transition-colors"
         >
           <Plus className="w-4 h-4" />
           New sprint
@@ -114,7 +114,7 @@ export default function BacklogView({ projectId }: { projectId: string }) {
       <div className="glass rounded-2xl overflow-hidden">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="bg-white/40 border-b border-border">
+            <tr className="bg-white/40 dark:bg-black/25 border-b border-white/20 dark:border-white/5">
               <Th>ID</Th>
               <Th>Title</Th>
               <Th>Status</Th>
@@ -205,7 +205,7 @@ function BacklogRow({
   const assigneeInitial = (task.assignee?.name || task.assignee?.email || '?').charAt(0).toUpperCase();
 
   return (
-    <tr className="hover:bg-white/40 transition-colors">
+    <tr className="hover:bg-white/40 dark:hover:bg-slate-900/30 transition-colors">
       <td className="px-6 py-3 text-xs font-mono text-muted-foreground">
         #{index + 1}
       </td>
@@ -250,7 +250,7 @@ function BacklogRow({
         </button>
         {moveOpen && (
           <div
-            className="absolute right-2 top-full mt-1 w-48 bg-white/95 backdrop-blur-md rounded-xl border border-border shadow-xl shadow-sky-dark/20 z-dropdown p-1"
+            className="absolute right-2 top-full mt-1 w-48 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md rounded-xl border border-white/20 dark:border-white/5 shadow-xl dark:shadow-black/40 z-dropdown p-1"
             onMouseLeave={() => setMoveOpen(false)}
           >
             <button
@@ -260,7 +260,7 @@ function BacklogRow({
                 await moveTaskToSprint(task.id, null);
                 onAfterMove();
               }}
-              className="w-full text-left px-3 py-1.5 rounded-lg text-sm text-foreground hover:bg-primary/10"
+              className="w-full text-left px-3 py-1.5 rounded-lg text-sm text-foreground hover:bg-primary/10 dark:hover:bg-primary/20"
             >
               Backlog
             </button>
@@ -273,7 +273,7 @@ function BacklogRow({
                   await moveTaskToSprint(task.id, s.id);
                   onAfterMove();
                 }}
-                className="w-full text-left px-3 py-1.5 rounded-lg text-sm text-foreground hover:bg-primary/10"
+                className="w-full text-left px-3 py-1.5 rounded-lg text-sm text-foreground hover:bg-primary/10 dark:hover:bg-primary/20"
               >
                 {s.name}
               </button>
@@ -337,7 +337,7 @@ function NewSprintModal({
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="Sprint 1"
-          className="w-full mb-4 bg-white/60 border border-border rounded-lg px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40"
+          className="w-full mb-4 bg-white/10 dark:bg-slate-900/60 border border-white/20 dark:border-white/5 rounded-lg px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 placeholder-muted-foreground/50"
         />
         <div className="grid grid-cols-2 gap-3 mb-5">
           <div>
@@ -346,7 +346,7 @@ function NewSprintModal({
               type="date"
               value={start}
               onChange={(e) => setStart(e.target.value)}
-              className="w-full bg-white/60 border border-border rounded-lg px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40"
+              className="w-full bg-white/10 dark:bg-slate-900/60 border border-white/20 dark:border-white/5 rounded-lg px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 [color-scheme:light] dark:[color-scheme:dark]"
             />
           </div>
           <div>
@@ -355,7 +355,7 @@ function NewSprintModal({
               type="date"
               value={end}
               onChange={(e) => setEnd(e.target.value)}
-              className="w-full bg-white/60 border border-border rounded-lg px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40"
+              className="w-full bg-white/10 dark:bg-slate-900/60 border border-white/20 dark:border-white/5 rounded-lg px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 [color-scheme:light] dark:[color-scheme:dark]"
             />
           </div>
         </div>

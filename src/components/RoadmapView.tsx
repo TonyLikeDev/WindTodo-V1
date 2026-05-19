@@ -107,9 +107,9 @@ export default function RoadmapView({ projectId }: { projectId: string }) {
 
   return (
     <div className="h-full flex flex-col relative">
-      <div className="flex-shrink-0 flex items-center justify-end gap-2 px-6 md:px-10 py-3 border-b border-border bg-white/40 backdrop-blur-md">
+      <div className="flex-shrink-0 flex items-center justify-end gap-2 px-6 md:px-10 py-3 border-b border-white/20 dark:border-white/5 bg-white/20 dark:bg-black/35 backdrop-blur-md">
         <span className="text-xs text-muted-foreground mr-2">Zoom</span>
-        <div className="flex items-center gap-1 bg-white/70 backdrop-blur-md rounded-full border border-border p-1">
+        <div className="flex items-center gap-1 bg-white/50 dark:bg-slate-900/60 backdrop-blur-md rounded-full border border-white/20 dark:border-white/5 p-1">
           {(Object.keys(ZOOM_CONFIG) as Zoom[]).map((z) => {
             const active = zoom === z;
             return (
@@ -131,9 +131,9 @@ export default function RoadmapView({ projectId }: { projectId: string }) {
       <div className="flex-1 overflow-auto custom-scrollbar pb-28">
         <div className="flex min-w-max">
           {/* Left rail */}
-          <div className="flex-shrink-0 w-72 sticky left-0 z-10 bg-white/60 backdrop-blur-md border-r border-border">
+          <div className="flex-shrink-0 w-72 sticky left-0 z-10 bg-white/60 dark:bg-slate-900/60 backdrop-blur-md border-r border-white/20 dark:border-white/5">
             <div
-              className="flex items-center px-4 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider border-b border-border"
+              className="flex items-center px-4 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider border-b border-white/20 dark:border-white/5"
               style={{ height: TIMELINE_HEADER }}
             >
               Task
@@ -148,7 +148,7 @@ export default function RoadmapView({ projectId }: { projectId: string }) {
                 return (
                   <div key={g.id}>
                     <div
-                      className="flex items-center gap-2 px-3 border-b border-border/60 bg-white/40"
+                      className="flex items-center gap-2 px-3 border-b border-white/20 dark:border-white/5 bg-white/40 dark:bg-black/25"
                       style={{ height: HEADER_ROW }}
                     >
                       <button
@@ -169,7 +169,7 @@ export default function RoadmapView({ projectId }: { projectId: string }) {
                       g.tasks.map((t) => (
                         <div
                           key={t.id}
-                          className="flex items-center gap-2 pl-10 pr-3 border-b border-border/40"
+                          className="flex items-center gap-2 pl-10 pr-3 border-b border-white/10 dark:border-white/5 hover:bg-white/10 dark:hover:bg-slate-900/25"
                           style={{ height: TASK_ROW }}
                         >
                           <span className="text-xs text-foreground truncate">{t.title}</span>
@@ -185,13 +185,13 @@ export default function RoadmapView({ projectId }: { projectId: string }) {
           <div className="relative" style={{ width: totalPx }}>
             {/* Tick header */}
             <div
-              className="relative border-b border-border bg-white/40 backdrop-blur-md sticky top-0 z-10"
+              className="relative border-b border-white/20 dark:border-white/5 bg-white/40 dark:bg-black/25 backdrop-blur-md sticky top-0 z-10"
               style={{ height: TIMELINE_HEADER }}
             >
               {ticks.map((t) => (
                 <div
                   key={t.toISOString()}
-                  className="absolute top-0 bottom-0 flex items-center text-[11px] font-semibold text-muted-foreground uppercase tracking-wider px-2 border-l border-border/40"
+                  className="absolute top-0 bottom-0 flex items-center text-[11px] font-semibold text-muted-foreground uppercase tracking-wider px-2 border-l border-white/10 dark:border-white/5"
                   style={{ left: dateToPx(t) }}
                 >
                   {formatTick(t, cfg.tickUnit)}
@@ -211,11 +211,11 @@ export default function RoadmapView({ projectId }: { projectId: string }) {
               const isCollapsed = collapsed[g.id];
               return (
                 <div key={g.id}>
-                  <div className="relative border-b border-border/60 bg-white/20" style={{ height: HEADER_ROW }}>
+                  <div className="relative border-b border-white/20 dark:border-white/5 bg-white/20 dark:bg-black/10" style={{ height: HEADER_ROW }}>
                     {ticks.map((t) => (
                       <div
                         key={t.toISOString()}
-                        className="absolute top-0 bottom-0 border-l border-border/30"
+                        className="absolute top-0 bottom-0 border-l border-white/10 dark:border-white/5"
                         style={{ left: dateToPx(t) }}
                       />
                     ))}
@@ -226,13 +226,13 @@ export default function RoadmapView({ projectId }: { projectId: string }) {
                       return (
                         <div
                           key={t.id}
-                          className="relative border-b border-border/40"
+                          className="relative border-b border-white/10 dark:border-white/5 hover:bg-white/5 dark:hover:bg-slate-900/10"
                           style={{ height: TASK_ROW }}
                         >
                           {ticks.map((tk) => (
                             <div
                               key={tk.toISOString()}
-                              className="absolute top-0 bottom-0 border-l border-border/30"
+                              className="absolute top-0 bottom-0 border-l border-white/10 dark:border-white/5"
                               style={{ left: dateToPx(tk) }}
                             />
                           ))}
@@ -392,7 +392,7 @@ function NewTaskModal({
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="Ship the new onboarding flow"
-          className="w-full mb-4 bg-white/60 border border-border rounded-lg px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40"
+          className="w-full mb-4 bg-white/10 dark:bg-slate-900/60 border border-white/20 dark:border-white/5 rounded-lg px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 placeholder-muted-foreground/50"
         />
 
         <label className="block text-xs font-semibold text-muted-foreground mb-1">Task list</label>
@@ -407,7 +407,7 @@ function NewTaskModal({
                 className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors text-left ${
                   selected
                     ? 'bg-primary/15 text-primary border border-primary/30'
-                    : 'bg-white/60 text-foreground border border-border hover:bg-white/80'
+                    : 'bg-white/10 dark:bg-slate-900/40 text-foreground border border-white/20 dark:border-white/5 hover:bg-white/20 dark:hover:bg-slate-800/40'
                 }`}
               >
                 <span
