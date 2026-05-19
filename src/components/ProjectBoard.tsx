@@ -533,21 +533,24 @@ export default function ProjectBoard({ projectId }: { projectId: string }) {
 
             <div className="flex items-center gap-4">
               {/* Member Avatars */}
-              <div className="flex -space-x-2 overflow-hidden mr-2">
-                {project.members.map(({ user: m }) => (
-                  <div key={m.id} className="inline-block h-8 w-8 rounded-full ring-2 ring-white/10 dark:ring-black/40 bg-gray-850 flex items-center justify-center text-[10px] font-bold text-foreground border border-white/30 dark:border-white/5 shadow-md" title={m.name || m.email}>
-                    {m.avatarUrl ? (
-                      <img src={m.avatarUrl} alt={m.name || ''} className="h-full w-full object-cover" />
-                    ) : (
-                      (m.name || m.email).charAt(0).toUpperCase()
-                    )}
-                  </div>
-                ))}
+              <div className="flex items-center gap-3">
+                <div className="flex -space-x-2 overflow-hidden">
+                  {project.members.map(({ user: m }) => (
+                    <div key={m.id} className="flex h-8 w-8 rounded-full ring-2 ring-white/10 dark:ring-black/40 bg-slate-200 dark:bg-slate-800 items-center justify-center text-[10px] font-bold text-foreground border border-white/30 dark:border-white/5 shadow-md" title={m.name || m.email}>
+                      {m.avatarUrl ? (
+                        <img src={m.avatarUrl} alt={m.name || ''} className="h-full w-full object-cover" />
+                      ) : (
+                        (m.name || m.email).charAt(0).toUpperCase()
+                      )}
+                    </div>
+                  ))}
+                </div>
                 <button 
                   onClick={() => setShowMemberModal(true)}
-                  className="inline-flex h-8 w-8 rounded-full ring-2 ring-white/10 dark:ring-black/40 bg-white/20 dark:bg-black/25 items-center justify-center text-muted-foreground hover:bg-white/30 dark:hover:bg-black/45 hover:text-foreground transition-all border border-white/30 dark:border-white/5 border-dashed"
+                  className="flex items-center gap-2 px-4 py-2 bg-white/25 dark:bg-black/25 hover:bg-white/35 dark:hover:bg-black/45 text-foreground rounded-xl text-sm font-bold transition-all border border-white/20 dark:border-white/5 shadow-md"
                 >
                   <Plus className="w-4 h-4" />
+                  Share
                 </button>
               </div>
 
