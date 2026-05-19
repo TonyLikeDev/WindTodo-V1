@@ -97,7 +97,10 @@ export default function BoardColumn({
 }) {
   const { data: tasks = [], mutate, isLoading } = useSWR<Task[]>(
     isDraft ? null : listId,
-    () => getTasks(listId),
+    async () => {
+      const res = await getTasks(listId);
+      return res as unknown as Task[];
+    },
     {
       revalidateOnFocus: false,
       dedupingInterval: 5000,

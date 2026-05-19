@@ -4,6 +4,7 @@ import { cache } from 'react';
 import prisma from '@/lib/prisma';
 import { createClient } from '@/utils/supabase/server';
 import { revalidatePath } from 'next/cache';
+import { cookies } from 'next/headers';
 
 export type AuthUser = {
   id: string;
@@ -18,6 +19,22 @@ export type AuthUser = {
  * need `user.id`.
  */
 export const getAuthUser = cache(async (): Promise<AuthUser | null> => {
+  if (process.env.NEXT_PUBLIC_SUPABASE_URL?.includes('placeholder')) {
+    const cookieStore = await cookies();
+    const email = cookieStore.get('windtodo-user-email')?.value;
+    if (!email) return null;
+    const cleanEmail = email.trim().toLowerCase();
+    
+    // We can generate a predictable unique mock ID based on email
+    const mockId = `mock-user-${cleanEmail.replace(/[^a-zA-Z0-9]/g, '-')}`;
+    return {
+      id: mockId,
+      email: cleanEmail,
+      name: cleanEmail.split('@')[0],
+      avatarUrl: null,
+    };
+  }
+
   const supabase = await createClient();
   const { data, error } = await supabase.auth.getClaims();
   if (error || !data?.claims) return null;
@@ -140,9 +157,8 @@ export async function getProjectPeers(): Promise<ProjectPeerRow[]> {
   const rows: ProjectPeerRow[] = [];
   for (const project of projects) {
     for (const m of project.members) {
-      // Creator is implicitly ADMIN even if their stored role drifted.
       const effectiveRole: 'ADMIN' | 'MEMBER' =
-        project.userId === m.userId ? 'ADMIN' : m.role;
+        project.userId === m.userId ? 'ADMIN' : (m.role as 'ADMIN' | 'MEMBER');
       rows.push({
         user: {
           id: m.user.id,

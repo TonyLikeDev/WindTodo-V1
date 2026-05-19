@@ -64,7 +64,10 @@ function avatarBgFor(id: string): string {
 export default function ProjectBoard({ projectId }: { projectId: string }) {
   const { data: projects = [], mutate: mutateProjects, isLoading: projectsLoading } = useSWR<Project[]>(
     'projects',
-    getProjects,
+    async () => {
+      const res = await getProjects();
+      return res as unknown as Project[];
+    },
     { revalidateOnFocus: false, dedupingInterval: 10000 }
   );
   const { data: allUsers = [] } = useSWR('users', getAllUsers, { revalidateOnFocus: false, dedupingInterval: 60000 });
@@ -708,7 +711,7 @@ export default function ProjectBoard({ projectId }: { projectId: string }) {
                   <button
                     onClick={handleShareInvite}
                     disabled={shareBusy || !shareInput.trim()}
-                    className="px-4 py-2 bg-blue-600 hover:bg-blue-500 disabled:bg-blue-900/50 disabled:text-foreground/40 text-foreground rounded-lg text-sm font-bold transition-all"
+                    className="px-4 py-2 bg-primary hover:bg-sky-dark disabled:bg-primary/20 disabled:text-white/40 text-white rounded-lg text-sm font-bold transition-all shadow-md hover:shadow-primary/20"
                   >
                     Share
                   </button>

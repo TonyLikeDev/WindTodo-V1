@@ -136,12 +136,12 @@ function MemberCard({ u, rank, totalProjectTasks }: { u: MemberStats; rank: numb
           <span className="text-foreground text-base font-bold">{u.todo}</span>
         </div>
         <div className="flex flex-col items-center p-2 rounded-lg bg-blue-500/10">
-          <span className="text-blue-400 text-[9px] font-bold uppercase tracking-wider mb-0.5">Active</span>
-          <span className="text-blue-300 text-base font-bold">{u.inProgress}</span>
+          <span className="text-blue-600 text-[9px] font-bold uppercase tracking-wider mb-0.5">Active</span>
+          <span className="text-blue-800 text-base font-bold">{u.inProgress}</span>
         </div>
         <div className="flex flex-col items-center p-2 rounded-lg bg-green-500/10">
-          <span className="text-green-400 text-[9px] font-bold uppercase tracking-wider mb-0.5">Done</span>
-          <span className="text-green-300 text-base font-bold">{u.completed}</span>
+          <span className="text-green-600 text-[9px] font-bold uppercase tracking-wider mb-0.5">Done</span>
+          <span className="text-green-800 text-base font-bold">{u.completed}</span>
         </div>
       </div>
 
@@ -173,14 +173,14 @@ function MemberCard({ u, rank, totalProjectTasks }: { u: MemberStats; rank: numb
             )}
           </div>
           <div className="flex gap-3 mt-1.5 text-[9px]">
-            <span className="text-green-400">● Done {Math.round((u.completed / u.total) * 100)}%</span>
-            <span className="text-blue-400">● Active {Math.round((u.inProgress / u.total) * 100)}%</span>
+            <span className="text-green-600 font-bold">● Done {Math.round((u.completed / u.total) * 100)}%</span>
+            <span className="text-blue-600 font-bold">● Active {Math.round((u.inProgress / u.total) * 100)}%</span>
             <span className="text-muted-foreground">● Todo {Math.round((u.todo / u.total) * 100)}%</span>
           </div>
         </div>
       )}
       {u.total === 0 && (
-        <p className="text-[11px] text-muted-foreground/70 italic text-center">No tasks assigned yet</p>
+        <p className="text-[11px] text-slate-800 font-bold italic text-center">No tasks assigned yet</p>
       )}
     </div>
   );
@@ -296,7 +296,7 @@ export default function StatsDashboard({ minimal = false }: { minimal?: boolean 
               </div>
             </div>
           ) : (
-            <div className="flex-1 flex items-center justify-center text-muted-foreground/70 text-sm italic">No tasks yet</div>
+            <div className="flex-1 flex items-center justify-center text-slate-800 font-bold text-sm italic">No tasks yet</div>
           )}
         </GlassCard>
       </div>
@@ -350,7 +350,7 @@ export default function StatsDashboard({ minimal = false }: { minimal?: boolean 
               </div>
             </div>
           ) : (
-            <div className="flex-1 flex items-center justify-center text-muted-foreground/70 text-sm italic">No tasks yet</div>
+            <div className="flex-1 flex items-center justify-center text-slate-800 font-bold text-sm italic">No tasks yet</div>
           )}
         </GlassCard>
 
@@ -429,7 +429,7 @@ export default function StatsDashboard({ minimal = false }: { minimal?: boolean 
               </div>
             </div>
           ) : (
-            <div className="flex-1 flex items-center justify-center text-muted-foreground/70 text-sm italic">Select a project</div>
+            <div className="flex-1 flex items-center justify-center text-slate-800 font-bold text-sm italic">Select a project</div>
           )}
         </GlassCard>
       </div>

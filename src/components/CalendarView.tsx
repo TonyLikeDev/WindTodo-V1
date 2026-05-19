@@ -22,10 +22,10 @@ const PRIORITY_LABELS: Record<string, string> = {
 };
 
 const PRIORITY_COLORS: Record<string, string> = {
-  LOW: 'text-slate-400',
-  MEDIUM: 'text-amber-400',
-  HIGH: 'text-orange-400',
-  URGENT: 'text-red-400',
+  LOW: 'text-slate-500 font-bold',
+  MEDIUM: 'text-amber-700 font-bold',
+  HIGH: 'text-orange-700 font-bold',
+  URGENT: 'text-red-700 font-bold',
 };
 
 const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -314,7 +314,7 @@ export default function CalendarView() {
                     {/* Assignee */}
                     {task.assignee && (
                       <div className="flex items-center gap-1.5">
-                        <div className="w-5 h-5 rounded-full bg-violet-500/30 border border-violet-400/40 flex items-center justify-center text-[9px] font-bold text-violet-300">
+                        <div className="w-5 h-5 rounded-full bg-violet-500/20 border border-violet-400/30 flex items-center justify-center text-[9px] font-extrabold text-violet-700">
                           {(task.assignee.name || task.assignee.email).charAt(0).toUpperCase()}
                         </div>
                         <span className="text-[11px] text-muted-foreground">{task.assignee.name || task.assignee.email}</span>
@@ -324,7 +324,7 @@ export default function CalendarView() {
                     {/* Link to project board */}
                     <Link
                       href={`/projects/${task.list.project.id}`}
-                      className="flex items-center gap-1 text-[11px] font-bold text-violet-400 hover:text-violet-300 transition-colors"
+                      className="flex items-center gap-1 text-[11px] font-bold text-violet-700 hover:text-violet-900 transition-colors"
                     >
                       <ExternalLink className="w-3 h-3" />
                       Open project
