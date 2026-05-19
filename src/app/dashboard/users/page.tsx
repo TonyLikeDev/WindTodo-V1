@@ -16,9 +16,9 @@ export default async function UsersPage() {
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="bg-white/40 border-b border-border">
-              <th className="px-6 py-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">User</th>
-              <th className="px-6 py-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Role</th>
-              <th className="px-6 py-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Project</th>
+              <th className="px-6 py-4 text-xs font-bold text-foreground/70 dark:text-white/70 uppercase tracking-wider">User</th>
+              <th className="px-6 py-4 text-xs font-bold text-foreground/70 dark:text-white/70 uppercase tracking-wider">Role</th>
+              <th className="px-6 py-4 text-xs font-bold text-foreground/70 dark:text-white/70 uppercase tracking-wider">Project</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
@@ -49,7 +49,7 @@ export default async function UsersPage() {
                           <div className="flex items-center gap-2">
                             <span className="text-sm font-medium text-foreground">{displayName}</span>
                             {row.user.isPending && (
-                              <span className="px-1.5 py-0.5 rounded-full text-[9px] font-medium bg-yellow-500/15 text-yellow-700">
+                              <span className="px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-yellow-500/15 dark:bg-yellow-400/20 text-yellow-700 dark:text-yellow-400 border border-yellow-500/20 dark:border-yellow-400/30">
                                 Pending
                               </span>
                             )}
@@ -59,10 +59,10 @@ export default async function UsersPage() {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-2.5 py-1 rounded-full text-[10px] font-semibold uppercase tracking-wider ${
+                      <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${
                         isAdmin
-                          ? 'bg-primary/15 text-primary'
-                          : 'bg-slate-500/15 text-slate-700'
+                          ? 'bg-primary/15 text-primary border-primary/20'
+                          : 'bg-slate-500/15 dark:bg-white/10 text-slate-700 dark:text-white/90 border-slate-500/20 dark:border-white/20'
                       }`}>
                         {isAdmin ? 'Admin' : 'Member'}
                       </span>

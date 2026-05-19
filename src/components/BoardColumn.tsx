@@ -467,7 +467,7 @@ export default function BoardColumn({
                           }}
                         />
                         <span className={`break-words flex-1 leading-snug transition-all text-sm ${
-                          t.status === 'DONE' ? 'line-through text-muted-foreground' : 'text-foreground'
+                          t.status === 'DONE' ? 'line-through text-foreground/60 dark:text-white/60' : 'text-foreground dark:text-white'
                         }`}>
                           {t.title}
                         </span>
@@ -499,7 +499,7 @@ export default function BoardColumn({
                             </span>
                           </div>
                         ) : (
-                          <div className="flex items-center gap-1 text-muted-foreground/70">
+                          <div className="flex items-center gap-1 text-foreground/60 dark:text-white/60">
                             <User className="w-3 h-3" />
                             <span className="text-[10px]">Unassigned</span>
                           </div>
@@ -584,7 +584,7 @@ export default function BoardColumn({
           ) : (
             <button
               onClick={() => setAdding(true)}
-              className="w-full flex items-center gap-2 px-3 py-2.5 text-sm text-muted-foreground hover:bg-white/30 dark:hover:bg-black/20 hover:text-foreground rounded-xl transition-all border border-transparent hover:border-white/20 dark:hover:border-white/5 group"
+              className="w-full flex items-center gap-2 px-3 py-2.5 text-sm text-foreground/70 dark:text-white/70 hover:bg-white/30 dark:hover:bg-black/20 hover:text-foreground dark:hover:text-white rounded-xl transition-all border border-transparent hover:border-white/20 dark:hover:border-white/5 group"
             >
               <Plus className="w-4 h-4 group-hover:scale-110 transition-transform" />
               <span className="font-medium">Add a card</span>

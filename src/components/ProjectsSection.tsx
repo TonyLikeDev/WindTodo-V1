@@ -79,14 +79,14 @@ export default function ProjectsSection() {
             
             <button
               onClick={(e) => handleDelete(e, p.id)}
-              className="absolute top-6 right-12 p-2 text-gray-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg opacity-0 group-hover:opacity-100 transition-all z-10"
+              className="absolute top-6 right-12 p-2 text-white/50 hover:text-red-400 hover:bg-red-500/20 rounded-lg opacity-0 group-hover:opacity-100 transition-all z-10"
               title="Delete Project"
             >
               <Trash2 className="w-4 h-4" />
             </button>
 
-            <p className="text-xs text-gray-400 mb-auto">Open board</p>
-            <div className="mt-4 text-[11px] text-gray-500 uppercase tracking-wider">Project</div>
+            <p className="text-xs text-white/70 mb-auto">Open board</p>
+            <div className="mt-4 text-[11px] text-white/60 uppercase tracking-wider font-semibold">Project</div>
           </Link>
         ))}
 

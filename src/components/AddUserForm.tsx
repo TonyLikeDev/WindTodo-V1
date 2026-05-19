@@ -43,12 +43,12 @@ export default function AddUserForm() {
             }}
             placeholder="user@example.com"
             required
-            className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-white/20 transition-all w-64"
+            className="bg-transparent dark:bg-white/5 border border-border dark:border-white/10 rounded-lg px-3 py-2 text-sm text-foreground dark:text-white placeholder-muted-foreground dark:placeholder-white/60 focus:outline-none focus:ring-1 focus:ring-primary/50 transition-all w-64"
           />
           <button
             type="submit"
             disabled={pending || !email}
-            className="flex items-center gap-1.5 px-4 py-2 bg-white text-black text-sm font-bold rounded-lg hover:bg-gray-200 transition-all shadow-lg active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100"
+            className="flex items-center gap-1.5 px-4 py-2 bg-primary text-white text-sm font-bold rounded-lg hover:bg-primary/90 transition-all shadow-lg shadow-primary/30 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100"
           >
             <Plus className="w-4 h-4" />
             {pending ? 'Adding…' : 'Add user'}

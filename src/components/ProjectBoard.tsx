@@ -641,7 +641,7 @@ export default function ProjectBoard({ projectId }: { projectId: string }) {
               <button
                 type="button"
                 onClick={() => startDraft(lists.length)}
-                className="w-72 flex-shrink-0 rounded-2xl border-2 border-dashed border-white/20 dark:border-white/5 bg-white/20 dark:bg-black/20 hover:bg-white/30 dark:hover:bg-black/30 hover:border-white/30 dark:hover:border-white/10 transition-all px-4 py-4 flex items-center justify-center gap-2 text-sm font-bold text-muted-foreground hover:text-foreground group"
+                className="w-72 flex-shrink-0 rounded-2xl border-2 border-dashed border-white/20 dark:border-white/5 bg-white/20 dark:bg-black/20 hover:bg-white/30 dark:hover:bg-black/30 hover:border-white/30 dark:hover:border-white/10 transition-all px-4 py-4 flex items-center justify-center gap-2 text-sm font-bold text-foreground/70 dark:text-white/70 hover:text-foreground dark:hover:text-white group"
               >
                 <Plus className="w-4 h-4 group-hover:scale-110 transition-transform" />
                 {lists.length === 0 ? 'Add First List' : 'Add New Column'}

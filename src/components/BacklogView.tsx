@@ -173,16 +173,16 @@ function Th({ children }: { children: React.ReactNode }) {
 }
 
 const STATUS_LABEL: Record<string, { text: string; cls: string }> = {
-  TODO: { text: 'Todo', cls: 'bg-slate-500/15 text-slate-700' },
-  IN_PROGRESS: { text: 'In Progress', cls: 'bg-sky-500/15 text-sky-700' },
-  DONE: { text: 'Done', cls: 'bg-green-500/15 text-green-700' },
+  TODO: { text: 'Todo', cls: 'bg-slate-500/15 dark:bg-white/10 text-slate-700 dark:text-white/80' },
+  IN_PROGRESS: { text: 'In Progress', cls: 'bg-sky-500/15 dark:bg-sky-500/20 text-sky-700 dark:text-sky-300' },
+  DONE: { text: 'Done', cls: 'bg-green-500/15 dark:bg-emerald-500/20 text-green-700 dark:text-emerald-300' },
 };
 
 const PRIORITY_LABEL: Record<string, { text: string; cls: string }> = {
-  LOW: { text: 'Low', cls: 'bg-slate-500/15 text-slate-700' },
-  MEDIUM: { text: 'Medium', cls: 'bg-amber-500/15 text-amber-700' },
-  HIGH: { text: 'High', cls: 'bg-orange-500/15 text-orange-700' },
-  URGENT: { text: 'Critical', cls: 'bg-red-500/15 text-red-700' },
+  LOW: { text: 'Low', cls: 'bg-slate-500/15 dark:bg-white/10 text-slate-700 dark:text-white/80' },
+  MEDIUM: { text: 'Medium', cls: 'bg-amber-500/15 dark:bg-amber-500/20 text-amber-700 dark:text-amber-300' },
+  HIGH: { text: 'High', cls: 'bg-orange-500/15 dark:bg-orange-500/20 text-orange-700 dark:text-orange-300' },
+  URGENT: { text: 'Critical', cls: 'bg-red-500/15 dark:bg-red-500/20 text-red-700 dark:text-red-300' },
 };
 
 function BacklogRow({
@@ -243,7 +243,7 @@ function BacklogRow({
         <button
           type="button"
           onClick={() => setMoveOpen((v) => !v)}
-          className="flex items-center gap-1 text-xs text-primary hover:underline"
+          className="flex items-center gap-1 text-xs font-bold text-primary dark:text-blue-400 hover:text-primary/80 transition-colors"
         >
           <ArrowRight className="w-3 h-3" />
           Move

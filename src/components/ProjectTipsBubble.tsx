@@ -73,7 +73,7 @@ export default function ProjectTipsBubble() {
             : 'opacity-0 translate-x-6 pointer-events-none'
         }`}
       >
-        <div className="bg-white/95 backdrop-blur-md rounded-2xl border border-border shadow-xl shadow-sky-dark/20 px-4 py-3 w-72">
+        <div className="bg-white/95 dark:bg-slate-800/95 backdrop-blur-md rounded-2xl border border-border dark:border-white/10 shadow-xl shadow-sky-dark/20 px-4 py-3 w-72">
           <div className="flex items-center justify-between mb-1">
             <span className="text-[10px] font-bold uppercase tracking-widest text-primary">
               Tip
@@ -90,7 +90,7 @@ export default function ProjectTipsBubble() {
               <X className="w-4 h-4" />
             </button>
           </div>
-          <p className="text-sm text-foreground leading-snug">{TIPS[tipIndex]}</p>
+          <p className="text-sm text-foreground dark:text-white leading-snug">{TIPS[tipIndex]}</p>
         </div>
       </div>
       <button

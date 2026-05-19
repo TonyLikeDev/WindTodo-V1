@@ -188,7 +188,7 @@ export default function TaskList({ title, listId, placeholder, bgColor }: { titl
             value={effectiveProjectId}
             onChange={(e) => setSelectedProjectId(e.target.value)}
             disabled={projects.length === 0}
-            className="bg-white dark:bg-black/35 border border-white/80 dark:border-white/5 rounded-xl px-3 text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 shadow-sm transition-all min-w-[8rem] max-w-[12rem] truncate disabled:opacity-50 disabled:cursor-not-allowed"
+            className="bg-white dark:bg-black/35 border border-white/80 dark:border-white/5 rounded-xl px-3 text-sm font-medium text-foreground dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/20 shadow-sm transition-all min-w-[8rem] max-w-[12rem] truncate disabled:opacity-50 disabled:cursor-not-allowed"
             title="Project for new task (assigned to me)"
           >
             {projects.length === 0 && <option value="">No projects</option>}
@@ -203,7 +203,7 @@ export default function TaskList({ title, listId, placeholder, bgColor }: { titl
             type="text"
             placeholder={isVirtual && projects.length === 0 ? 'Create a project first…' : placeholder}
             disabled={isVirtual && projects.length === 0}
-            className="w-full bg-white dark:bg-black/25 border border-white/80 dark:border-white/5 rounded-xl py-3 pl-4 pr-12 text-sm font-medium text-foreground placeholder-muted-foreground focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/20 transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full bg-white dark:bg-black/25 border border-white/80 dark:border-white/5 rounded-xl py-3 pl-4 pr-12 text-sm font-medium text-foreground dark:text-white placeholder-muted-foreground dark:placeholder-white/60 focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/20 transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             onKeyDown={(e) => { if (e.key === 'Enter') handleAddTask(); }}

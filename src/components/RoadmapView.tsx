@@ -172,7 +172,7 @@ export default function RoadmapView({ projectId }: { projectId: string }) {
                           className="flex items-center gap-2 pl-10 pr-3 border-b border-white/10 dark:border-white/5 hover:bg-white/10 dark:hover:bg-slate-900/25"
                           style={{ height: TASK_ROW }}
                         >
-                          <span className="text-xs text-foreground truncate">{t.title}</span>
+                          <span className={`text-sm truncate ${t.status === 'DONE' ? 'text-muted-foreground line-through opacity-70' : 'text-foreground'}`}>{t.title}</span>
                         </div>
                       ))}
                   </div>
@@ -191,7 +191,7 @@ export default function RoadmapView({ projectId }: { projectId: string }) {
               {ticks.map((t) => (
                 <div
                   key={t.toISOString()}
-                  className="absolute top-0 bottom-0 flex items-center text-[11px] font-semibold text-muted-foreground uppercase tracking-wider px-2 border-l border-white/10 dark:border-white/5"
+                  className="absolute top-0 bottom-0 flex items-center text-[11px] font-semibold text-muted-foreground uppercase tracking-wider px-2 border-l border-white/10 dark:border-white/10"
                   style={{ left: dateToPx(t) }}
                 >
                   {formatTick(t, cfg.tickUnit)}
@@ -215,7 +215,7 @@ export default function RoadmapView({ projectId }: { projectId: string }) {
                     {ticks.map((t) => (
                       <div
                         key={t.toISOString()}
-                        className="absolute top-0 bottom-0 border-l border-white/10 dark:border-white/5"
+                        className="absolute top-0 bottom-0 border-l border-white/10 dark:border-white/10"
                         style={{ left: dateToPx(t) }}
                       />
                     ))}
@@ -232,7 +232,7 @@ export default function RoadmapView({ projectId }: { projectId: string }) {
                           {ticks.map((tk) => (
                             <div
                               key={tk.toISOString()}
-                              className="absolute top-0 bottom-0 border-l border-white/10 dark:border-white/5"
+                              className="absolute top-0 bottom-0 border-l border-white/10 dark:border-white/10"
                               style={{ left: dateToPx(tk) }}
                             />
                           ))}
@@ -243,11 +243,16 @@ export default function RoadmapView({ projectId }: { projectId: string }) {
                                 left: span.left,
                                 width: span.width,
                                 height: 22,
-                                backgroundColor: g.color + '55',
-                                border: `1px solid ${g.color}`,
+                                backgroundColor: t.status === 'DONE' ? 'rgba(16, 185, 129, 0.25)' : t.status === 'IN_PROGRESS' ? g.color + '66' : g.color + '22',
+                                border: `1px solid ${t.status === 'DONE' ? 'rgba(16, 185, 129, 0.6)' : t.status === 'IN_PROGRESS' ? g.color : g.color + '66'}`,
+                                boxShadow: t.status === 'DONE' ? '0 0 8px rgba(16, 185, 129, 0.3)' : 'none'
                               }}
                             >
-                              <span className="text-[11px] font-medium text-foreground truncate">
+                              <span className={`text-[11px] truncate ${
+                                t.status === 'DONE' ? 'text-emerald-700 dark:text-emerald-400 font-medium' :
+                                t.status === 'IN_PROGRESS' ? 'text-foreground dark:text-white font-bold' :
+                                'text-foreground dark:text-white font-medium'
+                              }`}>
                                 {t.title}
                               </span>
                             </div>

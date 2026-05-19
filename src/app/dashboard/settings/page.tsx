@@ -125,24 +125,27 @@ export default function SettingsPage() {
 
                 <div className="grid grid-cols-1 gap-8">
                   <div className="space-y-3">
-                    <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest ml-1">Display Name</label>
+                    <label className="text-[10px] font-bold text-foreground/60 dark:text-white/60 uppercase tracking-widest ml-1">Display Name</label>
                     <input
                       type="text"
                       value={name}
                       onChange={(e) => setName(e.target.value)}
-                      className="w-full bg-white dark:bg-black/25 border-white/40 dark:border-white/5 border focus:border-primary focus:ring-4 focus:ring-primary/5 rounded-2xl py-4 px-6 text-sm font-bold text-foreground outline-none transition-all placeholder:text-muted-foreground/40"
+                      className="w-full bg-white dark:bg-black/25 border-white/40 dark:border-white/5 border focus:border-primary focus:ring-4 focus:ring-primary/5 rounded-2xl py-4 px-6 text-sm font-bold text-foreground dark:text-white outline-none transition-all placeholder:text-muted-foreground/40"
                       placeholder="Your display name"
                     />
                   </div>
 
                   <div className="space-y-3 opacity-60">
-                    <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest ml-1">Email Address</label>
-                    <input
-                      type="email"
-                      value={email}
-                      readOnly
-                      className="w-full bg-white/90 dark:bg-black/10 border-white/20 dark:border-white/5 border rounded-2xl py-4 px-6 text-sm font-bold text-muted-foreground outline-none cursor-not-allowed"
-                    />
+                    <label className="text-[10px] font-bold text-foreground/60 dark:text-white/60 uppercase tracking-widest ml-1">Email Address</label>
+                    <div className="relative">
+                      <input
+                        type="email"
+                        value={email}
+                        readOnly
+                        className="w-full bg-white/90 dark:bg-black/10 border-white/20 dark:border-white/5 border rounded-2xl py-4 px-6 pr-12 text-sm font-bold text-muted-foreground dark:text-white/50 outline-none cursor-not-allowed"
+                      />
+                      <Lock size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground dark:text-white/40" />
+                    </div>
                   </div>
                 </div>
 

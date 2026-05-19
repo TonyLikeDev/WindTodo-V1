@@ -213,8 +213,8 @@ export default function CalendarView() {
                           ${isToday
                             ? 'bg-violet-500 text-white shadow-lg shadow-violet-500/40'
                             : isCurrentMonth
-                              ? 'text-foreground group-hover:bg-white/20 dark:group-hover:bg-slate-800/40'
-                              : 'text-muted-foreground opacity-40'}
+                              ? ((dayTasks.length > 0 || isSelected) ? 'text-foreground dark:text-white group-hover:bg-white/20 dark:group-hover:bg-slate-800/40' : 'text-foreground/60 dark:text-white/60 group-hover:bg-white/20 dark:group-hover:bg-slate-800/40')
+                              : 'text-muted-foreground opacity-20 dark:opacity-20'}
                         `}
                       >
                         {day.getDate()}
@@ -234,7 +234,11 @@ export default function CalendarView() {
                           <span
                             className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${STATUS_COLORS[task.status]}`}
                           />
-                          <span className="truncate">{task.title}</span>
+                          <span className={`truncate ${
+                            task.status === 'DONE' ? 'text-emerald-700 dark:text-emerald-400 line-through opacity-80' :
+                            task.status === 'IN_PROGRESS' ? 'text-blue-700 dark:text-blue-400' :
+                            'text-slate-700 dark:text-slate-200'
+                          }`}>{task.title}</span>
                         </div>
                       ))}
                       {dayTasks.length > 3 && (
@@ -366,11 +370,11 @@ export default function CalendarView() {
 
       {/* Legend */}
       <div className="flex items-center gap-4 flex-wrap">
-        <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">Status:</span>
+        <span className="text-[11px] font-bold text-foreground/80 dark:text-white/80 uppercase tracking-wider">Status:</span>
         {Object.entries(STATUS_COLORS).map(([status, cls]) => (
           <div key={status} className="flex items-center gap-1.5">
             <div className={`w-2 h-2 rounded-full ${cls}`} />
-            <span className="text-[11px] text-muted-foreground">{status.replace('_', ' ')}</span>
+            <span className="text-[11px] font-medium text-foreground/80 dark:text-white/80">{status.replace('_', ' ')}</span>
           </div>
         ))}
       </div>
