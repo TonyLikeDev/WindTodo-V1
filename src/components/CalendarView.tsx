@@ -149,18 +149,18 @@ export default function CalendarView() {
         <div className="flex items-center gap-3">
           <button
             onClick={goToday}
-            className="px-4 py-2 text-sm font-bold bg-white/40 hover:bg-white/60 text-foreground rounded-xl border border-white/40 transition-all"
+            className="px-4 py-2 text-sm font-bold bg-white/40 dark:bg-slate-900/60 hover:bg-white/60 dark:hover:bg-slate-800/60 text-foreground rounded-xl border border-white/40 dark:border-white/10 transition-all"
           >
             Today
           </button>
-          <div className="flex items-center gap-1 bg-white/30 rounded-xl border border-white/40 p-1">
-            <button onClick={prevMonth} className="p-1.5 hover:bg-white/50 rounded-lg transition-all text-muted-foreground hover:text-foreground">
+          <div className="flex items-center gap-1 bg-white/30 dark:bg-slate-900/50 rounded-xl border border-white/40 dark:border-white/10 p-1">
+            <button onClick={prevMonth} className="p-1.5 hover:bg-white/50 dark:hover:bg-slate-800/40 rounded-lg transition-all text-muted-foreground hover:text-foreground">
               <ChevronLeft className="w-4 h-4" />
             </button>
             <span className="px-3 text-sm font-bold text-foreground min-w-[160px] text-center">
               {MONTHS[month]} {year}
             </span>
-            <button onClick={nextMonth} className="p-1.5 hover:bg-white/50 rounded-lg transition-all text-muted-foreground hover:text-foreground">
+            <button onClick={nextMonth} className="p-1.5 hover:bg-white/50 dark:hover:bg-slate-800/40 rounded-lg transition-all text-muted-foreground hover:text-foreground">
               <ChevronRight className="w-4 h-4" />
             </button>
           </div>
@@ -169,9 +169,9 @@ export default function CalendarView() {
 
       <div className="flex gap-6 flex-1 min-h-0">
         {/* Calendar Grid */}
-        <div className="flex-1 glass rounded-3xl border border-white/40 overflow-hidden flex flex-col">
+        <div className="flex-1 glass rounded-3xl border border-white/40 dark:border-white/10 overflow-hidden flex flex-col">
           {/* Day headers */}
-          <div className="grid grid-cols-7 border-b border-white/20">
+          <div className="grid grid-cols-7 border-b border-white/20 dark:border-white/5">
             {DAYS.map((d) => (
               <div key={d} className="py-3 text-center text-[11px] font-black uppercase tracking-widest text-muted-foreground">
                 {d}
@@ -200,9 +200,9 @@ export default function CalendarView() {
                     key={day.toISOString()}
                     onClick={() => setSelectedDay(isSelected ? null : day)}
                     className={`
-                      border-r border-b border-white/10 p-1.5 cursor-pointer transition-all group min-h-[80px]
-                      ${isCurrentMonth ? 'bg-transparent' : 'bg-black/10'}
-                      ${isSelected ? 'bg-violet-500/10 border-violet-400/30' : 'hover:bg-white/10'}
+                      border-r border-b border-white/10 dark:border-white/5 p-1.5 cursor-pointer transition-all group min-h-[80px]
+                      ${isCurrentMonth ? 'bg-transparent' : 'bg-black/15 dark:bg-black/35'}
+                      ${isSelected ? 'bg-violet-500/10 dark:bg-violet-500/20 border-violet-400/30' : 'hover:bg-white/10 dark:hover:bg-slate-800/25'}
                     `}
                   >
                     {/* Date number */}
@@ -213,8 +213,8 @@ export default function CalendarView() {
                           ${isToday
                             ? 'bg-violet-500 text-white shadow-lg shadow-violet-500/40'
                             : isCurrentMonth
-                              ? 'text-foreground group-hover:bg-white/20'
-                              : 'text-muted-foreground/50'}
+                              ? 'text-foreground group-hover:bg-white/20 dark:group-hover:bg-slate-800/40'
+                              : 'text-muted-foreground opacity-40'}
                         `}
                       >
                         {day.getDate()}
@@ -228,8 +228,8 @@ export default function CalendarView() {
                           key={task.id}
                           onMouseEnter={() => setHoveredTask(task)}
                           onMouseLeave={() => setHoveredTask(null)}
-                          className="relative flex items-center gap-1 px-2 py-1 rounded text-xs font-semibold text-black truncate cursor-pointer hover:brightness-110 transition-all"
-                          style={{ backgroundColor: task.list.project.color + 'cc' }}
+                          className="relative flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] font-bold text-foreground bg-white/50 dark:bg-slate-900/60 border border-white/25 dark:border-white/5 truncate cursor-pointer hover:bg-white/70 dark:hover:bg-slate-800/70 transition-all"
+                          style={{ borderLeft: `3px solid ${task.list.project.color}` }}
                         >
                           <span
                             className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${STATUS_COLORS[task.status]}`}
@@ -252,9 +252,9 @@ export default function CalendarView() {
 
         {/* Side panel: selected day tasks */}
         {selectedDay && (
-          <div className="w-80 flex-shrink-0 glass rounded-3xl border border-white/40 flex flex-col overflow-hidden animate-in slide-in-from-right-4 duration-200">
+          <div className="w-80 flex-shrink-0 glass rounded-3xl border border-white/40 dark:border-white/10 flex flex-col overflow-hidden animate-in slide-in-from-right-4 duration-200">
             {/* Panel header */}
-            <div className="flex items-center justify-between px-5 py-4 border-b border-white/20">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-white/20 dark:border-white/5">
               <div>
                 <p className="text-xs font-black uppercase tracking-widest text-muted-foreground">
                   {selectedDay.toLocaleDateString('en-US', { weekday: 'long' })}
@@ -265,7 +265,7 @@ export default function CalendarView() {
               </div>
               <button
                 onClick={() => setSelectedDay(null)}
-                className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-white/30 rounded-lg transition-all"
+                className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-white/30 dark:hover:bg-slate-800/40 rounded-lg transition-all"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -283,7 +283,7 @@ export default function CalendarView() {
                 selectedDayTasks.map((task) => (
                   <div
                     key={task.id}
-                    className="rounded-2xl border border-white/20 bg-white/10 hover:bg-white/20 transition-all p-3 space-y-2"
+                    className="rounded-2xl border border-white/20 dark:border-white/5 bg-white/10 dark:bg-slate-900/40 hover:bg-white/20 dark:hover:bg-slate-800/40 transition-all p-3 space-y-2"
                     style={{ borderLeftColor: task.list.project.color, borderLeftWidth: 3 }}
                   >
                     {/* Project + list breadcrumb */}
