@@ -303,9 +303,16 @@ export default function BoardColumn({
             </h3>
           )}
           {!isDraft && (
-            <span className="text-xs bg-white/50 text-foreground px-2 py-0.5 rounded-full flex-shrink-0 font-bold">
-              {tasks.length}
-            </span>
+            isLoading ? (
+              <span
+                aria-hidden
+                className="inline-block w-5 h-4 rounded-full bg-white/50 animate-pulse flex-shrink-0"
+              />
+            ) : (
+              <span className="text-xs bg-white/50 text-foreground px-2 py-0.5 rounded-full flex-shrink-0 font-bold">
+                {tasks.length}
+              </span>
+            )
           )}
         </div>
         {!isDraft && (onRemoveList || onChangeColor) && (

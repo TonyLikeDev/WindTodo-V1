@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { MouseEvent as ReactMouseEvent, ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import useSWR, { mutate as globalMutate } from 'swr';
 import BoardColumn, { DEFAULT_LIST_COLOR } from './BoardColumn';
 import { BoardDragProvider, DraggableTask } from './BoardDragContext';
@@ -16,7 +17,7 @@ import {
   updateBoardListColor,
 } from '@/app/actions/projectActions';
 import { getAllUsers, addMemberToProject, removeMemberFromProject, addUserByEmail, getAuthUser, setMemberRole } from '@/app/actions/userActions';
-import { Plus, ChevronLeft, BarChart2, X, ChevronDown, Check, Trash2 } from 'lucide-react';
+import { Plus, ChevronLeft, X, ChevronDown, Check, Trash2, Share2 } from 'lucide-react';
 
 type UserProfile = {
   id: string;
@@ -82,6 +83,7 @@ export default function ProjectBoard({ projectId }: { projectId: string }) {
   const [shareError, setShareError] = useState<string | null>(null);
   const [shareBusy, setShareBusy] = useState(false);
   const [roleMenuFor, setRoleMenuFor] = useState<string | null>(null);
+  const [roleMenuPosition, setRoleMenuPosition] = useState<{ top: number; right: number } | null>(null);
   const roleMenuRef = useRef<HTMLDivElement>(null);
   const [draggingListId, setDraggingListId] = useState<string | null>(null);
   const [listDropIndex, setListDropIndex] = useState<number | null>(null);
@@ -174,6 +176,7 @@ export default function ProjectBoard({ projectId }: { projectId: string }) {
       console.error('Failed to set role:', err);
     } finally {
       setRoleMenuFor(null);
+      setRoleMenuPosition(null);
     }
   };
 
@@ -186,6 +189,21 @@ export default function ProjectBoard({ projectId }: { projectId: string }) {
     document.addEventListener('pointerdown', onDown);
     return () => document.removeEventListener('pointerdown', onDown);
   }, [roleMenuFor]);
+
+  const toggleRoleMenu = (userId: string, anchor: HTMLButtonElement) => {
+    if (roleMenuFor === userId) {
+      setRoleMenuFor(null);
+      setRoleMenuPosition(null);
+      return;
+    }
+
+    const rect = anchor.getBoundingClientRect();
+    setRoleMenuFor(userId);
+    setRoleMenuPosition({
+      top: rect.bottom + 6,
+      right: window.innerWidth - rect.right,
+    });
+  };
 
   const handleShareInvite = async () => {
     const q = shareInput.trim();
@@ -522,34 +540,36 @@ export default function ProjectBoard({ projectId }: { projectId: string }) {
             </div>
 
             <div className="flex items-center gap-4">
-              {/* Member Avatars */}
-              <div className="flex -space-x-2 overflow-hidden mr-2">
-                {project.members.map(({ user: m }) => (
-                  <div key={m.id} className="inline-block h-8 w-8 rounded-full ring-2 ring-black bg-gray-800 flex items-center justify-center text-[10px] font-bold text-foreground border border-white/50" title={m.name || m.email}>
-                    {m.avatarUrl ? (
-                      <img src={m.avatarUrl} alt={m.name || ''} className="h-full w-full object-cover" />
-                    ) : (
-                      (m.name || m.email).charAt(0).toUpperCase()
-                    )}
-                  </div>
-                ))}
-                <button 
-                  onClick={() => setShowMemberModal(true)}
-                  className="inline-flex h-8 w-8 rounded-full ring-2 ring-black bg-white/40 items-center justify-center text-muted-foreground hover:bg-white/50 hover:text-foreground transition-all border border-white/50 border-dashed"
-                >
-                  <Plus className="w-4 h-4" />
-                </button>
-              </div>
-
-              <div className="h-8 w-px bg-white/50 mx-2" />
-
-              <Link 
-                href="/dashboard/stats" 
-                className="flex items-center gap-2 px-4 py-2 bg-white/40 hover:bg-white/50 text-foreground rounded-xl text-sm font-bold transition-all border border-white/40"
+              <button
+                type="button"
+                onClick={() => setShowMemberModal(true)}
+                className="group inline-flex h-10 items-center gap-2 rounded-2xl border border-white/50 bg-white/45 px-3 text-sm font-bold text-foreground shadow-sm shadow-sky-dark/10 transition-all hover:-translate-y-0.5 hover:bg-white/65 hover:shadow-md"
+                aria-label="Share board"
               >
-                <BarChart2 className="w-4 h-4" />
-                Stats
-              </Link>
+                <div className="flex -space-x-2">
+                  {project.members.slice(0, 3).map(({ user: m }) => (
+                    <div
+                      key={m.id}
+                      className="flex h-7 w-7 items-center justify-center overflow-hidden rounded-full border border-white/60 bg-gray-800 text-[10px] font-bold text-white ring-2 ring-white/70"
+                      title={m.name || m.email}
+                    >
+                      {m.avatarUrl ? (
+                        <img src={m.avatarUrl} alt={m.name || ''} className="h-full w-full object-cover" />
+                      ) : (
+                        (m.name || m.email).charAt(0).toUpperCase()
+                      )}
+                    </div>
+                  ))}
+                  {project.members.length > 3 && (
+                    <div className="flex h-7 w-7 items-center justify-center rounded-full border border-white/60 bg-sky-dark text-[10px] font-bold text-white ring-2 ring-white/70">
+                      +{project.members.length - 3}
+                    </div>
+                  )}
+                </div>
+                <span className="hidden sm:inline">Share</span>
+                <Share2 className="h-4 w-4 text-primary transition-transform group-hover:scale-110" />
+              </button>
+
             </div>
           </header>
 
@@ -769,7 +789,7 @@ export default function ProjectBoard({ projectId }: { projectId: string }) {
                         </div>
                       </div>
 
-                      <div className="relative" ref={menuOpen ? roleMenuRef : undefined}>
+                      <div className="relative">
                         {!canManage ? (
                           <span
                             className={`px-3 py-1.5 border rounded-lg text-sm font-bold flex items-center gap-1 select-none ${
@@ -784,7 +804,7 @@ export default function ProjectBoard({ projectId }: { projectId: string }) {
                         ) : (
                           <button
                             type="button"
-                            onClick={() => setRoleMenuFor(menuOpen ? null : m.id)}
+                            onClick={(e) => toggleRoleMenu(m.id, e.currentTarget)}
                             className={`px-3 py-1.5 border rounded-lg text-sm font-bold flex items-center gap-1 transition-all ${
                               role === 'ADMIN'
                                 ? 'border-blue-500/40 text-blue-400 hover:bg-blue-500/10'
@@ -796,8 +816,15 @@ export default function ProjectBoard({ projectId }: { projectId: string }) {
                           </button>
                         )}
 
-                        {menuOpen && canManage && (
-                          <div className="absolute right-0 top-full mt-1 z-20 w-48 bg-white/80 border border-white/50 rounded-xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-150">
+                        {menuOpen && canManage && roleMenuPosition && createPortal(
+                          <div
+                            ref={roleMenuRef}
+                            className="fixed z-[200] w-48 bg-white/95 backdrop-blur-md border border-white/60 rounded-xl shadow-2xl shadow-sky-dark/20 overflow-hidden animate-in zoom-in-95 duration-150"
+                            style={{
+                              top: roleMenuPosition.top,
+                              right: roleMenuPosition.right,
+                            }}
+                          >
                             <button
                               type="button"
                               onClick={() => handleSetMemberRole(m.id, 'ADMIN')}
@@ -819,6 +846,7 @@ export default function ProjectBoard({ projectId }: { projectId: string }) {
                               type="button"
                               onClick={() => {
                                 setRoleMenuFor(null);
+                                setRoleMenuPosition(null);
                                 handleRemoveMember(m.id);
                               }}
                               className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-400 hover:bg-red-500/10"
@@ -826,7 +854,8 @@ export default function ProjectBoard({ projectId }: { projectId: string }) {
                               <Trash2 className="w-3.5 h-3.5" />
                               Remove from board
                             </button>
-                          </div>
+                          </div>,
+                          document.body,
                         )}
                       </div>
                     </div>

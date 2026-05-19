@@ -42,8 +42,11 @@ function BottomPillBar({
   onChangeView: (v: ViewMode) => void;
   projectId: string;
 }) {
+  const [mobileOpen, setMobileOpen] = useState(false);
+
   return (
-    <div className="pointer-events-none absolute bottom-6 left-0 right-0 flex justify-center z-30">
+    <>
+    <div className="pointer-events-none absolute bottom-6 left-0 right-0 z-30 hidden justify-center md:flex">
       <div className="pointer-events-auto flex items-center gap-2">
         <div className="flex items-center gap-1 bg-white/90 backdrop-blur-md rounded-full border border-border shadow-xl shadow-sky-dark/20 p-1">
           {VIEW_OPTIONS.map(({ id, label, Icon }) => {
@@ -71,10 +74,59 @@ function BottomPillBar({
         <SwitchBoardsPill currentProjectId={projectId} />
       </div>
     </div>
+
+    <div className="fixed bottom-20 right-6 z-50 md:hidden">
+      {mobileOpen && (
+        <div className="absolute bottom-14 right-0 flex flex-col items-end gap-2">
+          {VIEW_OPTIONS.map(({ id, label, Icon }) => {
+            const active = view === id;
+            return (
+              <button
+                key={id}
+                type="button"
+                onClick={() => {
+                  onChangeView(id);
+                  setMobileOpen(false);
+                }}
+                className={`flex h-10 min-w-36 items-center gap-2 rounded-full border px-4 text-sm font-bold shadow-xl shadow-sky-dark/20 backdrop-blur-md transition-colors ${
+                  active
+                    ? 'border-primary bg-white text-primary'
+                    : 'border-border bg-white/90 text-foreground hover:text-primary'
+                }`}
+              >
+                <Icon className="h-4 w-4" />
+                <span>{label}</span>
+              </button>
+            );
+          })}
+          <SwitchBoardsPill currentProjectId={projectId} compact />
+        </div>
+      )}
+
+      <button
+        type="button"
+        onClick={() => setMobileOpen((v) => !v)}
+        aria-label={mobileOpen ? 'Hide project view options' : 'Show project view options'}
+        className={`flex h-12 w-12 touch-manipulation items-center justify-center rounded-full border shadow-xl shadow-sky-dark/20 backdrop-blur-md transition-all ${
+          mobileOpen
+            ? 'border-primary bg-primary text-primary-foreground'
+            : 'border-border bg-white/95 text-primary hover:scale-105'
+        }`}
+      >
+        <LayoutGrid className="h-5 w-5" />
+      </button>
+    </div>
+    </>
   );
 }
 
-function SwitchBoardsPill({ currentProjectId }: { currentProjectId: string }) {
+function SwitchBoardsPill({
+  currentProjectId,
+  compact = false,
+}: {
+  currentProjectId: string;
+  compact?: boolean;
+}) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const wrapperRef = useRef<HTMLDivElement | null>(null);
@@ -106,11 +158,11 @@ function SwitchBoardsPill({ currentProjectId }: { currentProjectId: string }) {
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium bg-white/90 backdrop-blur-md border shadow-xl shadow-sky-dark/20 transition-colors ${
+        className={`flex items-center gap-2 rounded-full bg-white/90 text-sm font-medium backdrop-blur-md border shadow-xl shadow-sky-dark/20 transition-colors ${
           open
             ? 'border-primary text-primary'
             : 'border-border text-foreground hover:text-primary'
-        }`}
+        } ${compact ? 'h-10 min-w-36 px-4 font-bold' : 'px-4 py-2'}`}
       >
         <LayoutGrid className="w-4 h-4" />
         <span>Switch boards</span>
@@ -146,4 +198,3 @@ function SwitchBoardsPill({ currentProjectId }: { currentProjectId: string }) {
     </div>
   );
 }
-
