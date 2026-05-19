@@ -28,6 +28,16 @@ This is the Final Project Report for **WindTodo V1**, submitted on **2026-05-17*
 | 4   | Hoang Phuc Hung     | [`GabTommy2006`](https://github.com/GabTommy2006)                     | 24020004   | Frontend — Task detail modal, member assignment + due dates, calendar |
 | 5   | Le Van Cong Nguyen  | [`nguyendangban0605-beep`](https://github.com/nguyendangban0605-beep) | 24020006   | Frontend / UI/UX — Glassmorphism polish                               |
 
+### Self-Reports
+
+| Member             | Student ID | Self-report file                                                                                                     |
+| ------------------ | ---------- | -------------------------------------------------------------------------------------------------------------------- |
+| Nguyen Le Hoang    | 24020003   | [`personal_report/Self-report-NguyenLeHoang-24020003.md`](personal_report/Self-report-NguyenLeHoang-24020003.md)     |
+| Phan Le Phuong Nam | 24020014   | [`personal_report/Self-report-Phanlephuongnam-24020014.md`](personal_report/Self-report-Phanlephuongnam-24020014.md) |
+| Tran Le Xuan Mai   | 24020011   | [`personal_report/Self-report-TranLeXuanMai-24020011.md`](personal_report/Self-report-TranLeXuanMai-24020011.md)     |
+| Hoang Phuc Hung    | 24020004   | [`personal_report/self-report-phuc-hung.md`](personal_report/self-report-phuc-hung.md)                               |
+| Le Van Cong Nguyen | 24020006   | [`personal_report/Self-report-LeVanCongNguyen-24020006.md`](personal_report/Self-report-LeVanCongNguyen-24020006.md) |
+
 ---
 
 ## Tech Stack
@@ -40,6 +50,8 @@ This is the Final Project Report for **WindTodo V1**, submitted on **2026-05-17*
 | Auth     | Supabase Auth (`@supabase/ssr` + `@supabase/supabase-js`)                                     |
 | Deploy   | Vercel (frontend + serverless API routes)                                                     |
 | Tooling  | ESLint 9, eslint-config-next, pnpm                                                            |
+
+![WindTodo V1 Project Mind Map](/public/windtodo-project-mind-map.png)
 
 ## Main Features
 
@@ -161,6 +173,8 @@ The team agreed on eight milestones at the start of the project. The first two s
 - **Pull Requests:** every change goes through a PR; at least one teammate reviews before merge
 - **Commit style:** Conventional Commits where practical (e.g. `feat: share modal redesign`, `fix: tune Supabase latency`)
 - **Issue tracking:** GitHub Issues, used to record follow-up work and bugs
+
+![Git Workflow](/public/performance/gitflow.png)
 
 ### 1.5 Repository
 
@@ -291,32 +305,66 @@ Full Create / Read / Update / Delete coverage for every model, exposed via typed
 
 ## Task 4 — Optimizations Applied
 
-### 4.1 Performance
+### 4.1 Lighthouse Performance Audit
+
+The application was audited with Lighthouse on both desktop and mobile to verify load performance, accessibility, best practices, and SEO readiness.
+
+**Desktop Lighthouse**
+
+![Desktop Lighthouse Performance Audit](/public/performance/desktop-lighthouse.png)
+
+| Metric         | Score |
+| -------------- | ----- |
+| Performance    | 100   |
+| Accessibility  | 95    |
+| Best Practices | 100   |
+| SEO            | 92    |
+
+**Mobile Lighthouse**
+
+![Mobile Lighthouse Performance Audit](/public/performance/mobile-lighthouse.png)
+
+| Metric         | Score |
+| -------------- | ----- |
+| Performance    | 99    |
+| Accessibility  | 95    |
+| Best Practices | 100   |
+| SEO            | 92    |
+
+### 4.2 Performance
 
 - **Supabase pooler + region pinning.** Production `DATABASE_URL` points at the Supabase connection pooler and is pinned to the same region as the Vercel deployment, cutting cold-start latency. (Commit: _"Tune Supabase latency: pooler, region, syncUser cache."_)
 - **`syncUser` server-side cache.** First-request user upsert is cached so most requests skip the round-trip entirely.
 - **Index design that matches access patterns.** `(listId, position)` for ordered task reads, `(projectId, position)` for ordered column reads, `(userId, listId)` for "my tasks in this list."
 - **SWR caching.** Project, board, and member lists are stale-while-revalidate, so repeat navigation is instant.
 
-### 4.2 Reliability
+### 4.3 Reliability
 
 - **Cascade deletes** on `projectId` and `listId` keep the database free of orphans.
 - **Unique constraint** `@@unique([projectId, userId])` on `ProjectMember` prevents accidental double-adds at the DB layer.
 - **Position-based ordering** with a single update per drop avoids race-prone client logic.
 
-### 4.3 Build &amp; Deploy
+### 4.4 Build &amp; Deploy
 
 - **Prisma binary targets.** `binaryTargets = ["native", "rhel-openssl-3.0.x"]` so the Prisma engine works on Vercel's serverless runtime.
 - **`prisma generate` in two places.** Runs on `postinstall` and again as the first step of `build`, so the client is always up to date when Vercel deploys.
 - **Migrations via direct connection.** `DIRECT_URL` is used by `prisma migrate`; `DATABASE_URL` (pooler) is used at runtime.
 
-### 4.4 Developer Experience
+### 4.5 Developer Experience
 
 - **TypeScript everywhere** — Prisma generates models, route handlers consume them directly.
 - **ESLint 9 + `eslint-config-next`** for consistent style.
 - **Server-side type safety** via Prisma; client-side via SWR generics.
 
-### 4.5 Security
+### 4.6 Authentication &amp; Analytics
+
+- **Supabase Auth with SSR cookies.** Login, signup, and logout are handled through Supabase Auth while `@supabase/ssr` keeps authenticated sessions available to server-rendered pages and Server Actions.
+- **Fast authenticated reads.** `getAuthUser` uses Supabase claims for hot-path auth checks, while `syncUser` is cached so the Prisma `User` row is created once and reused across authenticated requests.
+- **Google Analytics and Tag Manager.** The root layout uses `@next/third-parties/google` with `GoogleAnalytics` and `GoogleTagManager`, giving the team production traffic visibility without custom script management.
+
+![Google Analytics Overview](/public/performance/google-analytics.png)
+
+### 4.7 Security
 
 - **Server-only secrets** (Supabase service-role key, `DATABASE_URL`) are never exposed to the client.
 - **Authorization at the data layer** — every project query checks membership, not just the URL.
@@ -387,18 +435,6 @@ nothing yet
 - [x] **Final report** — this file (`REPORT.md`) and web version (`index.html`)
 - [x] **Self-reports** — one per team member in `personal_report/`
 - [ ] **Video demo on YouTube** — max 10 minutes, ≥ 720p _(pending upload)_
-
----
-
-## Self-Reports
-
-| Member             | Student ID | Self-report file                                                                                                     |
-| ------------------ | ---------- | -------------------------------------------------------------------------------------------------------------------- |
-| Nguyen Le Hoang    | 24020003   | [`personal_report/Self-report-NguyenLeHoang-24020003.md`](personal_report/Self-report-NguyenLeHoang-24020003.md)     |
-| Phan Le Phuong Nam | 24020014   | [`personal_report/Self-report-Phanlephuongnam-24020014.md`](personal_report/Self-report-Phanlephuongnam-24020014.md) |
-| Tran Le Xuan Mai   | 24020011   | [`personal_report/Self-report-TranLeXuanMai-24020011.md`](personal_report/Self-report-TranLeXuanMai-24020011.md)     |
-| Hoang Phuc Hung    | 24020004   | [`personal_report/self-report-phuc-hung.md`](personal_report/self-report-phuc-hung.md)                               |
-| Le Van Cong Nguyen | 24020006   | [`personal_report/Self-report-LeVanCongNguyen-24020006.md`](personal_report/Self-report-LeVanCongNguyen-24020006.md) |
 
 ---
 
