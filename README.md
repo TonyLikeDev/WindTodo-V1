@@ -10,47 +10,74 @@ This is the Final Project Report for **WindTodo V1**, submitted on **2026-05-17*
 
 ## Project Identity
 
-| Field | Value |
-| --- | --- |
-| **Application Name** | WindTodo V1 — Personal & Team Task Manager |
-| **Philosophy** | Kanban-first — every task lives on a board, ordered, assignable, and shareable |
-| **Live Deployment** | https://wind-todo-v1.vercel.app |
-| **Source Repository** | https://github.com/TonyLikeDev/WindTodo-V1 |
-| **Submission Date** | 2026-05-17 |
+| Field                 | Value                                                                          |
+| --------------------- | ------------------------------------------------------------------------------ |
+| **Application Name**  | WindTodo V1 — Personal & Team Task Manager                                     |
+| **Philosophy**        | Kanban-first — every task lives on a board, ordered, assignable, and shareable |
+| **Live Deployment**   | https://wind-todo-v1.vercel.app                                                |
+| **Source Repository** | https://github.com/TonyLikeDev/WindTodo-V1                                     |
+| **Submission Date**   | 2026-05-17                                                                     |
 
 ### Team
 
-| # | Full name | GitHub | Student ID | Primary role |
-| --- | --- | --- | --- | --- |
-| 1 | **Nguyen Le Hoang** | [`TonyLikeDev`](https://github.com/TonyLikeDev) | 24020003 | **Team Lead — Full-Stack** (Frontend + Backend + Database + DevOps) |
-| 2 | Phan Le Phuong Nam | [`PoNamVn`](https://github.com/PoNamVn) | 24020014 | Frontend — Dashboard (Branch 32) & Statistics (Branch 31) |
-| 3 | Tran Le Xuan Mai | [`xuanmai171202-spec`](https://github.com/xuanmai171202-spec) | 24020011 | Frontend — Dashboard upgrade, Statistics charts, Calendar |
-| 4 | Hoang Phuc Hung | [`GabTommy2006`](https://github.com/GabTommy2006) | 24020004 | Frontend — Task detail modal, member assignment + due dates, calendar |
-| 5 | Le Van Cong Nguyen | [`nguyendangban0605-beep`](https://github.com/nguyendangban0605-beep) | 24020006 | Frontend / UI/UX — Celestial theme, Dark mode, Gamification (Star confetti + sound) |
+| #   | Full name           | GitHub                                                                | Student ID | Primary role                                                          |
+| --- | ------------------- | --------------------------------------------------------------------- | ---------- | --------------------------------------------------------------------- |
+| 1   | **Nguyen Le Hoang** | [`TonyLikeDev`](https://github.com/TonyLikeDev)                       | 24020003   | **Team Lead — Full-Stack** (Frontend + Backend + Database + DevOps)   |
+| 2   | Phan Le Phuong Nam  | [`PoNamVn`](https://github.com/PoNamVn)                               | 24020014   | Frontend — Dashboard (Branch 32) & Statistics (Branch 31)             |
+| 3   | Tran Le Xuan Mai    | [`xuanmai171202-spec`](https://github.com/xuanmai171202-spec)         | 24020011   | Frontend — Dashboard upgrade, Statistics charts, Calendar             |
+| 4   | Hoang Phuc Hung     | [`GabTommy2006`](https://github.com/GabTommy2006)                     | 24020004   | Frontend — Task detail modal, member assignment + due dates, calendar |
+| 5   | Le Van Cong Nguyen  | [`nguyendangban0605-beep`](https://github.com/nguyendangban0605-beep) | 24020006   | Frontend / UI/UX — Glassmorphism polish                               |
 
 ---
 
 ## Tech Stack
 
-| Layer | Technology |
-| --- | --- |
+| Layer    | Technology                                                                                    |
+| -------- | --------------------------------------------------------------------------------------------- |
 | Frontend | Next.js 16 (App Router), React 19, TypeScript 5, Tailwind CSS v4, SWR, Recharts, lucide-react |
-| Backend | Next.js Route Handlers (Node.js runtime) |
-| Database | Supabase PostgreSQL via Prisma 6.19.3 ORM |
-| Auth | Supabase Auth (`@supabase/ssr` + `@supabase/supabase-js`) |
-| Deploy | Vercel (frontend + serverless API routes) |
-| Tooling | ESLint 9, eslint-config-next, pnpm |
+| Backend  | Next.js Route Handlers (Node.js runtime)                                                      |
+| Database | Supabase PostgreSQL via Prisma 6.19.3 ORM                                                     |
+| Auth     | Supabase Auth (`@supabase/ssr` + `@supabase/supabase-js`)                                     |
+| Deploy   | Vercel (frontend + serverless API routes)                                                     |
+| Tooling  | ESLint 9, eslint-config-next, pnpm                                                            |
 
-**Main features:**
+## Main Features
 
-- Project + member management with **Admin / Member** roles
-- Kanban board with reorderable columns and drag-and-drop tasks
-- Task detail with status / priority / type, assignee, start & end dates
-- Statistics dashboard (Workload chart, Member progress)
-- Calendar view for tasks and events
-- Sky-themed glassmorphism design with **light mode** (Tony) and **dark mode + Celestial theme** (Nguyen)
-- Gamification: star-confetti + chime when a task is marked Done
-- Real-time-ish UX via SWR stale-while-revalidate
+#1 **Dashboard Overview**
+A comprehensive view of your projects, tasks, and recent activities.
+![Dashboard Overview](/public/detail/dashboard.png)
+
+#2 **Quick Task Creation**
+Easily add new tasks on the fly with a streamlined interface.
+![Quick Task Creation](/public/detail/dashboard-2-quicktask.png)
+
+#3 **Kanban Board**
+Manage your workflow visually with drag-and-drop task columns.
+![Kanban Board](/public/detail/karban.png)
+
+#4 **Task Detail**
+Manage task specifics including status, priority, type, assignee, and dates.
+![Task Detail](/public/detail/task-detail.png)
+
+#5 **Backlog & Sprint Management**
+Plan your work cycles and keep track of your project backlog.
+![Backlog & Sprint](/public/detail/backlog-sprint.png)
+
+#6 **Project Roadmap**
+Visualize your project timeline and key milestones.
+![Project Roadmap](/public/detail/roadmap.png)
+
+#7 **Calendar View**
+Schedule and track deadlines with an integrated calendar.
+![Calendar](/public/detail/calendar.png)
+
+#8 **Statistics & Insights**
+Monitor productivity and progress with detailed analytics.
+![Statistics](/public/detail/statistic.png)
+
+#9 **User Profiles**
+Manage team members and individual user settings.
+![User Profiles](/public/detail/user.png)
 
 ---
 
@@ -58,11 +85,11 @@ This is the Final Project Report for **WindTodo V1**, submitted on **2026-05-17*
 
 **Requirements:**
 
-| Tool | Version |
-| --- | --- |
-| Node.js | >= 18.x |
-| pnpm (or npm) | latest |
-| PostgreSQL | Supabase (managed) |
+| Tool          | Version            |
+| ------------- | ------------------ |
+| Node.js       | >= 18.x            |
+| pnpm (or npm) | latest             |
+| PostgreSQL    | Supabase (managed) |
 
 **Steps:**
 
@@ -97,13 +124,13 @@ pnpm dev
 
 ### 1.1 Role Assignment
 
-| Member | Area owned |
-| --- | --- |
+| Member                                      | Area owned                                                                                                                                                                                                                                                                                    |
+| ------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Nguyen Le Hoang (`TonyLikeDev`) — Team Lead | Project bootstrap, layout system, login UI, **Kanban board + drag-and-drop**, sky-themed light design, **Supabase + Prisma migration**, **schema + member/admin roles**, **share modal**, **SWR + loading skeletons**, **Supabase pooler + Prisma engine fixes on Vercel**, code review queue |
-| Phan Le Phuong Nam | Dashboard upgrade (Branch 32) + Statistics page (Branch 31) |
-| Tran Le Xuan Mai | Dashboard redesign, Workload pie chart + Members progress table, Calendar view (initial), schema design contributions |
-| Hoang Phuc Hung | Task detail modal, member assignment + due dates, Calendar rebuild, drag-and-drop (initial) |
-| Le Van Cong Nguyen | Celestial theme, Dark mode (next-themes + Tailwind v4 `@custom-variant dark`), Gamification (Star confetti + Web Audio chime), Glassmorphism polish |
+| Phan Le Phuong Nam                          | Dashboard upgrade (Branch 32) + Statistics page (Branch 31)                                                                                                                                                                                                                                   |
+| Tran Le Xuan Mai                            | Dashboard redesign, Workload pie chart + Members progress table, Calendar view (initial), schema design contributions                                                                                                                                                                         |
+| Hoang Phuc Hung                             | Task detail modal, member assignment + due dates, Calendar rebuild, drag-and-drop (initial)                                                                                                                                                                                                   |
+| Le Van Cong Nguyen                          | Celestial design, Glassmorphism polish                                                                                                                                                                                                                                                        |
 
 In short: **Tony owned the full-stack core**; the rest of the team built feature areas on top of it (statistics, dashboard, calendar, theming & polish).
 
@@ -117,16 +144,16 @@ In short: **Tony owned the full-stack core**; the rest of the team built feature
 
 The team agreed on eight milestones at the start of the project. The first two slipped past their original deadlines; the team caught up by milestone 3 and every remaining milestone shipped on time.
 
-| # | Milestone | Deadline | Status |
-| --- | --- | --- | --- |
-| 1 | Complete wireframe &amp; Figma design | 10/04/2026 | ⚠️ Late |
-| 2 | Setup GitHub repo &amp; Prisma schema | 15/04/2026 | ⚠️ Late |
-| 3 | Complete Authentication (Supabase Auth + SSR) | 18/04/2026 | ✅ On time |
-| 4 | Basic UI (Landing, Auth, Projects dashboard) | 22/04/2026 | ✅ On time |
-| 5 | Database integration &amp; CRUD APIs (projects / lists / tasks) | 28/04/2026 | ✅ On time |
-| 6 | Kanban board, drag-and-drop, task detail | 05/05/2026 | ✅ On time |
-| 7 | Members &amp; roles, share modal, performance tuning | 12/05/2026 | ✅ On time |
-| 8 | Sky-themed light design polish &amp; submission | 17/05/2026 | ✅ On time |
+| #   | Milestone                                                       | Deadline   | Status     |
+| --- | --------------------------------------------------------------- | ---------- | ---------- |
+| 1   | Complete wireframe &amp; Figma design                           | 10/04/2026 | ⚠️ Late    |
+| 2   | Setup GitHub repo &amp; Prisma schema                           | 15/04/2026 | ⚠️ Late    |
+| 3   | Complete Authentication (Supabase Auth + SSR)                   | 18/04/2026 | ✅ On time |
+| 4   | Basic UI (Landing, Auth, Projects dashboard)                    | 22/04/2026 | ✅ On time |
+| 5   | Database integration &amp; CRUD APIs (projects / lists / tasks) | 28/04/2026 | ✅ On time |
+| 6   | Kanban board, drag-and-drop, task detail                        | 05/05/2026 | ✅ On time |
+| 7   | Members &amp; roles, share modal, performance tuning            | 12/05/2026 | ✅ On time |
+| 8   | Sky-themed light design polish &amp; submission                 | 17/05/2026 | ✅ On time |
 
 ### 1.4 Git Workflow
 
@@ -151,25 +178,25 @@ The team agreed on eight milestones at the start of the project. The first two s
 
 ### 2.1 Pages
 
-| Page | Route | Purpose | Implemented by |
-| --- | --- | --- | --- |
-| Landing | `/` | Hero, tagline, CTAs (Join Now / Sign In) | Nguyen Le Hoang |
-| Sign up / Sign in | `/sign-up`, `/sign-in` | Supabase Auth forms with simulated loading state | Nguyen Le Hoang |
-| Projects dashboard | `/projects` | Grid of project cards (color + name + member count) | Phan Le Phuong Nam (Branch 32) + Tran Le Xuan Mai |
-| Project board (Kanban) | `/projects/[id]` | Horizontal Kanban with reorderable columns and tasks | Nguyen Le Hoang (board + DnD), Hoang Phuc Hung (task detail) |
-| Task detail | modal | Edit title, description, status, priority, type, assignee, dates | Hoang Phuc Hung + Nguyen Le Hoang |
-| Share modal | modal | Invite by email, set role, list members | Nguyen Le Hoang |
-| Statistics | `/statistics` | Workload pie chart + member progress table | Phan Le Phuong Nam (Branch 31) + Tran Le Xuan Mai |
-| Calendar | `/calendar` | Week / month / year view, event sync | Tran Le Xuan Mai (initial) + Hoang Phuc Hung (rebuild) |
-| Account | `/account` | Profile, sign-out, theme toggle | Le Van Cong Nguyen (theme), Nguyen Le Hoang (auth) |
+| Page                   | Route                 | Purpose                                                          | Implemented by                                               |
+| ---------------------- | --------------------- | ---------------------------------------------------------------- | ------------------------------------------------------------ |
+| Landing                | `/`                   | Hero, tagline, CTAs (Join Now / Sign In)                         | Nguyen Le Hoang                                              |
+| Sign up / Sign in      | `/signup`, `/login`   | Supabase Auth forms with simulated loading state                 | Nguyen Le Hoang                                              |
+| Projects dashboard     | `/dashboard`          | Grid of project cards (color + name + member count)              | Phan Le Phuong Nam (Branch 32) + Tran Le Xuan Mai            |
+| Project board (Kanban) | `/projects/[id]`      | Horizontal Kanban with reorderable columns and tasks             | Nguyen Le Hoang (board + DnD), Hoang Phuc Hung (task detail) |
+| Task detail            | modal                 | Edit title, description, status, priority, type, assignee, dates | Hoang Phuc Hung + Nguyen Le Hoang                            |
+| Share modal            | modal                 | Invite by email, set role, list members                          | Nguyen Le Hoang                                              |
+| Statistics             | `/dashboard/stats`    | Workload pie chart + member progress table                       | Phan Le Phuong Nam (Branch 31) + Tran Le Xuan Mai            |
+| Calendar               | `/dashboard/calendar` | Week / month / year view                                         | Tran Le Xuan Mai (initial) + Hoang Phuc Hung (rebuild)       |
+| Settings               | `/dashboard/settings` | Profile, sign-out                                                | Le Van Cong Nguyen (ui), Nguyen Le Hoang (auth)              |
 
 ### 2.2 Styling
 
 - **Tailwind CSS v4** with `@tailwindcss/postcss`
 - **Custom palette:** sky-50 → sky-900 plus translucent white surfaces for the glassmorphism look
-- **Typography:** Geist font family loaded via `next/font` for layout-stable text
+- **Typography:** Poppins font family loaded via `next/font` for layout-stable text
 - **Icons:** `lucide-react` for a unified line-icon look
-- **Theme:** sky-themed *light* design with optional dark surfaces in modals
+- **Theme:** sky-themed glassmorphism design
 
 ### 2.3 Components
 
@@ -179,25 +206,23 @@ The `src/components/` tree is organized by feature:
 - **Lists** — list header, reorder handle, add-list button
 - **Tasks** — task card, badge stack (status / priority / type), assignee avatar
 - **Modals** — task detail, share, confirm-delete; all share the glass panel pattern
-- **Layout & nav** — top bar, brand mark, sign-out
+- **Layout & nav** — sidebar, brand mark, sign-out
 - **Theming** — color tokens, glass panel, soft gradients
 
 ### 2.4 Interactive Elements
 
-| Feature | Description | Implemented by |
-| --- | --- | --- |
-| Drag-and-drop tasks | Reorder within / across columns; persisted via `position` integer | Nguyen Le Hoang (final), Hoang Phuc Hung (initial) |
-| Drag-and-drop columns | Reorder board lists themselves | Nguyen Le Hoang |
-| Inline list creation + color picker | Rename-or-cancel UX + per-list color | Nguyen Le Hoang |
-| Share modal (redesigned) | Invite by email, promote/demote, remove members | Nguyen Le Hoang |
-| Task detail modal | Inline edit of every field | Hoang Phuc Hung + Nguyen Le Hoang |
-| Assign member + due date | Pick assignee, set start/end date when creating a task | Hoang Phuc Hung |
-| SWR-powered lists | Background revalidation after mutations | Nguyen Le Hoang |
-| Loading skeletons | Skeleton placeholders during data fetches | Nguyen Le Hoang |
-| Light / Dark mode toggle | `next-themes` with custom Tailwind v4 dark variant | Le Van Cong Nguyen |
-| Star confetti + chime on Done | Web Audio + canvas animation when a task is completed | Le Van Cong Nguyen |
-| Statistics charts | Workload pie chart + member-progress table | Phan Le Phuong Nam + Tran Le Xuan Mai |
-| Calendar view | Week / month / year, drag-and-drop events | Tran Le Xuan Mai (initial) + Hoang Phuc Hung (rebuild) |
+| Feature                             | Description                                                       | Implemented by                                         |
+| ----------------------------------- | ----------------------------------------------------------------- | ------------------------------------------------------ |
+| Drag-and-drop tasks                 | Reorder within / across columns; persisted via `position` integer | Nguyen Le Hoang (final), Hoang Phuc Hung (initial)     |
+| Drag-and-drop columns               | Reorder board lists themselves                                    | Nguyen Le Hoang                                        |
+| Inline list creation + color picker | Rename-or-cancel UX + per-list color                              | Nguyen Le Hoang                                        |
+| Share modal (redesigned)            | Invite by email, promote/demote, remove members                   | Nguyen Le Hoang                                        |
+| Task detail modal                   | Inline edit of every field                                        | Hoang Phuc Hung + Nguyen Le Hoang                      |
+| Assign member + due date            | Pick assignee, set start/end date when creating a task            | Hoang Phuc Hung                                        |
+| SWR-powered lists                   | Background revalidation after mutations                           | Nguyen Le Hoang                                        |
+| Loading skeletons                   | Skeleton placeholders during data fetches                         | Nguyen Le Hoang                                        |
+| Statistics charts                   | Workload pie chart + member-progress table                        | Phan Le Phuong Nam + Tran Le Xuan Mai                  |
+| Calendar view                       | Week / month / year                                               | Tran Le Xuan Mai (initial) + Hoang Phuc Hung (rebuild) |
 
 ### 2.5 Responsiveness
 
@@ -237,13 +262,13 @@ Prisma Client → Supabase PostgreSQL (pooler, region-pinned)
 
 **Models (5)**
 
-| Model | Key columns | Constraints / indexes |
-| --- | --- | --- |
-| **User** | `id` (PK, supplied), `email` (unique), `name`, `avatarUrl`, `createdAt` | `id` matches Supabase Auth `user.id` |
-| **Project** | `id` (uuid), `name`, `color`, `userId` (creator), `createdAt` | Index on `userId` |
-| **ProjectMember** | `id`, `projectId`, `userId`, `role`, `createdAt` | Unique `(projectId, userId)`; cascade on both FKs |
-| **BoardList** | `id`, `name`, `color`, `userId`, `projectId`, `position`, `createdAt` | Cascade on `projectId`; index `(projectId, position)` |
-| **Task** | `id`, `title`, `description`, `userId`, `assigneeId?`, `listId`, `position`, `status`, `priority`, `type`, `startDate?`, `endDate?`, `createdAt` | Cascade on `listId`; indexes `(userId, listId)`, `(listId, position)` |
+| Model             | Key columns                                                                                                                                      | Constraints / indexes                                                 |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------- |
+| **User**          | `id` (PK, supplied), `email` (unique), `name`, `avatarUrl`, `createdAt`                                                                          | `id` matches Supabase Auth `user.id`                                  |
+| **Project**       | `id` (uuid), `name`, `color`, `userId` (creator), `createdAt`                                                                                    | Index on `userId`                                                     |
+| **ProjectMember** | `id`, `projectId`, `userId`, `role`, `createdAt`                                                                                                 | Unique `(projectId, userId)`; cascade on both FKs                     |
+| **BoardList**     | `id`, `name`, `color`, `userId`, `projectId`, `position`, `createdAt`                                                                            | Cascade on `projectId`; index `(projectId, position)`                 |
+| **Task**          | `id`, `title`, `description`, `userId`, `assigneeId?`, `listId`, `position`, `status`, `priority`, `type`, `startDate?`, `endDate?`, `createdAt` | Cascade on `listId`; indexes `(userId, listId)`, `(listId, position)` |
 
 ### 3.3 Authentication Flow
 
@@ -268,7 +293,7 @@ Full Create / Read / Update / Delete coverage for every model, exposed via typed
 
 ### 4.1 Performance
 
-- **Supabase pooler + region pinning.** Production `DATABASE_URL` points at the Supabase connection pooler and is pinned to the same region as the Vercel deployment, cutting cold-start latency. (Commit: *"Tune Supabase latency: pooler, region, syncUser cache."*)
+- **Supabase pooler + region pinning.** Production `DATABASE_URL` points at the Supabase connection pooler and is pinned to the same region as the Vercel deployment, cutting cold-start latency. (Commit: _"Tune Supabase latency: pooler, region, syncUser cache."_)
 - **`syncUser` server-side cache.** First-request user upsert is cached so most requests skip the round-trip entirely.
 - **Index design that matches access patterns.** `(listId, position)` for ordered task reads, `(projectId, position)` for ordered column reads, `(userId, listId)` for "my tasks in this list."
 - **SWR caching.** Project, board, and member lists are stale-while-revalidate, so repeat navigation is instant.
@@ -299,9 +324,57 @@ Full Create / Read / Update / Delete coverage for every model, exposed via typed
 
 ---
 
-## Task 5 — Peer Review & Feedback
+## Task 5 — UI/UX Peer Review & Evaluation
 
-_No review yet._
+### (a) Feedback for Other Teams
+
+#### Reviewed Team: WorldWords
+- **Team / Project:** WorldWords — Vocabulary Learning Application
+- **Repository:** [github.com/Dragons212122/WorldWords](https://github.com/Dragons212122/WorldWords)
+- **Feedback Issue:** [Issue #25](https://github.com/Dragons212122/WorldWords/issues/25)
+
+| Aspect | Strengths | Improvement Suggestions |
+| :--- | :--- | :--- |
+| **Architecture** | Functional "Demo" state with established data structures (`WORDS_BY_TOPIC`). | **Modularize Architecture:** Split the 1,000-line `App.jsx` monolith into separate components and hooks. |
+| **Features** | Core data structures are well-defined and ready for expansion. | **Feature Completion:** Implement the currently disabled Quiz System to allow user testing. |
+| **Hygiene** | Initial logic is clear and focused. | **Repository Hygiene:** Remove legacy files (`app.js`, `db.js`) and fix asset naming conventions. |
+
+#### Reviewed Team: Tracker_yourMoney
+- **Team / Project:** Tracker_yourMoney — Expense Tracking Application
+- **Repository:** [github.com/tducn110/Tracker_yourMoney](https://github.com/tducn110/Tracker_yourMoney)
+- **Feedback Issue:** [Issue #174](https://github.com/tducn110/Tracker_yourMoney/issues/174)
+
+| Aspect | Strengths | Improvement Suggestions |
+| :--- | :--- | :--- |
+| **Data Integrity** | `deleteGoal` method already correctly guards against accidental data loss. | **Prevent Data Loss:** Update `deleteBill` to prevent deletion of bills with historical payment records. |
+| **Validation** | Consistent internal logic patterns for data protection. | **Validation:** Add checks to throw `BadRequestError` if payments exist; advise setting to "inactive" instead. |
+| **Persistence** | Robust integration with SQL backend. | **Soft-Delete:** Implement an `isActive` flag instead of hard SQL deletes to preserve financial history. |
+
+#### Reviewed Team: calorie-web
+- **Team / Project:** calorie-web — Calorie Tracking Application
+- **Repository:** [github.com/nguyenduythaibao1611-eng/calorie-web.github.io](https://github.com/nguyenduythaibao1611-eng/calorie-web.github.io)
+- **Feedback Issue:** [Issue #96](https://github.com/nguyenduythaibao1611-eng/calorie-web.github.io/issues/96)
+
+| Aspect | Strengths | Improvement Suggestions |
+| :--- | :--- | :--- |
+| **Core Value** | Well-defined goal: helping users maintain a complete nutritional diary with functional meal logging (`AddMealModalV2`). | **Manual Entry:** Implement a "Thêm món ăn thủ công" feature for items not found in `ingredients.json`. |
+| **UX Flow** | Pre-populated database of ingredients ready for logging. | **Contextual Triggers:** Add a button to trigger the custom food form specifically when search results return "No results found." |
+| **Persistence** | Systematic logging infrastructure. | **Local Storage:** Enable saving custom entries to `userIngredients` in `localStorage` for future searches. |
+
+#### Reviewed Team: QuickTodo
+- **Team / Project:** QuickTodo — Task Management Application
+- **Repository:** [github.com/hothong3k/QuickTodo](https://github.com/hothong3k/QuickTodo)
+- **Feedback Issue:** [Issue #35](https://github.com/hothong3k/QuickTodo/issues/35)
+
+| Aspect | Strengths | Improvement Suggestions |
+| :--- | :--- | :--- |
+| **Documentation** | Transparently notes known technical issues (socket timeouts) in the README. | **Connection Management:** Implement the **Singleton Pattern** for Mongoose connections to ensure caching across serverless invocations. |
+| **Performance** | Supports rapid CRUD operations and authenticated user sessions. | **Regional Alignment:** Match Vercel deployment region with MongoDB Atlas cluster region to minimize latency. |
+| **Reliability** | Consistent authenticated session management. | **Timeout Optimization:** Increase `connectTimeoutMS` (10,000) and `socketTimeoutMS` (45,000) to handle cold starts. |
+
+### (b) Feedback Received (Teacher Review)
+
+nothing yet
 
 ---
 
@@ -313,19 +386,19 @@ _No review yet._
 - [x] **`prisma/schema.prisma`** — database source of truth (5 models, 4 enums)
 - [x] **Final report** — this file (`REPORT.md`) and web version (`index.html`)
 - [x] **Self-reports** — one per team member in `personal_report/`
-- [ ] **Video demo on YouTube** — max 10 minutes, ≥ 720p *(pending upload)*
+- [ ] **Video demo on YouTube** — max 10 minutes, ≥ 720p _(pending upload)_
 
 ---
 
 ## Self-Reports
 
-| Member | Student ID | Self-report file |
-| --- | --- | --- |
-| Nguyen Le Hoang | 24020003 | [`personal_report/Self-report-NguyenLeHoang-24020003.md`](personal_report/Self-report-NguyenLeHoang-24020003.md) |
-| Phan Le Phuong Nam | 24020014 | [`personal_report/Self-report-Phanlephuongnam-24020014.md`](personal_report/Self-report-Phanlephuongnam-24020014.md) |
-| Tran Le Xuan Mai | 24020011 | [`personal_report/Self-report-TranLeXuanMai-24020011.md`](personal_report/Self-report-TranLeXuanMai-24020011.md) |
-| Hoang Phuc Hung | 24020004 | [`personal_report/self-report-phuc-hung.md`](personal_report/self-report-phuc-hung.md) |
-| Le Van Cong Nguyen | 24020006 | [`personal_report/Self-report-LeVanCongNguyen-24020006.md`](personal_report/Self-report-LeVanCongNguyen-24020006.md) |
+| Member             | Student ID | Self-report file                                                                                                     |
+| ------------------ | ---------- | -------------------------------------------------------------------------------------------------------------------- |
+| Nguyen Le Hoang    | 24020003   | [`personal_report/Self-report-NguyenLeHoang-24020003.md`](personal_report/Self-report-NguyenLeHoang-24020003.md)     |
+| Phan Le Phuong Nam | 24020014   | [`personal_report/Self-report-Phanlephuongnam-24020014.md`](personal_report/Self-report-Phanlephuongnam-24020014.md) |
+| Tran Le Xuan Mai   | 24020011   | [`personal_report/Self-report-TranLeXuanMai-24020011.md`](personal_report/Self-report-TranLeXuanMai-24020011.md)     |
+| Hoang Phuc Hung    | 24020004   | [`personal_report/self-report-phuc-hung.md`](personal_report/self-report-phuc-hung.md)                               |
+| Le Van Cong Nguyen | 24020006   | [`personal_report/Self-report-LeVanCongNguyen-24020006.md`](personal_report/Self-report-LeVanCongNguyen-24020006.md) |
 
 ---
 
@@ -344,13 +417,13 @@ The team slipped on the first two milestones but recovered, met every milestone 
 
 ## Appendix B — Required environment variables
 
-| Variable | Purpose |
-| --- | --- |
-| `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL (browser + server) |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anon key (browser) |
-| `SUPABASE_SERVICE_ROLE_KEY` | Service-role key for privileged server operations |
-| `DATABASE_URL` | Postgres connection string (Supabase pooler) used by Prisma at runtime |
-| `DIRECT_URL` | Direct Postgres URL used by Prisma migrations |
+| Variable                        | Purpose                                                                |
+| ------------------------------- | ---------------------------------------------------------------------- |
+| `NEXT_PUBLIC_SUPABASE_URL`      | Supabase project URL (browser + server)                                |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anon key (browser)                                            |
+| `SUPABASE_SERVICE_ROLE_KEY`     | Service-role key for privileged server operations                      |
+| `DATABASE_URL`                  | Postgres connection string (Supabase pooler) used by Prisma at runtime |
+| `DIRECT_URL`                    | Direct Postgres URL used by Prisma migrations                          |
 
 ## Appendix C — Key dependencies
 

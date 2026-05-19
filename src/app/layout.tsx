@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
+import { GoogleAnalytics, GoogleTagManager } from "@next/third-parties/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import EffectsCanvas from "@/components/EffectsCanvas";
@@ -26,6 +27,8 @@ export default function RootLayout({
       className={`${poppins.variable} h-full antialiased`}
       suppressHydrationWarning
     >
+      <GoogleTagManager gtmId="GTM-NG5FZLJ3" />
+      <GoogleAnalytics gaId="G-8Q2FH16K5L" />
       <body className="text-foreground min-h-screen font-sans overflow-x-hidden custom-scrollbar" suppressHydrationWarning>
         <ThemeProvider
           attribute="class"
