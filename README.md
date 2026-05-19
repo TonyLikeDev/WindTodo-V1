@@ -350,6 +350,28 @@ Full Create / Read / Update / Delete coverage for every model, exposed via typed
 | **Validation** | Consistent internal logic patterns for data protection. | **Validation:** Add checks to throw `BadRequestError` if payments exist; advise setting to "inactive" instead. |
 | **Persistence** | Robust integration with SQL backend. | **Soft-Delete:** Implement an `isActive` flag instead of hard SQL deletes to preserve financial history. |
 
+#### Reviewed Team: calorie-web
+- **Team / Project:** calorie-web — Calorie Tracking Application
+- **Repository:** [github.com/nguyenduythaibao1611-eng/calorie-web.github.io](https://github.com/nguyenduythaibao1611-eng/calorie-web.github.io)
+- **Feedback Issue:** [Issue #96](https://github.com/nguyenduythaibao1611-eng/calorie-web.github.io/issues/96)
+
+| Aspect | Strengths | Improvement Suggestions |
+| :--- | :--- | :--- |
+| **Core Value** | Well-defined goal: helping users maintain a complete nutritional diary with functional meal logging (`AddMealModalV2`). | **Manual Entry:** Implement a "Thêm món ăn thủ công" feature for items not found in `ingredients.json`. |
+| **UX Flow** | Pre-populated database of ingredients ready for logging. | **Contextual Triggers:** Add a button to trigger the custom food form specifically when search results return "No results found." |
+| **Persistence** | Systematic logging infrastructure. | **Local Storage:** Enable saving custom entries to `userIngredients` in `localStorage` for future searches. |
+
+#### Reviewed Team: QuickTodo
+- **Team / Project:** QuickTodo — Task Management Application
+- **Repository:** [github.com/hothong3k/QuickTodo](https://github.com/hothong3k/QuickTodo)
+- **Feedback Issue:** [Issue #35](https://github.com/hothong3k/QuickTodo/issues/35)
+
+| Aspect | Strengths | Improvement Suggestions |
+| :--- | :--- | :--- |
+| **Documentation** | Transparently notes known technical issues (socket timeouts) in the README. | **Connection Management:** Implement the **Singleton Pattern** for Mongoose connections to ensure caching across serverless invocations. |
+| **Performance** | Supports rapid CRUD operations and authenticated user sessions. | **Regional Alignment:** Match Vercel deployment region with MongoDB Atlas cluster region to minimize latency. |
+| **Reliability** | Consistent authenticated session management. | **Timeout Optimization:** Increase `connectTimeoutMS` (10,000) and `socketTimeoutMS` (45,000) to handle cold starts. |
+
 ### (b) Feedback Received (Teacher Review)
 
 nothing yet
