@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
+import { GoogleTagManager } from "@next/third-parties/google";
 import "./globals.css";
 
 const poppins = Poppins({
@@ -24,6 +25,7 @@ export default function RootLayout({
       className={`${poppins.variable} h-full antialiased`}
       suppressHydrationWarning
     >
+      <GoogleTagManager gtmId="GTM-NG5FZLJ3" />
       <body className="text-foreground min-h-screen font-sans overflow-x-hidden" suppressHydrationWarning>{children}</body>
     </html>
   );
