@@ -74,9 +74,24 @@ function formatDateRange(task: CalendarTask) {
   return '';
 }
 
+// Prioritise tasks: URGENT > HIGH > IN_PROGRESS > others
+const PRIORITY_ORDER: Record<string, number> = { URGENT: 0, HIGH: 1, MEDIUM: 2, LOW: 3 };
+const STATUS_ORDER: Record<string, number>   = { IN_PROGRESS: 0, TODO: 1, DONE: 2 };
+
+function sortTasks(tasks: CalendarTask[]): CalendarTask[] {
+  return [...tasks].sort((a, b) => {
+    const pa = PRIORITY_ORDER[a.priority] ?? 4;
+    const pb = PRIORITY_ORDER[b.priority] ?? 4;
+    if (pa !== pb) return pa - pb;
+    const sa = STATUS_ORDER[a.status] ?? 3;
+    const sb = STATUS_ORDER[b.status] ?? 3;
+    return sa - sb;
+  });
+}
+
 export default function CalendarView() {
   const today = new Date();
-  const [current, setCurrent] = useState({ year: today.getFullYear(), month: today.getMonth() });
+  const [current, setCurrent]       = useState({ year: today.getFullYear(), month: today.getMonth() });
   const [selectedDay, setSelectedDay] = useState<Date | null>(null);
   const [hoveredTask, setHoveredTask] = useState<CalendarTask | null>(null);
 
@@ -87,7 +102,6 @@ export default function CalendarView() {
 
   const { year, month } = current;
 
-  // All days to show (including trailing/leading days from adjacent months)
   const calendarDays = useMemo(() => {
     const firstDay = new Date(year, month, 1);
     const lastDay  = new Date(year, month + 1, 0);
@@ -102,12 +116,11 @@ export default function CalendarView() {
     return days;
   }, [year, month]);
 
-  // Group tasks by their day keys (a task may appear on multiple days if it spans)
   const tasksByDay = useMemo(() => {
     const map = new Map<string, CalendarTask[]>();
     for (const day of calendarDays) {
       const key = day.toDateString();
-      map.set(key, tasks.filter((t) => taskSpansDay(t, day)));
+      map.set(key, sortTasks(tasks.filter((t) => taskSpansDay(t, day))));
     }
     return map;
   }, [calendarDays, tasks]);
@@ -132,10 +145,14 @@ export default function CalendarView() {
     setSelectedDay(today);
   };
 
+  // Number of rows in the grid
+  const numRows = calendarDays.length / 7;
+
   return (
-    <div className="flex flex-col gap-6 h-full">
-      {/* Header */}
-      <div className="flex items-center justify-between gap-4 flex-wrap">
+    <div className="flex flex-col gap-4 h-full">
+
+      {/* ── Header ── */}
+      <div className="flex items-center justify-between gap-4 flex-wrap flex-shrink-0">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-2xl bg-violet-500/20 border border-violet-400/30 flex items-center justify-center">
             <CalendarDays className="w-5 h-5 text-violet-400" />
@@ -167,13 +184,22 @@ export default function CalendarView() {
         </div>
       </div>
 
-      <div className="flex gap-6 flex-1 min-h-0">
-        {/* Calendar Grid */}
-        <div className="flex-1 glass rounded-3xl border border-white/40 overflow-hidden flex flex-col">
-          {/* Day headers */}
-          <div className="grid grid-cols-7 border-b border-white/20">
+      {/* ── Body ── */}
+      <div
+        className="flex gap-4 flex-1 min-h-0"
+        style={{
+          /* When side panel is open, transition its width smoothly */
+          transition: 'gap 300ms ease',
+        }}
+      >
+
+        {/* ── Calendar Grid ── */}
+        <div className="flex-1 min-w-0 glass rounded-3xl border border-white/40 overflow-hidden flex flex-col">
+
+          {/* Day-of-week headers */}
+          <div className="grid grid-cols-7 border-b border-white/20 flex-shrink-0">
             {DAYS.map((d) => (
-              <div key={d} className="py-3 text-center text-[11px] font-black uppercase tracking-widest text-muted-foreground">
+              <div key={d} className="py-2 text-center text-[10px] font-black uppercase tracking-widest text-muted-foreground">
                 {d}
               </div>
             ))}
@@ -184,62 +210,80 @@ export default function CalendarView() {
             <div className="flex-1 flex items-center justify-center">
               <div className="flex flex-col items-center gap-3">
                 <div className="w-10 h-10 rounded-full border-2 border-violet-400/40 border-t-violet-400 animate-spin" />
-                <p className="text-sm text-muted-foreground">Loading...</p>
+                <p className="text-sm text-muted-foreground">Loading…</p>
               </div>
             </div>
           ) : (
-            <div className="flex-1 grid grid-cols-7 auto-rows-fr overflow-y-auto custom-scrollbar">
+            <div
+              className="flex-1 grid grid-cols-7 overflow-hidden"
+              style={{
+                gridTemplateRows: `repeat(${numRows}, minmax(0, 1fr))`,
+              }}
+            >
               {calendarDays.map((day) => {
-                const isToday = isSameDay(day, today);
-                const isCurrentMonth = day.getMonth() === month;
-                const isSelected = selectedDay ? isSameDay(day, selectedDay) : false;
-                const dayTasks = tasksByDay.get(day.toDateString()) ?? [];
+                const isToday          = isSameDay(day, today);
+                const isCurrentMonth   = day.getMonth() === month;
+                const isSelected       = selectedDay ? isSameDay(day, selectedDay) : false;
+                const dayTasks         = tasksByDay.get(day.toDateString()) ?? [];
+                const visibleTasks     = dayTasks.slice(0, 2);
+                const hiddenCount      = dayTasks.length - visibleTasks.length;
 
                 return (
                   <div
                     key={day.toISOString()}
                     onClick={() => setSelectedDay(isSelected ? null : day)}
                     className={`
-                      border-r border-b border-white/10 p-1.5 cursor-pointer transition-all group min-h-[80px]
+                      border-r border-b border-white/10 cursor-pointer transition-colors group
+                      flex flex-col overflow-hidden
                       ${isCurrentMonth ? 'bg-transparent' : 'bg-black/10'}
-                      ${isSelected ? 'bg-violet-500/10 border-violet-400/30' : 'hover:bg-white/10'}
+                      ${isSelected ? 'bg-violet-500/10 ring-1 ring-inset ring-violet-400/40' : 'hover:bg-white/10'}
                     `}
                   >
                     {/* Date number */}
-                    <div className="flex justify-end mb-1">
+                    <div className="flex justify-end px-1 pt-1 flex-shrink-0">
                       <span
                         className={`
-                          w-7 h-7 flex items-center justify-center rounded-full text-xs font-bold transition-all
+                          w-5 h-5 flex items-center justify-center rounded-full text-[10px] font-bold transition-all leading-none
                           ${isToday
-                            ? 'bg-violet-500 text-white shadow-lg shadow-violet-500/40'
+                            ? 'bg-violet-500 text-white shadow shadow-violet-500/40'
                             : isCurrentMonth
                               ? 'text-foreground group-hover:bg-white/20'
-                              : 'text-muted-foreground/50'}
+                              : 'text-muted-foreground/40'}
                         `}
                       >
                         {day.getDate()}
                       </span>
                     </div>
 
-                    {/* Task chips */}
-                    <div className="flex flex-col gap-0.5">
-                      {dayTasks.slice(0, 3).map((task) => (
+                    {/* Task chips — fill remaining space, never overflow */}
+                    <div className="flex flex-col gap-px px-1 pb-1 flex-1 min-h-0 justify-start overflow-hidden">
+                      {visibleTasks.map((task) => (
                         <div
                           key={task.id}
                           onMouseEnter={() => setHoveredTask(task)}
                           onMouseLeave={() => setHoveredTask(null)}
-                          className="relative flex items-center gap-1 px-2 py-1 rounded text-xs font-semibold text-black truncate cursor-pointer hover:brightness-110 transition-all"
-                          style={{ backgroundColor: task.list.project.color + 'cc' }}
+                          className="flex items-center gap-0.5 px-1 rounded text-black cursor-pointer hover:brightness-110 transition-all flex-shrink-0"
+                          style={{
+                            backgroundColor: task.list.project.color + 'cc',
+                            fontSize: '10px',
+                            lineHeight: '16px',
+                            minHeight: '16px',
+                          }}
                         >
                           <span
-                            className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${STATUS_COLORS[task.status]}`}
+                            className={`w-1 h-1 rounded-full flex-shrink-0 ${STATUS_COLORS[task.status]}`}
                           />
-                          <span className="truncate">{task.title}</span>
+                          <span className="truncate font-semibold">{task.title}</span>
                         </div>
                       ))}
-                      {dayTasks.length > 3 && (
-                        <div className="text-[10px] font-bold text-muted-foreground pl-1">
-                          +{dayTasks.length - 3} more
+
+                      {/* "+N more" badge — always at the bottom of the task area */}
+                      {hiddenCount > 0 && (
+                        <div
+                          className="flex-shrink-0 flex items-center justify-center rounded bg-slate-500/60 text-white font-bold px-1"
+                          style={{ fontSize: '9px', lineHeight: '14px', minHeight: '14px' }}
+                        >
+                          +{hiddenCount} more
                         </div>
                       )}
                     </div>
@@ -250,17 +294,26 @@ export default function CalendarView() {
           )}
         </div>
 
-        {/* Side panel: selected day tasks */}
-        {selectedDay && (
-          <div className="w-80 flex-shrink-0 glass rounded-3xl border border-white/40 flex flex-col overflow-hidden animate-in slide-in-from-right-4 duration-200">
+        {/* ── Side panel (selected day) ── */}
+        <div
+          className="flex-shrink-0 overflow-hidden"
+          style={{
+            width: selectedDay ? 300 : 0,
+            opacity: selectedDay ? 1 : 0,
+            transition: 'width 300ms cubic-bezier(0.4,0,0.2,1), opacity 280ms ease',
+          }}
+        >
+          <div
+            className="w-[300px] h-full glass rounded-3xl border border-white/40 flex flex-col overflow-hidden"
+          >
             {/* Panel header */}
-            <div className="flex items-center justify-between px-5 py-4 border-b border-white/20">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-white/20 flex-shrink-0">
               <div>
                 <p className="text-xs font-black uppercase tracking-widest text-muted-foreground">
-                  {selectedDay.toLocaleDateString('en-US', { weekday: 'long' })}
+                  {selectedDay?.toLocaleDateString('en-US', { weekday: 'long' })}
                 </p>
                 <h3 className="text-lg font-extrabold text-foreground">
-                  {selectedDay.toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' })}
+                  {selectedDay?.toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' })}
                 </h3>
               </div>
               <button
@@ -272,7 +325,7 @@ export default function CalendarView() {
             </div>
 
             {/* Task list */}
-            <div className="flex-1 overflow-y-auto custom-scrollbar px-4 py-3 space-y-2">
+            <div className="flex-1 overflow-y-auto custom-scrollbar px-4 py-3 space-y-2 min-h-0">
               {selectedDayTasks.length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-32 gap-2">
                   <CalendarDays className="w-8 h-8 text-muted-foreground/40" />
@@ -336,17 +389,18 @@ export default function CalendarView() {
 
             {/* Footer count */}
             {selectedDayTasks.length > 0 && (
-              <div className="px-5 py-3 border-t border-white/20">
+              <div className="px-5 py-3 border-t border-white/20 flex-shrink-0">
                 <p className="text-xs text-muted-foreground">
-                  <span className="font-bold text-foreground">{selectedDayTasks.length}</span> task{selectedDayTasks.length > 1 ? 's' : ''} on this day
+                  <span className="font-bold text-foreground">{selectedDayTasks.length}</span>{' '}
+                  task{selectedDayTasks.length > 1 ? 's' : ''} on this day
                 </p>
               </div>
             )}
           </div>
-        )}
+        </div>
       </div>
 
-      {/* Floating task tooltip on hover */}
+      {/* ── Floating tooltip on task hover (only when no day selected) ── */}
       {hoveredTask && !selectedDay && (
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 pointer-events-none animate-in fade-in slide-in-from-bottom-2 duration-150">
           <div
@@ -364,8 +418,8 @@ export default function CalendarView() {
         </div>
       )}
 
-      {/* Legend */}
-      <div className="flex items-center gap-4 flex-wrap">
+      {/* ── Legend ── */}
+      <div className="flex items-center gap-4 flex-wrap flex-shrink-0">
         <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">Status:</span>
         {Object.entries(STATUS_COLORS).map(([status, cls]) => (
           <div key={status} className="flex items-center gap-1.5">

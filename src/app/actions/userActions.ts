@@ -98,6 +98,28 @@ export async function getAllUsers() {
   });
 }
 
+export async function searchUsers(query: string) {
+  const me = await getAuthUser();
+  if (!me || !query.trim()) return [];
+  const q = query.trim().toLowerCase();
+  return prisma.user.findMany({
+    where: {
+      AND: [
+        { id: { not: me.id } },
+        {
+          OR: [
+            { name: { contains: q, mode: 'insensitive' } },
+            { email: { contains: q, mode: 'insensitive' } },
+          ],
+        },
+      ],
+    },
+    select: { id: true, email: true, name: true, avatarUrl: true },
+    orderBy: { name: 'asc' },
+    take: 8,
+  });
+}
+
 export type ProjectPeerRow = {
   user: {
     id: string;

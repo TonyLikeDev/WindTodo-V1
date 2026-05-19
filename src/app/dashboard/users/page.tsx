@@ -1,5 +1,5 @@
 import { getProjectPeers } from '@/app/actions/userActions';
-import AddUserForm from '@/components/AddUserForm';
+import InviteUserModal from '@/components/InviteUserModal';
 
 export const dynamic = 'force-dynamic';
 
@@ -10,7 +10,7 @@ export default async function UsersPage() {
     <div className="space-y-8">
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <h1 className="text-2xl font-bold text-foreground tracking-tight">Users</h1>
-        <AddUserForm />
+        <InviteUserModal />
       </div>
       <div className="glass overflow-hidden rounded-2xl">
         <table className="w-full text-left border-collapse">
