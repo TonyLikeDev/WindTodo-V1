@@ -67,7 +67,7 @@ export default function ProjectBoard({ projectId }: { projectId: string }) {
   const { resolvedTheme } = useTheme();
   const { data: projects = [], mutate: mutateProjects, isLoading: projectsLoading } = useSWR<Project[]>(
     'projects',
-    getProjects,
+    () => getProjects() as unknown as Promise<Project[]>,
     { revalidateOnFocus: false, dedupingInterval: 10000 }
   );
   const { data: allUsers = [] } = useSWR('users', getAllUsers, { revalidateOnFocus: false, dedupingInterval: 60000 });
