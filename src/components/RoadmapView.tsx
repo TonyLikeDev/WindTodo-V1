@@ -338,7 +338,7 @@ export default function RoadmapView({ projectId }: { projectId: string }) {
       <button
         type="button"
         onClick={() => setShowNewTask(true)}
-        className="absolute bottom-24 left-6 z-30 flex items-center gap-2 px-4 py-2 rounded-full bg-primary text-primary-foreground text-sm font-semibold shadow-xl shadow-primary/30 hover:bg-sky-dark transition-colors"
+        className="fixed md:absolute bottom-24 left-6 z-40 md:z-30 flex items-center gap-2 px-4 py-2 rounded-full bg-primary text-primary-foreground text-sm font-semibold shadow-xl shadow-primary/30 hover:bg-sky-dark transition-colors"
       >
         <Plus className="w-4 h-4" />
         Task

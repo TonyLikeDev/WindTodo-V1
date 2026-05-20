@@ -65,12 +65,12 @@ export default function ProjectTipsBubble() {
   }
 
   return (
-    <div className="absolute bottom-6 right-6 z-30 flex items-end gap-3">
+    <div className="fixed md:absolute bottom-6 right-6 z-40 flex items-end gap-3 pointer-events-none">
       <div
-        className={`transition-all duration-300 ease-out ${
+        className={`transition-all duration-300 ease-out pointer-events-auto ${
           open
-            ? 'opacity-100 translate-x-0 pointer-events-auto'
-            : 'opacity-0 translate-x-6 pointer-events-none'
+            ? 'opacity-100 translate-x-0'
+            : 'opacity-0 translate-x-6'
         }`}
       >
         <div className="bg-white/95 dark:bg-slate-800/95 backdrop-blur-md rounded-2xl border border-border dark:border-white/10 shadow-xl shadow-sky-dark/20 px-4 py-3 w-72">
@@ -97,7 +97,7 @@ export default function ProjectTipsBubble() {
         type="button"
         onClick={handleIconClick}
         aria-label={open ? 'Hide tip' : 'Show a tip'}
-        className="w-11 h-11 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-xl shadow-primary/30 hover:scale-105 transition-transform"
+        className="w-11 h-11 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-xl shadow-primary/30 hover:scale-105 transition-transform pointer-events-auto"
       >
         <Lightbulb className="w-5 h-5" />
       </button>
