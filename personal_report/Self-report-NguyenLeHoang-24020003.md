@@ -9,7 +9,7 @@
 | **Team**       | WindToDo                                              |
 | **Role**       | Team Lead — Full-Stack (Frontend + Backend + Database + DevOps) |
 | **GitHub**     | [TonyLikeDev](https://github.com/TonyLikeDev)         |
-| **Commits**    | 64 / 69 on `main` (≈ 93% of the repo's commit volume) |
+| **Commits**    | 105 / 130 on `main` (≈ 81% of the repo's commit volume) |
 
 ---
 
@@ -162,6 +162,43 @@ Aligning feedback timing with the team's other deadlines — some reviewer sugge
 
 ---
 
+## Task 6 — New Views, Mobile Responsiveness, Dark Mode & UX Polish
+
+**Week:** 18/05/2026 – 20/05/2026
+
+**Work:**
+
+- **Roadmap / Backlog / Sprint views** — extended the project surface beyond Kanban with three new views: a roadmap timeline, a backlog list, and sprint grouping. Added the auto-rotating `<ProjectTipsBubble>` so first-time users discover the new views without a separate onboarding flow.
+- **Celestial dark mode review & polish** — reviewed and merged Le Van Cong Nguyen's celestial dark-mode PR (#51), then layered on a follow-up commit that bumped project-card contrast and restored the glass blur after the dark-mode color tokens flattened it.
+- **Mobile responsiveness pass** — added a hamburger nav with swipe-to-open for the mobile sidebar, refined the board header for narrow widths, and replaced the desktop horizontal pill bar inside `ProjectViewSwitcher` with a floating round button above the tips lightbulb that expands into a vertical pill stack on phones. Includes a sub-menu for "Switch boards" so project switching still works one-handed on mobile.
+- **Phone auth fix** — diagnosed and fixed a regression where the Supabase session cookie failed to attach on mobile browsers, causing database calls from phones to 401.
+- **Friendly empty states + project templates** — introduced a shared `<EmptyState>` component (lucide icon + headline + hint + optional CTA, with `panel`/`compact` variants) and wired it into TaskList, BacklogView, and CalendarView. Added a `projectTemplates.ts` module with three quick-start presets (Personal Tasks, Kanban Board, Sprint Planning) so the projects empty state is a launch pad instead of a single "Add Project" tile.
+- **Project membership UX** — let members leave projects from the share modal, and made roadmap and calendar cards open the same task-detail modal as the Kanban board for consistency.
+- **Schema iterations** — pushed two additional schema revisions to keep the new sprint/roadmap fields and AddUserForm tweaks in sync between Prisma and Supabase.
+- **Analytics + branding polish** — added Google Tag Manager to the root layout for cohort-wide usage analytics, updated the project font, and refreshed the README screenshots and copy after each major UX milestone.
+
+**Evidence of contribution:**
+
+- `196e291` — Add Roadmap, Backlog, Sprints, and project tips bubble (2026-05-18)
+- `7391410` — add hamburger-nav and swipe function for mobile sidebar (2026-05-20)
+- `d343ec3` — improve mobile responsiveness and refine board header UI (2026-05-20)
+- `3dcf61b` — fix phone ui database not able to auth + mobile floating view menu (2026-05-20)
+- `08dcbf2` — Merge PR #51 (celestial dark mode by Le Van Cong Nguyen) (2026-05-20)
+- `dfdd405` — Boost project card contrast and restore glass blur (post-merge follow-up, 2026-05-20)
+- `4804e6a` / PR #72 — Replace bare empty states with friendly CTAs + project templates (2026-05-20)
+- `a5bec20` / PR #68 — let members leave projects + open task details from roadmap & calendar (2026-05-20)
+- `481c90d` / `42a4472` — Prisma schema iterations (2026-05-20)
+- `84f9d8b` / PRs #62, #63 — Add Google Tag Manager to root layout (2026-05-20)
+- PR #61 — font update; PRs #53, #55, #57, #59, #65, #73 — README refreshes
+
+**Problems:**
+
+The mobile floating view menu had to coexist with the existing tips bubble (positioned `bottom-6 right-6`) without intercepting taps elsewhere on the page — fixed by making the wrapper `pointer-events-none` and re-enabling pointer events only on the interactive children. The phone auth issue was hardest to reproduce because it only fired on mobile Safari with third-party cookies restricted; resolved by adjusting the Supabase SSR cookie config on the proxy middleware.
+
+**Self-Assessment:** 9/10
+
+---
+
 ## Additional Contribution — Team Leadership & Code Review
 
 Outside of the five formal tasks, I owned the team's PR review queue: every PR (mine and other members') was reviewed and merged through `main` by me, which is why the merge commits dominate the log. I also unblocked teammates on Supabase / Prisma setup multiple times and handled the conflict resolution when feature branches diverged.
@@ -170,9 +207,9 @@ Outside of the five formal tasks, I owned the team's PR review queue: every PR (
 
 ## Personal Contribution Summary
 
-I owned the full-stack core of WindToDo: the initial Next.js bootstrap, the layout system, the Kanban board with drag-and-drop, the Supabase + Prisma data layer (schema, migrations, auth, `syncUser`, all CRUD routes), the performance pass (SWR, loading skeletons, Supabase pooler/region pinning, Prisma engine fixes for Vercel), and the final sky-themed light design pass. I also led the team's Git workflow and code review.
+I owned the full-stack core of WindToDo: the initial Next.js bootstrap, the layout system, the Kanban board with drag-and-drop, the Supabase + Prisma data layer (schema, migrations, auth, `syncUser`, all CRUD routes), the performance pass (SWR, loading skeletons, Supabase pooler/region pinning, Prisma engine fixes for Vercel), the sky-themed light design pass, the three additional project views (Roadmap, Backlog, Sprints), the mobile responsiveness pass (hamburger nav, swipe sidebar, floating view menu), and the empty-state / project-template UX. (The celestial dark mode was Le Van Cong Nguyen's work — I reviewed, merged, and added the project-card contrast follow-up.) I also led the team's Git workflow and code review.
 
-By commit count I authored **64 of the repo's 69 commits on `main`** (~93%), spanning frontend, backend, database, and DevOps. The two contributions I am proudest of are (1) the Supabase latency tuning + Prisma-on-Vercel fixes that made the deployed app feel instant on serverless, and (2) the database schema design with `position`-based ordering and access-pattern indexes that made drag-and-drop both correct and cheap. The biggest thing I learned was how to take a project end-to-end on a serverless runtime — the gap between "works locally" and "works on Vercel" was where almost all of my hardest debugging happened.
+By commit count I authored **105 of the repo's 130 commits on `main`** (~81%), spanning frontend, backend, database, DevOps, and UX. The three contributions I am proudest of are (1) the Supabase latency tuning + Prisma-on-Vercel fixes that made the deployed app feel instant on serverless, (2) the database schema design with `position`-based ordering and access-pattern indexes that made drag-and-drop both correct and cheap, and (3) the mobile responsiveness pass — replacing the desktop pill bar with a single floating button that expands into vertical pills on phones, so the same product works one-handed without a separate mobile route. The biggest thing I learned was how to take a project end-to-end on a serverless runtime, then iterate it from desktop-only into a genuinely mobile-friendly product — the gap between "works locally," "works on Vercel," and "works on mobile Safari" was where almost all of my hardest debugging happened.
 
 **Estimated % contribution to the team:** ~35%
 
