@@ -63,11 +63,11 @@ export default function SettingsPage() {
     <div className="max-w-5xl mx-auto space-y-10 pb-20">
       <div>
         <div className="flex items-center gap-2 mb-1">
-          <Sparkles size={16} className="text-primary" />
-          <span className="text-[10px] font-bold text-primary uppercase tracking-widest">Preferences</span>
+          <Sparkles size={16} className="text-primary/90" />
+          <span className="text-xs font-extrabold text-primary uppercase tracking-widest">Preferences</span>
         </div>
-        <h1 className="text-3xl font-bold text-foreground tracking-tight">Settings</h1>
-        <p className="text-muted-foreground text-sm font-medium mt-1">Personalize your WindTodo experience.</p>
+        <h1 className="text-4xl font-black text-slate-900 tracking-tight">Settings</h1>
+        <p className="text-slate-600 text-sm font-medium mt-1.5">Personalize your WindTodo experience with premium options.</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-10">
@@ -78,10 +78,10 @@ export default function SettingsPage() {
               <button
                 key={tab.key}
                 onClick={() => setActiveTab(tab.key)}
-                className={`w-full flex items-center gap-4 px-6 py-4 rounded-2xl transition-all font-bold text-sm ${
+                className={`w-full flex items-center gap-4 px-6 py-4 rounded-2xl transition-all font-semibold text-sm ${
                   active
                     ? "bg-white/60 text-primary shadow-sm"
-                    : "text-muted-foreground hover:bg-white/30 hover:text-foreground"
+                    : "text-slate-600 hover:bg-white/30 hover:text-slate-900"
                 }`}
               >
                 {tab.icon}
@@ -101,7 +101,7 @@ export default function SettingsPage() {
                       {user?.avatarUrl ? (
                         <Image src={user.avatarUrl} alt="" width={112} height={112} className="object-cover" unoptimized />
                       ) : (
-                        <span className="text-3xl font-bold text-primary">{initial}</span>
+                        <span className="text-3xl font-semibold text-primary">{initial}</span>
                       )}
                     </div>
                     <button
@@ -112,30 +112,30 @@ export default function SettingsPage() {
                     </button>
                   </div>
                   <div className="text-center sm:text-left">
-                    <h3 className="text-xl font-bold text-foreground">Profile Picture</h3>
-                    <p className="text-sm text-muted-foreground font-medium mt-1">Upload a photo to personalize your account.</p>
+                    <h3 className="text-xl font-extrabold text-slate-900">Profile Picture</h3>
+                    <p className="text-sm text-slate-600 font-medium mt-1.5">Upload a photo to personalize your account.</p>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 gap-8">
-                  <div className="space-y-3">
-                    <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest ml-1">Display Name</label>
+                  <div className="space-y-2">
+                    <label className="text-xs font-extrabold text-slate-800 uppercase tracking-widest ml-1">Display Name</label>
                     <input
                       type="text"
                       value={name}
                       onChange={(e) => setName(e.target.value)}
-                      className="w-full bg-white/40 border-white/40 border focus:border-primary focus:ring-4 focus:ring-primary/5 rounded-2xl py-4 px-6 text-sm font-bold text-foreground outline-none transition-all placeholder:text-muted-foreground/40"
+                      className="w-full bg-white/50 border-white/60 border focus:border-primary focus:ring-4 focus:ring-primary/5 rounded-2xl py-4 px-6 text-sm font-medium text-slate-900 outline-none transition-all placeholder:text-slate-700/40"
                       placeholder="Your display name"
                     />
                   </div>
 
-                  <div className="space-y-3 opacity-60">
-                    <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest ml-1">Email Address</label>
+                  <div className="space-y-2 opacity-70">
+                    <label className="text-xs font-extrabold text-slate-800 uppercase tracking-widest ml-1">Email Address</label>
                     <input
                       type="email"
                       value={email}
                       readOnly
-                      className="w-full bg-white/20 border-white/20 border rounded-2xl py-4 px-6 text-sm font-bold text-muted-foreground outline-none cursor-not-allowed"
+                      className="w-full bg-white/30 border-white/40 border rounded-2xl py-4 px-6 text-sm font-medium text-slate-700 outline-none cursor-not-allowed"
                     />
                   </div>
                 </div>
@@ -153,7 +153,7 @@ export default function SettingsPage() {
                   <button
                     type="submit"
                     disabled={isSaving}
-                    className="btn-primary flex items-center gap-3 !px-10"
+                    className="btn-primary flex items-center gap-3 !px-10 font-semibold text-sm"
                   >
                     {isSaving ? (
                       <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -166,13 +166,13 @@ export default function SettingsPage() {
               </form>
 
               <div className="glass p-10 rounded-[3rem] border-white/40">
-                <h3 className="text-xs font-bold text-foreground uppercase tracking-widest mb-6 ml-1">Danger Zone</h3>
+                <h3 className="text-xs font-extrabold text-slate-900 uppercase tracking-widest mb-6 ml-1">Danger Zone</h3>
                 <div className="p-8 rounded-[2.5rem] bg-red-500/5 border border-red-500/10 flex flex-col sm:flex-row items-center justify-between gap-6">
                   <div>
-                    <p className="text-sm font-bold text-red-500">Delete Account</p>
-                    <p className="text-xs text-muted-foreground mt-1 font-medium">Permanently remove all your data. This cannot be undone.</p>
+                    <p className="text-sm font-extrabold text-red-600">Delete Account</p>
+                    <p className="text-xs text-slate-600 mt-1.5 font-medium">Permanently remove all your data. This cannot be undone.</p>
                   </div>
-                  <button className="px-8 py-3.5 bg-white/60 text-red-500 border border-red-500/20 rounded-2xl font-bold text-xs hover:bg-red-500 hover:text-white transition-all whitespace-nowrap">
+                  <button className="px-8 py-3.5 bg-white/60 text-red-600 border border-red-500/20 rounded-2xl font-semibold text-xs hover:bg-red-500 hover:text-white transition-all whitespace-nowrap">
                     Delete Now
                   </button>
                 </div>
@@ -181,8 +181,8 @@ export default function SettingsPage() {
           )}
 
           {activeTab !== "general" && (
-            <div className="glass p-10 rounded-[3rem] border-white/40 text-center text-muted-foreground">
-              <p className="text-sm font-bold uppercase tracking-widest">{TABS.find((t) => t.key === activeTab)?.label}</p>
+            <div className="glass p-10 rounded-[3rem] border-white/40 text-center text-slate-700">
+              <p className="text-sm font-extrabold uppercase tracking-widest">{TABS.find((t) => t.key === activeTab)?.label}</p>
               <p className="text-xs mt-2 font-medium">Coming soon.</p>
             </div>
           )}

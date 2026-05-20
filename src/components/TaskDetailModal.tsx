@@ -41,16 +41,16 @@ export type TaskPatch = {
 };
 
 const PRIORITY_STYLES: Record<TaskPriority, string> = {
-  LOW: 'bg-muted/20 text-muted-foreground border-muted/30',
-  MEDIUM: 'bg-primary/20 text-primary border-primary/30',
-  HIGH: 'bg-orange-500/20 text-orange-300 border-orange-500/30',
-  URGENT: 'bg-red-500/25 text-red-300 border-red-500/40',
+  LOW: 'bg-muted/30 text-muted-foreground border-muted/40 font-bold',
+  MEDIUM: 'bg-primary/15 text-primary border-primary/20 font-bold',
+  HIGH: 'bg-orange-500/15 text-orange-700 border-orange-500/20 font-bold',
+  URGENT: 'bg-red-500/15 text-red-700 border-red-500/20 font-bold',
 };
 
 const STATUS_STYLES: Record<TaskStatus, string> = {
-  TODO: 'bg-muted/20 text-muted-foreground border-muted/30',
-  IN_PROGRESS: 'bg-primary/20 text-primary border-primary/30',
-  DONE: 'bg-accent-green/20 text-accent-green border-accent-green/30',
+  TODO: 'bg-muted/30 text-muted-foreground border-muted/40 font-bold',
+  IN_PROGRESS: 'bg-primary/15 text-primary border-primary/20 font-bold',
+  DONE: 'bg-green-500/15 text-green-700 border-green-500/20 font-bold',
 };
 
 const TYPE_STYLES: Record<TaskType, string> = {

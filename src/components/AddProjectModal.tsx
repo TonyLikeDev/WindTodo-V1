@@ -61,15 +61,15 @@ export default function AddProjectModal({
       <form
         onSubmit={handleSubmit}
         onClick={(e) => e.stopPropagation()}
-        className="glass rounded-2xl w-full max-w-md p-6 animate-bubble-pop"
+        className="glass rounded-2xl w-full max-w-md p-6 animate-bubble-pop border-white/50"
       >
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-bold text-white tracking-tight">{title}</h2>
+          <h2 className="text-xl font-bold text-foreground tracking-tight">{title}</h2>
           <button
             type="button"
             onClick={onClose}
             aria-label="Close"
-            className="text-gray-400 hover:text-white transition-colors"
+            className="text-muted-foreground hover:text-foreground transition-colors"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -77,7 +77,7 @@ export default function AddProjectModal({
           </button>
         </div>
 
-        <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+        <label className="block text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">
           {nameLabel}
         </label>
         <input
@@ -86,10 +86,10 @@ export default function AddProjectModal({
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder={namePlaceholder}
-          className="w-full bg-black/30 border border-white/10 rounded-lg py-2.5 px-4 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-white/20 mb-6"
+          className="w-full bg-white/60 border border-border rounded-lg py-2.5 px-4 text-sm text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 mb-6 transition-all"
         />
 
-        <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">
+        <label className="block text-xs font-bold text-muted-foreground uppercase tracking-wider mb-3">
           Tasklist background
         </label>
         <div className="grid grid-cols-5 gap-2 mb-6">
@@ -106,31 +106,31 @@ export default function AddProjectModal({
                 style={{ background: c.value }}
                 className={`h-10 rounded-lg border transition-all ${
                   selected
-                    ? 'border-white ring-2 ring-white/40'
-                    : 'border-white/10 hover:border-white/30'
+                    ? 'border-white ring-2 ring-primary/40'
+                    : 'border-white/20 hover:border-white/50'
                 }`}
               />
             );
           })}
         </div>
 
-        <div className="rounded-xl p-4 mb-6 border border-white/10" style={{ background: color }}>
-          <div className="text-[10px] text-gray-300 uppercase tracking-wider mb-1">Preview</div>
-          <div className="text-sm text-white truncate">{name || 'Your project name'}</div>
+        <div className="rounded-xl p-4 mb-6 border border-white/40" style={{ background: color }}>
+          <div className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Preview</div>
+          <div className="text-sm font-semibold text-foreground truncate">{name || 'Your project name'}</div>
         </div>
 
         <div className="flex justify-end gap-2">
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 text-sm text-gray-300 hover:text-white transition-colors"
+            className="px-4 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors font-medium"
           >
             Cancel
           </button>
           <button
             type="submit"
             disabled={!name.trim()}
-            className="px-4 py-2 text-sm bg-white text-black rounded-lg font-medium hover:bg-gray-200 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            className="px-5 py-2 text-sm bg-primary text-white rounded-lg font-bold hover:bg-sky-dark disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-md hover:shadow-primary/30"
           >
             {ctaLabel}
           </button>
