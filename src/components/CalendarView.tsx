@@ -1,10 +1,19 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import useSWR from 'swr';
+import useSWR, { mutate as globalMutate } from 'swr';
 import Link from 'next/link';
 import { ChevronLeft, ChevronRight, CalendarDays, X, ExternalLink } from 'lucide-react';
-import { getCalendarTasks } from '@/app/actions/taskActions';
+import { getCalendarTasks, updateTask, deleteTask } from '@/app/actions/taskActions';
+import { getProjects } from '@/app/actions/projectActions';
+import TaskDetailModal, {
+  type ModalTask,
+  type ModalUserProfile,
+  type TaskPatch,
+  type TaskPriority,
+  type TaskStatus,
+  type TaskType,
+} from './TaskDetailModal';
 
 type CalendarTask = Awaited<ReturnType<typeof getCalendarTasks>>[number];
 
@@ -79,11 +88,77 @@ export default function CalendarView() {
   const [current, setCurrent] = useState({ year: today.getFullYear(), month: today.getMonth() });
   const [selectedDay, setSelectedDay] = useState<Date | null>(null);
   const [hoveredTask, setHoveredTask] = useState<CalendarTask | null>(null);
+  const [openTaskId, setOpenTaskId] = useState<string | null>(null);
 
-  const { data: tasks = [], isLoading } = useSWR('calendar-tasks', getCalendarTasks, {
+  const tasksKey = 'calendar-tasks';
+  const { data: tasks = [], isLoading } = useSWR(tasksKey, getCalendarTasks, {
     revalidateOnFocus: false,
     dedupingInterval: 30000,
   });
+  const { data: projects = [] } = useSWR('projects', getProjects, {
+    revalidateOnFocus: false,
+    dedupingInterval: 30000,
+  });
+
+  const openTask = useMemo<ModalTask | null>(() => {
+    if (!openTaskId) return null;
+    const t = tasks.find((x) => x.id === openTaskId);
+    if (!t) return null;
+    return {
+      id: t.id,
+      title: t.title,
+      description: t.description,
+      status: t.status as TaskStatus,
+      priority: t.priority as TaskPriority,
+      type: t.type as TaskType,
+      startDate: t.startDate,
+      endDate: t.endDate,
+      assigneeId: t.assigneeId,
+      assignee: t.assignee
+        ? {
+            id: t.assignee.id,
+            name: t.assignee.name,
+            avatarUrl: t.assignee.avatarUrl,
+            email: t.assignee.email,
+          }
+        : null,
+      createdAt: t.createdAt,
+      creator: t.creator
+        ? {
+            id: t.creator.id,
+            name: t.creator.name,
+            avatarUrl: t.creator.avatarUrl,
+            email: t.creator.email,
+          }
+        : null,
+    };
+  }, [openTaskId, tasks]);
+
+  const openTaskMembers = useMemo<ModalUserProfile[]>(() => {
+    if (!openTaskId) return [];
+    const t = tasks.find((x) => x.id === openTaskId);
+    if (!t) return [];
+    const proj = projects.find((p) => p.id === t.list.project.id);
+    return (proj?.members ?? []).map((m) => ({
+      id: m.user.id,
+      name: m.user.name,
+      avatarUrl: m.user.avatarUrl,
+      email: m.user.email,
+    }));
+  }, [openTaskId, tasks, projects]);
+
+  const patchTask = async (id: string, patch: TaskPatch) => {
+    const next = tasks.map((t) => (t.id === id ? { ...t, ...patch } : t));
+    globalMutate(tasksKey, next, false);
+    await updateTask(id, patch);
+    globalMutate(tasksKey);
+  };
+
+  const removeTask = async (id: string) => {
+    globalMutate(tasksKey, tasks.filter((t) => t.id !== id), false);
+    await deleteTask(id);
+    globalMutate(tasksKey);
+  };
 
   const { year, month } = current;
 
@@ -298,7 +373,13 @@ export default function CalendarView() {
                     </div>
 
                     {/* Title */}
-                    <p className="text-sm font-semibold text-foreground leading-snug">{task.title}</p>
+                    <button
+                      type="button"
+                      onClick={() => setOpenTaskId(task.id)}
+                      className="block w-full text-left text-sm font-semibold text-foreground leading-snug hover:text-primary transition-colors"
+                    >
+                      {task.title}
+                    </button>
 
                     {/* Date range */}
                     <p className="text-[11px] text-muted-foreground">{formatDateRange(task)}</p>
@@ -378,6 +459,19 @@ export default function CalendarView() {
           </div>
         ))}
       </div>
+
+      {openTask && (
+        <TaskDetailModal
+          task={openTask}
+          members={openTaskMembers}
+          onClose={() => setOpenTaskId(null)}
+          onChange={(patch) => patchTask(openTask.id, patch)}
+          onDelete={() => {
+            removeTask(openTask.id);
+            setOpenTaskId(null);
+          }}
+        />
+      )}
     </div>
   );
 }

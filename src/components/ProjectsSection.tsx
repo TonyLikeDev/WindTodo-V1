@@ -3,9 +3,10 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import useSWR from 'swr';
-import { Trash2 } from 'lucide-react';
+import { LogOut, Trash2 } from 'lucide-react';
 import AddProjectModal from './AddProjectModal';
 import { createProject, getProjects, deleteProject } from '@/app/actions/projectActions';
+import { getAuthUser } from '@/app/actions/userActions';
 
 type Project = {
   id: string;
@@ -24,6 +25,10 @@ export default function ProjectsSection() {
       dedupingInterval: 10000,
     }
   );
+  const { data: me } = useSWR('auth-user', getAuthUser, {
+    revalidateOnFocus: false,
+    dedupingInterval: 60000,
+  });
   const [open, setOpen] = useState(false);
 
   const handleCreate = async (name: string, color: string) => {
@@ -40,13 +45,18 @@ export default function ProjectsSection() {
     mutate();
   };
 
-  const handleDelete = async (e: React.MouseEvent, projectId: string) => {
+  const handleDelete = async (e: React.MouseEvent, project: Project) => {
     e.preventDefault();
     e.stopPropagation();
-    
-    if (confirm('Are you sure you want to delete this project? All lists and tasks will be permanently removed.')) {
-      mutate(projects.filter(p => p.id !== projectId), false);
-      await deleteProject(projectId);
+
+    const isOwner = me?.id === project.userId;
+    const message = isOwner
+      ? 'Are you sure you want to delete this project? All lists and tasks will be permanently removed.'
+      : 'Leave this project? You will lose access until an admin invites you back.';
+
+    if (confirm(message)) {
+      mutate(projects.filter(p => p.id !== project.id), false);
+      await deleteProject(project.id);
       mutate();
     }
   };
@@ -61,7 +71,9 @@ export default function ProjectsSection() {
       )}
 
       {!isLoading &&
-        projects.map((p) => (
+        projects.map((p) => {
+          const isOwner = me?.id === p.userId;
+          return (
           <Link
             key={p.id}
             href={p.id.startsWith('temp-') ? '#' : `/projects/${p.id}`}
@@ -76,19 +88,20 @@ export default function ProjectsSection() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
             </div>
-            
+
             <button
-              onClick={(e) => handleDelete(e, p.id)}
+              onClick={(e) => handleDelete(e, p)}
               className="absolute top-6 right-12 p-2 text-white/50 hover:text-red-400 hover:bg-red-500/20 rounded-lg opacity-0 group-hover:opacity-100 transition-all z-10"
-              title="Delete Project"
+              title={isOwner ? 'Delete Project' : 'Leave Project'}
             >
-              <Trash2 className="w-4 h-4" />
+              {isOwner ? <Trash2 className="w-4 h-4" /> : <LogOut className="w-4 h-4" />}
             </button>
 
             <p className="text-xs text-white/70 mb-auto">Open board</p>
             <div className="mt-4 text-[11px] text-white/60 uppercase tracking-wider font-semibold">Project</div>
           </Link>
-        ))}
+          );
+        })}
 
       <button
         type="button"

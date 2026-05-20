@@ -99,15 +99,27 @@ export async function createProject(name: string, color: string) {
 
 export async function deleteProject(projectId: string) {
   const userId = await requireUserId()
-  // Only the creator can delete a project (admin role isn't enough).
-  const project = await prisma.project.findFirst({
-    where: { id: projectId, userId },
+  const project = await prisma.project.findUnique({
+    where: { id: projectId },
+    select: { id: true, userId: true },
+  })
+  if (!project) throw new Error('Project not found')
+
+  if (project.userId === userId) {
+    // Creator deletes the whole project; cascades clean up lists/tasks.
+    await prisma.project.delete({ where: { id: projectId } })
+    revalidatePath('/dashboard')
+    return
+  }
+
+  // Non-creator member: detach themselves from the project instead.
+  const membership = await prisma.projectMember.findUnique({
+    where: { projectId_userId: { projectId, userId } },
     select: { id: true },
   })
-  if (!project) throw new Error('Only the creator can delete this project')
-  // BoardList → Task cascade handles the rest; the explicit deletes are
-  // defensive in case cascades aren't configured everywhere.
-  await prisma.project.delete({ where: { id: projectId } })
+  if (!membership) throw new Error('Not authorized for this project')
+
+  await prisma.projectMember.delete({ where: { id: membership.id } })
   revalidatePath('/dashboard')
 }
 
