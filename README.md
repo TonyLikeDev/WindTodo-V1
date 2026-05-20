@@ -434,7 +434,7 @@ The application was audited with Lighthouse on both desktop and mobile to verify
 
 ### (b) Feedback Received (Teacher Review)
 
-nothing yet
+- **#54 — Empty widgets need more guidance.** Feedback noted that bare strings like "No tasks yet" gave users nothing to do next. Fixed by adding a shared `EmptyState` component (lucide icon + headline + hint + CTA) and wiring it into TaskList, BacklogView, and the CalendarView day pane. The Projects empty state now shows three hardcoded quick-start templates (Personal Tasks, Kanban Board, Sprint Planning), each one-click creating a project with its own preset columns via a new `createProjectFromTemplate` server action.
 
 ---
 
