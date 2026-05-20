@@ -2,11 +2,11 @@
 
 import Link from 'next/link';
 import { MouseEvent as ReactMouseEvent, ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { createPortal } from 'react-dom';
 import useSWR, { mutate as globalMutate } from 'swr';
 import BoardColumn, { DEFAULT_LIST_COLOR } from './BoardColumn';
 import { BoardDragProvider, DraggableTask } from './BoardDragContext';
 import { moveTask, updateTask } from '@/app/actions/taskActions';
+import { playCelestialChime } from './EffectsCanvas';
 import {
   createBoardList,
   deleteBoardList,
@@ -17,7 +17,8 @@ import {
   updateBoardListColor,
 } from '@/app/actions/projectActions';
 import { getAllUsers, addMemberToProject, removeMemberFromProject, addUserByEmail, getAuthUser, setMemberRole } from '@/app/actions/userActions';
-import { Plus, ChevronLeft, X, ChevronDown, Check, Trash2, Share2 } from 'lucide-react';
+import { useTheme } from 'next-themes';
+import { Plus, ChevronLeft, BarChart2, X, ChevronDown, Check, Trash2 } from 'lucide-react';
 
 type UserProfile = {
   id: string;
@@ -63,12 +64,10 @@ function avatarBgFor(id: string): string {
 }
 
 export default function ProjectBoard({ projectId }: { projectId: string }) {
+  const { resolvedTheme } = useTheme();
   const { data: projects = [], mutate: mutateProjects, isLoading: projectsLoading } = useSWR<Project[]>(
     'projects',
-    async () => {
-      const res = await getProjects();
-      return res as unknown as Project[];
-    },
+    () => getProjects() as unknown as Promise<Project[]>,
     { revalidateOnFocus: false, dedupingInterval: 10000 }
   );
   const { data: allUsers = [] } = useSWR('users', getAllUsers, { revalidateOnFocus: false, dedupingInterval: 60000 });
@@ -86,7 +85,6 @@ export default function ProjectBoard({ projectId }: { projectId: string }) {
   const [shareError, setShareError] = useState<string | null>(null);
   const [shareBusy, setShareBusy] = useState(false);
   const [roleMenuFor, setRoleMenuFor] = useState<string | null>(null);
-  const [roleMenuPosition, setRoleMenuPosition] = useState<{ top: number; right: number } | null>(null);
   const roleMenuRef = useRef<HTMLDivElement>(null);
   const [draggingListId, setDraggingListId] = useState<string | null>(null);
   const [listDropIndex, setListDropIndex] = useState<number | null>(null);
@@ -179,7 +177,6 @@ export default function ProjectBoard({ projectId }: { projectId: string }) {
       console.error('Failed to set role:', err);
     } finally {
       setRoleMenuFor(null);
-      setRoleMenuPosition(null);
     }
   };
 
@@ -192,21 +189,6 @@ export default function ProjectBoard({ projectId }: { projectId: string }) {
     document.addEventListener('pointerdown', onDown);
     return () => document.removeEventListener('pointerdown', onDown);
   }, [roleMenuFor]);
-
-  const toggleRoleMenu = (userId: string, anchor: HTMLButtonElement) => {
-    if (roleMenuFor === userId) {
-      setRoleMenuFor(null);
-      setRoleMenuPosition(null);
-      return;
-    }
-
-    const rect = anchor.getBoundingClientRect();
-    setRoleMenuFor(userId);
-    setRoleMenuPosition({
-      top: rect.bottom + 6,
-      right: window.innerWidth - rect.right,
-    });
-  };
 
   const handleShareInvite = async () => {
     const q = shareInput.trim();
@@ -470,6 +452,11 @@ export default function ProjectBoard({ projectId }: { projectId: string }) {
         await moveTask(task.id, targetListId, targetIndex);
         // Auto-update status based on which column the task was dropped into
         if (newStatus && sourceListId !== targetListId) {
+          const oldStatus = (task as unknown as { status?: string }).status;
+          if (newStatus === 'DONE' && oldStatus !== 'DONE') {
+            playCelestialChime();
+            window.dispatchEvent(new CustomEvent('star-confetti', { detail: { x: window.innerWidth / 2, y: window.innerHeight / 3 } }));
+          }
           await updateTask(task.id, { status: newStatus });
         }
       } finally {
@@ -517,18 +504,20 @@ export default function ProjectBoard({ projectId }: { projectId: string }) {
 
   return (
     <BoardDragProvider onDrop={handleDrop}>
-      <div className="flex h-full w-full overflow-hidden bg-white/60">
+      <div className="flex h-full w-full overflow-hidden bg-transparent">
         {/* Main board area */}
         <div
           className="flex-1 flex flex-col overflow-hidden relative"
           style={{
-            background: `radial-gradient(circle at top right, ${project.color}33, transparent), linear-gradient(180deg, rgba(0,0,0,0.4) 0%, #0a0a0a 100%)`,
+            background: resolvedTheme === 'dark'
+              ? `radial-gradient(circle at top right, ${project.color}35, transparent 65%), linear-gradient(180deg, rgba(11,19,43,0.3) 0%, rgba(11,19,43,0.7) 100%)`
+              : `radial-gradient(circle at top right, ${project.color}18, transparent 65%), linear-gradient(180deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.1) 100%)`,
           }}
         >
           {/* Header */}
-          <header className="flex items-center justify-between px-8 py-5 border-b border-white/40 backdrop-blur-md bg-white/40 z-10">
+          <header className="flex items-center justify-between px-8 py-5 border-b border-white/20 dark:border-white/5 backdrop-blur-md bg-white/20 dark:bg-black/35 z-10">
             <div className="flex items-center gap-6 min-w-0">
-              <Link href="/dashboard" className="p-2 hover:bg-white/40 rounded-lg transition-colors text-muted-foreground hover:text-foreground">
+              <Link href="/dashboard" className="p-2 hover:bg-white/30 dark:hover:bg-black/25 rounded-lg transition-colors text-muted-foreground hover:text-foreground">
                 <ChevronLeft className="w-5 h-5" />
               </Link>
               <div>
@@ -543,19 +532,11 @@ export default function ProjectBoard({ projectId }: { projectId: string }) {
             </div>
 
             <div className="flex items-center gap-4">
-              <button
-                type="button"
-                onClick={() => setShowMemberModal(true)}
-                className="group inline-flex h-10 items-center gap-2 rounded-2xl border border-white/50 bg-white/45 px-3 text-sm font-bold text-foreground shadow-sm shadow-sky-dark/10 transition-all hover:-translate-y-0.5 hover:bg-white/65 hover:shadow-md"
-                aria-label="Share board"
-              >
-                <div className="flex -space-x-2">
-                  {project.members.slice(0, 3).map(({ user: m }) => (
-                    <div
-                      key={m.id}
-                      className="flex h-7 w-7 items-center justify-center overflow-hidden rounded-full border border-white/60 bg-gray-800 text-[10px] font-bold text-white ring-2 ring-white/70"
-                      title={m.name || m.email}
-                    >
+              {/* Member Avatars */}
+              <div className="flex items-center gap-3">
+                <div className="flex -space-x-2 overflow-hidden">
+                  {project.members.map(({ user: m }) => (
+                    <div key={m.id} className="flex h-8 w-8 rounded-full ring-2 ring-white/10 dark:ring-black/40 bg-slate-200 dark:bg-slate-800 items-center justify-center text-[10px] font-bold text-foreground border border-white/30 dark:border-white/5 shadow-md" title={m.name || m.email}>
                       {m.avatarUrl ? (
                         <img src={m.avatarUrl} alt={m.name || ''} className="h-full w-full object-cover" />
                       ) : (
@@ -563,16 +544,25 @@ export default function ProjectBoard({ projectId }: { projectId: string }) {
                       )}
                     </div>
                   ))}
-                  {project.members.length > 3 && (
-                    <div className="flex h-7 w-7 items-center justify-center rounded-full border border-white/60 bg-sky-dark text-[10px] font-bold text-white ring-2 ring-white/70">
-                      +{project.members.length - 3}
-                    </div>
-                  )}
                 </div>
-                <span className="hidden sm:inline">Share</span>
-                <Share2 className="h-4 w-4 text-primary transition-transform group-hover:scale-110" />
-              </button>
+                <button 
+                  onClick={() => setShowMemberModal(true)}
+                  className="flex items-center gap-2 px-4 py-2 bg-white/25 dark:bg-black/25 hover:bg-white/35 dark:hover:bg-black/45 text-foreground rounded-xl text-sm font-bold transition-all border border-white/20 dark:border-white/5 shadow-md"
+                >
+                  <Plus className="w-4 h-4" />
+                  Share
+                </button>
+              </div>
 
+              <div className="h-8 w-px bg-white/20 dark:bg-white/5 mx-2" />
+
+              <Link 
+                href="/dashboard/stats" 
+                className="flex items-center gap-2 px-4 py-2 bg-white/25 dark:bg-black/25 hover:bg-white/35 dark:hover:bg-black/45 text-foreground rounded-xl text-sm font-bold transition-all border border-white/20 dark:border-white/5 shadow-md"
+              >
+                <BarChart2 className="w-4 h-4" />
+                Stats
+              </Link>
             </div>
           </header>
 
@@ -651,7 +641,7 @@ export default function ProjectBoard({ projectId }: { projectId: string }) {
               <button
                 type="button"
                 onClick={() => startDraft(lists.length)}
-                className="w-72 flex-shrink-0 rounded-2xl border-2 border-dashed border-white/40 bg-white/40 hover:bg-white/40 hover:border-white/50 transition-all px-4 py-4 flex items-center justify-center gap-2 text-sm font-bold text-muted-foreground hover:text-foreground group"
+                className="w-72 flex-shrink-0 rounded-2xl border-2 border-dashed border-white/20 dark:border-white/5 bg-white/20 dark:bg-black/20 hover:bg-white/30 dark:hover:bg-black/30 hover:border-white/30 dark:hover:border-white/10 transition-all px-4 py-4 flex items-center justify-center gap-2 text-sm font-bold text-foreground/70 dark:text-white/70 hover:text-foreground dark:hover:text-white group"
               >
                 <Plus className="w-4 h-4 group-hover:scale-110 transition-transform" />
                 {lists.length === 0 ? 'Add First List' : 'Add New Column'}
@@ -731,7 +721,7 @@ export default function ProjectBoard({ projectId }: { projectId: string }) {
                   <button
                     onClick={handleShareInvite}
                     disabled={shareBusy || !shareInput.trim()}
-                    className="px-4 py-2 bg-primary hover:bg-sky-dark disabled:bg-primary/20 disabled:text-white/40 text-white rounded-lg text-sm font-bold transition-all shadow-md hover:shadow-primary/20"
+                    className="px-4 py-2 bg-blue-600 hover:bg-blue-500 disabled:bg-blue-900/50 disabled:text-foreground/40 text-foreground rounded-lg text-sm font-bold transition-all"
                   >
                     Share
                   </button>
@@ -792,7 +782,7 @@ export default function ProjectBoard({ projectId }: { projectId: string }) {
                         </div>
                       </div>
 
-                      <div className="relative">
+                      <div className="relative" ref={menuOpen ? roleMenuRef : undefined}>
                         {!canManage ? (
                           <span
                             className={`px-3 py-1.5 border rounded-lg text-sm font-bold flex items-center gap-1 select-none ${
@@ -807,7 +797,7 @@ export default function ProjectBoard({ projectId }: { projectId: string }) {
                         ) : (
                           <button
                             type="button"
-                            onClick={(e) => toggleRoleMenu(m.id, e.currentTarget)}
+                            onClick={() => setRoleMenuFor(menuOpen ? null : m.id)}
                             className={`px-3 py-1.5 border rounded-lg text-sm font-bold flex items-center gap-1 transition-all ${
                               role === 'ADMIN'
                                 ? 'border-blue-500/40 text-blue-400 hover:bg-blue-500/10'
@@ -819,15 +809,8 @@ export default function ProjectBoard({ projectId }: { projectId: string }) {
                           </button>
                         )}
 
-                        {menuOpen && canManage && roleMenuPosition && createPortal(
-                          <div
-                            ref={roleMenuRef}
-                            className="fixed z-[200] w-48 bg-white/95 backdrop-blur-md border border-white/60 rounded-xl shadow-2xl shadow-sky-dark/20 overflow-hidden animate-in zoom-in-95 duration-150"
-                            style={{
-                              top: roleMenuPosition.top,
-                              right: roleMenuPosition.right,
-                            }}
-                          >
+                        {menuOpen && canManage && (
+                          <div className="absolute right-0 top-full mt-1 z-20 w-48 bg-white/80 border border-white/50 rounded-xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-150">
                             <button
                               type="button"
                               onClick={() => handleSetMemberRole(m.id, 'ADMIN')}
@@ -849,7 +832,6 @@ export default function ProjectBoard({ projectId }: { projectId: string }) {
                               type="button"
                               onClick={() => {
                                 setRoleMenuFor(null);
-                                setRoleMenuPosition(null);
                                 handleRemoveMember(m.id);
                               }}
                               className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-400 hover:bg-red-500/10"
@@ -857,8 +839,7 @@ export default function ProjectBoard({ projectId }: { projectId: string }) {
                               <Trash2 className="w-3.5 h-3.5" />
                               Remove from board
                             </button>
-                          </div>,
-                          document.body,
+                          </div>
                         )}
                       </div>
                     </div>

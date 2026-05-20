@@ -8,7 +8,7 @@ export default function ProjectLayout({ children }: { children: ReactNode }) {
   return (
     <SkyBackground>
       <div className="flex flex-col h-screen overflow-hidden w-full">
-        <header className="flex items-center justify-between gap-4 px-4 md:px-8 py-3 border-b border-white/30 bg-white/40 backdrop-blur-md flex-shrink-0">
+        <header className="flex items-center justify-between gap-4 px-4 md:px-8 py-3 border-b border-white/20 dark:border-white/5 bg-white/20 dark:bg-black/35 backdrop-blur-md flex-shrink-0">
           <Link
             href="/dashboard"
             aria-label="Back to dashboard"

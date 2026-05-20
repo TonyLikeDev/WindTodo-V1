@@ -21,7 +21,7 @@ export default function SignupPage() {
 
           <form className="w-full space-y-4" action={formAction}>
             {state?.error && (
-              <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-center">
+              <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-center mb-4">
                 <p className="text-sm text-red-600">{state.error}</p>
               </div>
             )}
@@ -50,13 +50,13 @@ export default function SignupPage() {
           </form>
 
           <div className="mt-5 flex items-center w-full">
-            <div className="flex-grow border-t border-border"></div>
+            <div className="flex-grow border-t border-border" />
             <span className="px-3 text-xs text-muted-foreground uppercase tracking-widest">or</span>
-            <div className="flex-grow border-t border-border"></div>
+            <div className="flex-grow border-t border-border" />
           </div>
 
           <p className="mt-5 text-sm text-muted-foreground">
-            Already have an account? <Link href="/login" className="text-primary font-medium hover:underline">Sign in</Link>
+            Already have an account? <Link href="/login" className="text-primary hover:underline font-medium">Sign in</Link>
           </p>
         </div>
       </main>

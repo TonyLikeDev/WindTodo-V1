@@ -11,8 +11,13 @@ const TIPS = [
   'Use "Switch boards" on the right to jump to another project without leaving the page.',
 ];
 
-const TIP_INTERVAL_MS = 60 * 1000;
+const MIN_INTERVAL_MS = 5 * 1000;
+const MAX_INTERVAL_MS = 10 * 1000;
 const AUTO_DISMISS_MS = 4 * 1000;
+
+function randomInterval() {
+  return MIN_INTERVAL_MS + Math.random() * (MAX_INTERVAL_MS - MIN_INTERVAL_MS);
+}
 
 export default function ProjectTipsBubble() {
   const [tipIndex, setTipIndex] = useState(0);
@@ -27,13 +32,19 @@ export default function ProjectTipsBubble() {
     dismissTimerRef.current = setTimeout(() => setOpen(false), AUTO_DISMISS_MS);
   }, []);
 
+  const scheduleNextRef = useRef<() => void>(() => {});
+
   const scheduleNext = useCallback(() => {
     if (nextTimerRef.current) clearTimeout(nextTimerRef.current);
     nextTimerRef.current = setTimeout(() => {
       showNextTip();
-      scheduleNext();
-    }, TIP_INTERVAL_MS);
+      scheduleNextRef.current();
+    }, randomInterval());
   }, [showNextTip]);
+
+  useEffect(() => {
+    scheduleNextRef.current = scheduleNext;
+  }, [scheduleNext]);
 
   useEffect(() => {
     scheduleNext();
@@ -62,7 +73,7 @@ export default function ProjectTipsBubble() {
             : 'opacity-0 translate-x-6 pointer-events-none'
         }`}
       >
-        <div className="bg-white/95 backdrop-blur-md rounded-2xl border border-border shadow-xl shadow-sky-dark/20 px-4 py-3 w-72">
+        <div className="bg-white/95 dark:bg-slate-800/95 backdrop-blur-md rounded-2xl border border-border dark:border-white/10 shadow-xl shadow-sky-dark/20 px-4 py-3 w-72">
           <div className="flex items-center justify-between mb-1">
             <span className="text-[10px] font-bold uppercase tracking-widest text-primary">
               Tip
@@ -79,7 +90,7 @@ export default function ProjectTipsBubble() {
               <X className="w-4 h-4" />
             </button>
           </div>
-          <p className="text-sm text-foreground leading-snug">{TIPS[tipIndex]}</p>
+          <p className="text-sm text-foreground dark:text-white leading-snug">{TIPS[tipIndex]}</p>
         </div>
       </div>
       <button
