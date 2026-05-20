@@ -7,7 +7,7 @@ import {
 } from 'recharts';
 import {
   TrendingUp, Users, CheckCircle, Clock, AlertCircle,
-  BarChart2, PieChart as PieChartIcon, Trophy, Target, Layers,
+  BarChart2, PieChart as PieChartIcon, Trophy, Target, Layers, CalendarRange,
 } from 'lucide-react';
 import { getOverallStats, getProjectStats } from '@/app/actions/statsActions';
 import { getProjects } from '@/app/actions/projectActions';
@@ -186,6 +186,15 @@ function MemberCard({ u, rank, totalProjectTasks }: { u: MemberStats; rank: numb
   );
 }
 
+// ─── Date range options ─────────────────────────────────────────────────────────
+const RANGE_OPTIONS: { label: string; days: number | null }[] = [
+  { label: '3 days',    days: 3 },
+  { label: '7 days',    days: 7 },
+  { label: '1 month',   days: 30 },
+  { label: '3 months',  days: 90 },
+  { label: 'All time',  days: null },
+];
+
 // ─── Main dashboard ─────────────────────────────────────────────────────────────
 export default function StatsDashboard({ minimal = false }: { minimal?: boolean } = {}) {
   const [isMounted, setIsMounted] = useState(false);
@@ -195,38 +204,39 @@ export default function StatsDashboard({ minimal = false }: { minimal?: boolean 
   const [projectStats, setProjectStats] = useState<ProjectBreakdown | null>(null);
   const [loadingProject, setLoadingProject] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [rangeDays, setRangeDays] = useState<number | null>(null);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsMounted(true);
     async function init() {
       if (minimal) {
-        const overallData = await getOverallStats();
+        const overallData = await getOverallStats(rangeDays);
         setOverall(overallData);
         setLoading(false);
         return;
       }
       const [overallData, projectsData] = await Promise.all([
-        getOverallStats(),
+        getOverallStats(rangeDays),
         getProjects()
       ]);
       setOverall(overallData);
       setProjects(projectsData);
-      if (projectsData.length > 0) setSelectedProjectId(projectsData[0].id);
+      if (projectsData.length > 0) setSelectedProjectId((prev) => prev || projectsData[0].id);
       setLoading(false);
     }
     init();
-  }, [minimal]);
+  }, [minimal, rangeDays]);
 
   useEffect(() => {
     if (minimal || !selectedProjectId) return;
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoadingProject(true);
-    getProjectStats(selectedProjectId).then(data => {
+    getProjectStats(selectedProjectId, rangeDays).then(data => {
       setProjectStats(data);
       setLoadingProject(false);
     });
-  }, [selectedProjectId, minimal]);
+  }, [selectedProjectId, minimal, rangeDays]);
 
   if (!isMounted || loading) {
     return (
@@ -305,6 +315,31 @@ export default function StatsDashboard({ minimal = false }: { minimal?: boolean 
 
   return (
     <div className="space-y-8 animate-in fade-in duration-700">
+
+      {/* ── Date range filter ────────────────────────────────────────── */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-2 text-muted-foreground">
+          <CalendarRange className="w-4 h-4" />
+          <span className="text-xs font-bold uppercase tracking-widest">Contribution period</span>
+        </div>
+        <div className="flex items-center gap-1 bg-white/70 backdrop-blur-md rounded-full border border-white/60 p-1">
+          {RANGE_OPTIONS.map((opt) => {
+            const active = rangeDays === opt.days;
+            return (
+              <button
+                key={opt.label}
+                type="button"
+                onClick={() => setRangeDays(opt.days)}
+                className={`px-3 py-1 rounded-full text-xs font-semibold transition-colors ${
+                  active ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                {opt.label}
+              </button>
+            );
+          })}
+        </div>
+      </div>
 
       {/* ── Top KPI cards ────────────────────────────────────────────── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">

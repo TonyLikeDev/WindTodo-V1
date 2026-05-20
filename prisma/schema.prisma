@@ -4,8 +4,9 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model User {
@@ -18,44 +19,49 @@ model User {
   memberProjects  ProjectMember[]
   createdProjects Project[]       @relation("ProjectCreator")
   lists           BoardList[]     @relation("ListCreator")
+  initiatives     Initiative[]
   createdAt       DateTime        @default(now())
 }
 
 model Task {
-  id          String    @id @default(uuid())
-  title       String
-  description String?
-  userId      String    // Creator
-  creator     User      @relation("TaskCreator", fields: [userId], references: [id])
-  assigneeId  String?
-  assignee    User?     @relation("TaskAssignee", fields: [assigneeId], references: [id])
-  listId      String
-  list        BoardList @relation(fields: [listId], references: [id], onDelete: Cascade)
-  sprintId    String?
-  sprint      Sprint?   @relation(fields: [sprintId], references: [id], onDelete: SetNull)
-  position    Int       @default(0)
-  status      String    @default("TODO")
-  priority    String    @default("MEDIUM")
-  type        String    @default("TASK")
-  startDate   DateTime?
-  endDate     DateTime?
-  createdAt   DateTime  @default(now())
+  id           String       @id @default(uuid())
+  title        String
+  description  String?
+  userId       String    // Creator
+  creator      User         @relation("TaskCreator", fields: [userId], references: [id])
+  assigneeId   String?
+  assignee     User?        @relation("TaskAssignee", fields: [assigneeId], references: [id])
+  listId       String
+  list         BoardList    @relation(fields: [listId], references: [id], onDelete: Cascade)
+  sprintId     String?
+  sprint       Sprint?      @relation(fields: [sprintId], references: [id], onDelete: SetNull)
+  initiativeId String?
+  initiative   Initiative?  @relation(fields: [initiativeId], references: [id])
+  position     Int          @default(0)
+  status       TaskStatus   @default(TODO)
+  priority     TaskPriority @default(MEDIUM)
+  type         TaskType     @default(TASK)
+  startDate    DateTime?
+  endDate      DateTime?
+  createdAt    DateTime     @default(now())
 
   @@index([userId, listId])
   @@index([listId, position])
   @@index([sprintId])
+  @@index([initiativeId])
 }
 
 model Project {
-  id        String          @id @default(uuid())
-  name      String
-  color     String
-  userId    String          // Creator
-  creator   User            @relation("ProjectCreator", fields: [userId], references: [id])
-  members   ProjectMember[]
-  createdAt DateTime        @default(now())
-  lists     BoardList[]
-  sprints   Sprint[]
+  id          String          @id @default(uuid())
+  name        String
+  color       String
+  userId      String          // Creator
+  creator     User            @relation("ProjectCreator", fields: [userId], references: [id])
+  members     ProjectMember[]
+  createdAt   DateTime        @default(now())
+  lists       BoardList[]
+  sprints     Sprint[]
+  initiatives Initiative[]
 
   @@index([userId])
 }
@@ -75,13 +81,13 @@ model Sprint {
 }
 
 model ProjectMember {
-  id        String   @id @default(uuid())
+  id        String      @id @default(uuid())
   projectId String
-  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  project   Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
   userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  role      String   @default("MEMBER")
-  createdAt DateTime @default(now())
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role      ProjectRole @default(MEMBER)
+  createdAt DateTime    @default(now())
 
   @@unique([projectId, userId])
   @@index([projectId])
@@ -102,4 +108,46 @@ model BoardList {
 
   @@index([projectId, position])
   @@index([userId])
+}
+
+model Initiative {
+  id          String    @id
+  name        String
+  color       String    @default("#94A3B8")
+  description String?
+  startDate   DateTime?
+  endDate     DateTime?
+  position    Int       @default(0)
+  projectId   String
+  project     Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User      @relation(fields: [userId], references: [id])
+  tasks       Task[]
+  createdAt   DateTime  @default(now())
+
+  @@index([projectId, position])
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  DONE
+}
+
+enum TaskPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum TaskType {
+  TASK
+  STORY
+  BUG
+}
+
+enum ProjectRole {
+  ADMIN
+  MEMBER
 }
