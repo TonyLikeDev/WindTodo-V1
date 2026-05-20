@@ -27,7 +27,7 @@ This is the Final Project Report for **WindTodo V1**, submitted on **2026-05-17*
 | 2   | Phan Le Phuong Nam  | [`PoNamVn`](https://github.com/PoNamVn)                               | 24020014   | Frontend — Dashboard (Branch 32) & Statistics (Branch 31)             |
 | 3   | Tran Le Xuan Mai    | [`xuanmai171202-spec`](https://github.com/xuanmai171202-spec)         | 24020011   | Frontend — Dashboard upgrade, Statistics charts, Calendar             |
 | 4   | Hoang Phuc Hung     | [`GabTommy2006`](https://github.com/GabTommy2006)                     | 24020004   | Frontend — Task detail modal, member assignment + due dates, calendar |
-| 5   | Le Van Cong Nguyen  | [`nguyendangban0605-beep`](https://github.com/nguyendangban0605-beep) | 24020006   | Frontend / UI/UX — Glassmorphism polish                               |
+| 5   | Le Van Cong Nguyen  | [`nguyendangban0605-beep`](https://github.com/nguyendangban0605-beep) | 24020006   | Frontend / UI/UX — Celestial dark mode, theme provider, gamification, glassmorphism polish |
 
 ### Self-Reports
 
@@ -45,7 +45,7 @@ This is the Final Project Report for **WindTodo V1**, submitted on **2026-05-17*
 
 | Layer    | Technology                                                                                    |
 | -------- | --------------------------------------------------------------------------------------------- |
-| Frontend | Next.js 16 (App Router), React 19, TypeScript 5, Tailwind CSS v4, SWR, Recharts, lucide-react |
+| Frontend | Next.js 16 (App Router), React 19, TypeScript 5, Tailwind CSS v4, SWR, Recharts, lucide-react, next-themes |
 | Backend  | Next.js Route Handlers (Node.js runtime)                                                      |
 | Database | Supabase PostgreSQL via Prisma 6.19.3 ORM                                                     |
 | Auth     | Supabase Auth (`@supabase/ssr` + `@supabase/supabase-js`)                                     |
@@ -91,6 +91,9 @@ Monitor productivity and progress with detailed analytics.
 #9 **User Profiles**
 Manage team members and individual user settings.
 ![User Profiles](/public/detail/user.png)
+
+#10 **Celestial Dark Mode**
+A full light/dark theme system powered by `next-themes`, with sky-themed light and a celestial dark palette tuned for high-contrast readability across the Kanban, Roadmap, Backlog, and Calendar views.
 
 ---
 
@@ -143,7 +146,7 @@ pnpm dev
 | Phan Le Phuong Nam                          | Dashboard upgrade (Branch 32) + Statistics page (Branch 31)                                                                                                                                                                                                                                   |
 | Tran Le Xuan Mai                            | Dashboard redesign, Workload pie chart + Members progress table, Calendar view (initial), schema design contributions                                                                                                                                                                         |
 | Hoang Phuc Hung                             | Task detail modal, member assignment + due dates, Calendar rebuild, drag-and-drop (initial)                                                                                                                                                                                                   |
-| Le Van Cong Nguyen                          | Celestial design, Glassmorphism polish                                                                                                                                                                                                                                                        |
+| Le Van Cong Nguyen                          | Celestial dark mode theme + `ThemeProvider` (light/dark via `next-themes`), login/signup theming alignment, task-completion gamification (bell chime + star-particle confetti), final dark-mode UI/UX polish, glassmorphism touches                                                            |
 
 In short: **Tony owned the full-stack core**; the rest of the team built feature areas on top of it (statistics, dashboard, calendar, theming & polish).
 
@@ -168,6 +171,7 @@ The team agreed on eight milestones at the start of the project. The first two s
 | 6   | Kanban board, drag-and-drop, task detail                        | 05/05/2026 | ✅ On time |
 | 7   | Members &amp; roles, share modal, performance tuning            | 12/05/2026 | ✅ On time |
 | 8   | Sky-themed light design polish &amp; submission                 | 17/05/2026 | ✅ On time |
+| 9   | Post-submission UX wave — Roadmap/Backlog/Sprints, celestial dark mode, mobile responsiveness, empty-state CTAs &amp; project templates | 20/05/2026 | ✅ Shipped |
 
 ### 1.4 Git Workflow
 
@@ -181,12 +185,13 @@ The team agreed on eight milestones at the start of the project. The first two s
 ### 1.5 Repository
 
 - Public GitHub repo: [TonyLikeDev/WindTodo-V1](https://github.com/TonyLikeDev/WindTodo-V1)
-- **69 commits** across mid-April → 2026-05-17
-- Contributors:
-  - `TonyLikeDev` — 19 commits
-  - `PoNamVN` — 16 commits
-  - `GabTommy2006` — 9 commits
-  - `xuanmai171202-spec` — 3 commits
+- **130 commits on `main`** across mid-April → 2026-05-20 (69 at submission + 61 in the post-submission UX wave)
+- Contributors on `main` (commits, including merges):
+  - `TonyLikeDev` (Nguyen Le Hoang) — 105 commits
+  - `nguyendangban0605-beep` (Le Van Cong Nguyen) — 18 commits
+  - `PoNamVN` (Phan Le Phuong Nam) — 4 commits
+  - `GabTommy2006` (Hoang Phuc Hung) — 2 commits
+  - `xuanmai171202-spec` (Tran Le Xuan Mai) — 1 commit
 
 ---
 
@@ -246,11 +251,11 @@ Verified across Chrome DevTools mobile (< 768px), tablet (768–1024px), and des
 
 #### Responsive Design
 
-- **Mobile (< 768px)** — single-column layout, bottom navigation, collapsible sidebar
+- **Mobile (< 768px)** — single-column layout, hamburger nav with swipe-to-open sidebar, and a floating round view-switcher above the tips lightbulb that expands into a vertical pill stack (Roadmap / Kanban / Backlog / Switch boards) so the same product works one-handed
 - **Tablet (768px–1024px)** — two-column grid and compact navigation
-- **Desktop (> 1024px)** — full sidebar, multi-column dashboard, and widescreen charts
+- **Desktop (> 1024px)** — full sidebar, multi-column dashboard, widescreen charts, and the standard horizontal pill bar for view switching
 
-The site was tested across multiple viewport sizes with a responsive viewer and remains usable and visually consistent across mobile, tablet, and desktop resolutions.
+The site was tested across multiple viewport sizes with a responsive viewer and remains usable and visually consistent across mobile, tablet, and desktop resolutions. The mobile pass also fixed a Supabase SSR cookie regression that was causing 401s on mobile Safari.
 
 ![Responsive Design Testing](/public/performance/responsive.png)
 
@@ -488,6 +493,8 @@ prisma                ^6.19.3
 swr                   ^2.4.1
 recharts              ^3.8.1
 lucide-react          ^1.14.0
+next-themes           ^0.4.6
+@next/third-parties   ^16.2.6
 eslint                ^9
 eslint-config-next    16.2.6
 ```
