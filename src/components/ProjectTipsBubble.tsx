@@ -11,13 +11,8 @@ const TIPS = [
   'Use "Switch boards" on the right to jump to another project without leaving the page.',
 ];
 
-const MIN_INTERVAL_MS = 5 * 1000;
-const MAX_INTERVAL_MS = 10 * 1000;
+const TIP_INTERVAL_MS = 60 * 1000;
 const AUTO_DISMISS_MS = 4 * 1000;
-
-function randomInterval() {
-  return MIN_INTERVAL_MS + Math.random() * (MAX_INTERVAL_MS - MIN_INTERVAL_MS);
-}
 
 export default function ProjectTipsBubble() {
   const [tipIndex, setTipIndex] = useState(0);
@@ -37,7 +32,7 @@ export default function ProjectTipsBubble() {
     nextTimerRef.current = setTimeout(() => {
       showNextTip();
       scheduleNext();
-    }, randomInterval());
+    }, TIP_INTERVAL_MS);
   }, [showNextTip]);
 
   useEffect(() => {
