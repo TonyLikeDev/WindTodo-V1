@@ -3,8 +3,16 @@
 import { useMemo, useState } from 'react';
 import useSWR, { mutate } from 'swr';
 import { Plus, X, ChevronRight, ChevronDown } from 'lucide-react';
-import { getBoardLists } from '@/app/actions/projectActions';
-import { getProjectTasks, createTask } from '@/app/actions/taskActions';
+import { getBoardLists, getProjects } from '@/app/actions/projectActions';
+import { getProjectTasks, createTask, updateTask, deleteTask } from '@/app/actions/taskActions';
+import TaskDetailModal, {
+  type ModalTask,
+  type ModalUserProfile,
+  type TaskPatch,
+  type TaskPriority,
+  type TaskStatus,
+  type TaskType,
+} from './TaskDetailModal';
 
 type ProjectTask = Awaited<ReturnType<typeof getProjectTasks>>[number];
 
@@ -44,10 +52,24 @@ export default function RoadmapView({ projectId }: { projectId: string }) {
 
   const { data: tasks = [] } = useSWR(tasksKey, () => getProjectTasks(projectId));
   const { data: lists = [] } = useSWR(listsKey, () => getBoardLists(projectId));
+  const { data: projects = [] } = useSWR('projects', getProjects, {
+    revalidateOnFocus: false,
+    dedupingInterval: 10000,
+  });
+  const members = useMemo<ModalUserProfile[]>(() => {
+    const proj = projects.find((p) => p.id === projectId);
+    return (proj?.members ?? []).map((m) => ({
+      id: m.user.id,
+      name: m.user.name,
+      avatarUrl: m.user.avatarUrl,
+      email: m.user.email,
+    }));
+  }, [projects, projectId]);
 
   const [showNewTask, setShowNewTask] = useState(false);
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
   const [zoom, setZoom] = useState<Zoom>('month');
+  const [openTaskId, setOpenTaskId] = useState<string | null>(null);
 
   const cfg = ZOOM_CONFIG[zoom];
 
@@ -88,6 +110,45 @@ export default function RoadmapView({ projectId }: { projectId: string }) {
     () => generateTicks(timelineStart, timelineEnd, cfg.tickUnit),
     [timelineStart, timelineEnd, cfg.tickUnit],
   );
+
+  const openTask = useMemo<ModalTask | null>(() => {
+    if (!openTaskId) return null;
+    const t = tasks.find((x) => x.id === openTaskId);
+    if (!t) return null;
+    return {
+      id: t.id,
+      title: t.title,
+      description: t.description,
+      status: t.status as TaskStatus,
+      priority: t.priority as TaskPriority,
+      type: t.type as TaskType,
+      startDate: t.startDate,
+      endDate: t.endDate,
+      assigneeId: t.assigneeId,
+      assignee: t.assignee
+        ? {
+            id: t.assignee.id,
+            name: t.assignee.name,
+            avatarUrl: t.assignee.avatarUrl,
+            email: t.assignee.email,
+          }
+        : null,
+      createdAt: t.createdAt,
+    };
+  }, [openTaskId, tasks]);
+
+  const patchTask = async (id: string, patch: TaskPatch) => {
+    const next = tasks.map((t) => (t.id === id ? { ...t, ...patch } : t));
+    mutate(tasksKey, next, false);
+    await updateTask(id, patch);
+    mutate(tasksKey);
+  };
+
+  const removeTask = async (id: string) => {
+    mutate(tasksKey, tasks.filter((t) => t.id !== id), false);
+    await deleteTask(id);
+    mutate(tasksKey);
+  };
 
   // Tasks grouped by their parent list, in list-position order.
   const groups = useMemo(() => {
@@ -167,13 +228,15 @@ export default function RoadmapView({ projectId }: { projectId: string }) {
                     </div>
                     {!isCollapsed &&
                       g.tasks.map((t) => (
-                        <div
+                        <button
                           key={t.id}
-                          className="flex items-center gap-2 pl-10 pr-3 border-b border-border/40"
+                          type="button"
+                          onClick={() => setOpenTaskId(t.id)}
+                          className="w-full flex items-center gap-2 pl-10 pr-3 border-b border-border/40 hover:bg-white/40 transition-colors text-left"
                           style={{ height: TASK_ROW }}
                         >
                           <span className="text-xs text-foreground truncate">{t.title}</span>
-                        </div>
+                        </button>
                       ))}
                   </div>
                 );
@@ -237,8 +300,10 @@ export default function RoadmapView({ projectId }: { projectId: string }) {
                             />
                           ))}
                           {span && (
-                            <div
-                              className="absolute top-1/2 -translate-y-1/2 rounded-md px-2 flex items-center shadow-sm overflow-hidden"
+                            <button
+                              type="button"
+                              onClick={() => setOpenTaskId(t.id)}
+                              className="absolute top-1/2 -translate-y-1/2 rounded-md px-2 flex items-center shadow-sm overflow-hidden cursor-pointer hover:brightness-105 hover:shadow-md transition-all"
                               style={{
                                 left: span.left,
                                 width: span.width,
@@ -246,11 +311,12 @@ export default function RoadmapView({ projectId }: { projectId: string }) {
                                 backgroundColor: g.color + '55',
                                 border: `1px solid ${g.color}`,
                               }}
+                              title={t.title}
                             >
                               <span className="text-[11px] font-medium text-foreground truncate">
                                 {t.title}
                               </span>
-                            </div>
+                            </button>
                           )}
                         </div>
                       );
@@ -278,6 +344,19 @@ export default function RoadmapView({ projectId }: { projectId: string }) {
           onCreated={() => {
             setShowNewTask(false);
             mutate(tasksKey);
+          }}
+        />
+      )}
+
+      {openTask && (
+        <TaskDetailModal
+          task={openTask}
+          members={members}
+          onClose={() => setOpenTaskId(null)}
+          onChange={(patch) => patchTask(openTask.id, patch)}
+          onDelete={() => {
+            removeTask(openTask.id);
+            setOpenTaskId(null);
           }}
         />
       )}
