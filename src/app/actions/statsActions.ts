@@ -4,7 +4,15 @@ import prisma from '@/lib/prisma';
 import type { Prisma } from '@prisma/client';
 import { getAuthUser } from './userActions';
 
-export async function getOverallStats() {
+function cutoffDate(days: number | null | undefined): Date | null {
+  if (!days || days <= 0) return null;
+  const d = new Date();
+  d.setHours(0, 0, 0, 0);
+  d.setDate(d.getDate() - days);
+  return d;
+}
+
+export async function getOverallStats(days?: number | null) {
   const user = await getAuthUser();
   if (!user) return null;
 
@@ -14,12 +22,17 @@ export async function getOverallStats() {
       { members: { some: { userId: user.id } } },
     ],
   };
+  const since = cutoffDate(days);
+  const taskWhere: Prisma.TaskWhereInput = {
+    list: { project: projectWhere },
+    ...(since && { createdAt: { gte: since } }),
+  };
 
   const [totalProjects, statusCounts] = await Promise.all([
     prisma.project.count({ where: projectWhere }),
     prisma.task.groupBy({
       by: ['status'],
-      where: { list: { project: projectWhere } },
+      where: taskWhere,
       _count: { _all: true },
     }),
   ]);
@@ -42,9 +55,15 @@ export async function getOverallStats() {
   };
 }
 
-export async function getProjectStats(projectId: string) {
+export async function getProjectStats(projectId: string, days?: number | null) {
   const user = await getAuthUser();
   if (!user) return null;
+
+  const since = cutoffDate(days);
+  const baseTaskWhere: Prisma.TaskWhereInput = {
+    list: { projectId },
+    ...(since && { createdAt: { gte: since } }),
+  };
 
   // Fan out the project lookup alongside the aggregations — no serial waits.
   const [project, statusCounts, unassignedCount, perMember] = await Promise.all([
@@ -54,15 +73,15 @@ export async function getProjectStats(projectId: string) {
     }),
     prisma.task.groupBy({
       by: ['status'],
-      where: { list: { projectId } },
+      where: baseTaskWhere,
       _count: { _all: true },
     }),
     prisma.task.count({
-      where: { list: { projectId }, assigneeId: null },
+      where: { ...baseTaskWhere, assigneeId: null },
     }),
     prisma.task.groupBy({
       by: ['assigneeId', 'status'],
-      where: { list: { projectId }, assigneeId: { not: null } },
+      where: { ...baseTaskWhere, assigneeId: { not: null } },
       _count: { _all: true },
     }),
   ]);
