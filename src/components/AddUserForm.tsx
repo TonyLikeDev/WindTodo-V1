@@ -2,10 +2,11 @@
 
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { Plus } from 'lucide-react';
+import { Plus, X } from 'lucide-react';
 import { addUserByEmail } from '@/app/actions/userActions';
 
 export default function AddUserForm() {
+  const [open, setOpen] = useState(false);
   const [email, setEmail] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -30,33 +31,90 @@ export default function AddUserForm() {
   };
 
   return (
-    <form onSubmit={submit} className="flex items-start gap-2">
-      <div className="flex flex-col">
-        <div className="flex items-center gap-2">
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => {
-              setEmail(e.target.value);
-              setError(null);
-              setSuccess(null);
-            }}
-            placeholder="user@example.com"
-            required
-            className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-white/20 transition-all w-64"
-          />
+    <>
+      <button
+        type="button"
+        onClick={() => {
+          setOpen(true);
+          setError(null);
+          setSuccess(null);
+        }}
+        className="flex items-center gap-1.5 px-4 py-2 bg-white/80 text-foreground text-sm font-bold rounded-lg hover:bg-white transition-all shadow-lg shadow-sky-dark/10 active:scale-95"
+      >
+        <Plus className="w-4 h-4" />
+        Add user
+      </button>
+
+      {open && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
           <button
-            type="submit"
-            disabled={pending || !email}
-            className="flex items-center gap-1.5 px-4 py-2 bg-white text-black text-sm font-bold rounded-lg hover:bg-gray-200 transition-all shadow-lg active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100"
+            type="button"
+            aria-label="Close add user popup"
+            className="absolute inset-0 bg-white/60 backdrop-blur-md"
+            onClick={() => setOpen(false)}
+          />
+
+          <form
+            onSubmit={submit}
+            className="relative glass w-full max-w-md rounded-3xl border border-white/50 p-6 shadow-2xl shadow-sky-dark/20 animate-in zoom-in-95 duration-200"
           >
-            <Plus className="w-4 h-4" />
-            {pending ? 'Adding…' : 'Add user'}
-          </button>
+            <div className="mb-5 flex items-start justify-between gap-4">
+              <div>
+                <h2 className="text-lg font-bold text-foreground">Add user</h2>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Add a user by email to create or prepare their account.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setOpen(false)}
+                aria-label="Close"
+                className="rounded-lg p-1.5 text-muted-foreground transition-all hover:bg-white/40 hover:text-foreground"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <label className="block text-xs font-bold uppercase tracking-widest text-muted-foreground">
+              Email address
+            </label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                setError(null);
+                setSuccess(null);
+              }}
+              placeholder="user@example.com"
+              required
+              autoFocus
+              className="mt-2 w-full rounded-xl border border-white/50 bg-white/55 px-3 py-2.5 text-sm text-foreground placeholder-muted-foreground/70 transition-all focus:outline-none focus:ring-2 focus:ring-primary/30"
+            />
+
+            {error && <p className="mt-2 text-xs text-red-500">{error}</p>}
+            {success && <p className="mt-2 text-xs text-green-600">{success}</p>}
+
+            <div className="mt-6 flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setOpen(false)}
+                className="rounded-xl px-4 py-2 text-sm font-bold text-muted-foreground transition-colors hover:bg-white/40 hover:text-foreground"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={pending || !email}
+                className="flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2 text-sm font-bold text-primary-foreground shadow-lg shadow-primary/25 transition-all hover:bg-primary/90 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100"
+              >
+                <Plus className="h-4 w-4" />
+                {pending ? 'Adding...' : 'Add user'}
+              </button>
+            </div>
+          </form>
         </div>
-        {error && <p className="text-xs text-red-400 mt-1.5">{error}</p>}
-        {success && <p className="text-xs text-green-400 mt-1.5">{success}</p>}
-      </div>
-    </form>
+      )}
+    </>
   );
 }
