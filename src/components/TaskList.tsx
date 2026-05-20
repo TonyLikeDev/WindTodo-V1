@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import GlassCard from './GlassCard';
 import {
   getTasks,
@@ -12,7 +12,8 @@ import {
 import { getProjects } from '@/app/actions/projectActions';
 import useSWR from 'swr';
 import { playCelestialChime } from './EffectsCanvas';
-import { Plus, Trash2 } from 'lucide-react';
+import { Inbox, Plus, Trash2 } from 'lucide-react';
+import EmptyState from './EmptyState';
 
 type Task = {
   id: string;
@@ -35,6 +36,7 @@ const VIRTUAL_LISTS = new Set(['recent_assignments', 'all_tasks']);
 
 export default function TaskList({ title, listId, placeholder, bgColor }: { title: string, listId: string, placeholder: string, bgColor?: string }) {
   const [inputValue, setInputValue] = useState('');
+  const inputRef = useRef<HTMLInputElement | null>(null);
   const isVirtual = VIRTUAL_LISTS.has(listId);
 
   const { data: tasks = [], mutate, isLoading } = useSWR<Task[]>(
@@ -105,8 +107,13 @@ export default function TaskList({ title, listId, placeholder, bgColor }: { titl
     return (
       <GlassCard className="flex flex-col h-full min-h-[300px] animate-pulse">
         <div className="flex items-center justify-between mb-6">
-          <div className="w-24 h-4 bg-white/40 rounded"></div>
-          <div className="w-6 h-4 bg-white/40 rounded-full"></div>
+          <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
+            {title}
+          </h3>
+          <span
+            aria-label="Loading task count"
+            className="h-6 w-8 rounded-full border border-white/60 bg-white/60 dark:border-white/5 dark:bg-black/25"
+          />
         </div>
         <div className="space-y-3 flex-grow">
           <div className="w-full h-12 bg-white/40 rounded-lg"></div>
@@ -183,9 +190,23 @@ export default function TaskList({ title, listId, placeholder, bgColor }: { titl
           );
         })}
         {tasks.length === 0 && (
-          <div className="text-center text-sm text-muted-foreground py-12 italic bg-white/30 dark:bg-black/15 rounded-2xl border border-dashed border-white/50 dark:border-white/5">
-            No tasks found.
-          </div>
+          <EmptyState
+            icon={Inbox}
+            title="No tasks yet"
+            description={
+              isVirtual && projects.length === 0
+                ? 'Create a project first, then add your first task here.'
+                : 'Start by creating your first task to keep your workspace moving.'
+            }
+            cta={
+              !(isVirtual && projects.length === 0)
+                ? {
+                    label: 'Create your first task',
+                    onClick: () => inputRef.current?.focus(),
+                  }
+                : undefined
+            }
+          />
         )}
       </div>
 
@@ -207,6 +228,7 @@ export default function TaskList({ title, listId, placeholder, bgColor }: { titl
 
         <div className="relative flex-1 group-focus-within/list:ring-2 ring-primary/20 rounded-xl transition-all">
           <input
+            ref={inputRef}
             type="text"
             placeholder={isVirtual && projects.length === 0 ? 'Create a project first…' : placeholder}
             disabled={isVirtual && projects.length === 0}

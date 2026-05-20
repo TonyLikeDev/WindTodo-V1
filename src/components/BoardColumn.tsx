@@ -330,9 +330,16 @@ export default function BoardColumn({
             </h3>
           )}
           {!isDraft && (
-            <span className="text-xs bg-white/30 dark:bg-black/25 text-foreground px-2 py-0.5 rounded-full flex-shrink-0 font-bold border border-white/20 dark:border-white/5 shadow-sm">
-              {tasks.length}
-            </span>
+            isLoading ? (
+              <span
+                aria-label="Loading task count"
+                className="h-5 w-7 rounded-full bg-white/30 dark:bg-black/25 border border-white/20 dark:border-white/5 shadow-sm flex-shrink-0 animate-pulse"
+              />
+            ) : (
+              <span className="text-xs bg-white/30 dark:bg-black/25 text-foreground px-2 py-0.5 rounded-full flex-shrink-0 font-bold border border-white/20 dark:border-white/5 shadow-sm">
+                {tasks.length}
+              </span>
+            )
           )}
         </div>
         {!isDraft && (onRemoveList || onChangeColor) && (

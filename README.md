@@ -16,6 +16,7 @@ This is the Final Project Report for **WindTodo V1**, submitted on **2026-05-17*
 | **Philosophy**        | Kanban-first — every task lives on a board, ordered, assignable, and shareable |
 | **Live Deployment**   | https://wind-todo-v1.vercel.app                                                |
 | **Source Repository** | https://github.com/TonyLikeDev/WindTodo-V1                                     |
+| **Video Demo**        | https://youtu.be/bIkToi88UNo                                                   |
 | **Submission Date**   | 2026-05-17                                                                     |
 
 ### Team
