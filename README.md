@@ -149,6 +149,7 @@ In short: **Tony owned the full-stack core**; the rest of the team built feature
 ### 1.2 Wireframes & Design
 
 - **Tool:** Figma
+- **Figma design:** [WindTodo wireframes and UI design](https://www.figma.com/design/CkKmWu1x1ejd3rQC1kNcNn/Untitled?node-id=0-1&p=f&t=TUjXffLMLAxgNmDj-0)
 - **Scope:** wireframes for landing, sign-in / sign-up, projects dashboard, project board (Kanban), task detail modal, and share modal
 - **Design system:** sky-themed light palette with glassmorphism surfaces; translucent panels, soft blue gradients, subtle borders, and depth via blur
 
