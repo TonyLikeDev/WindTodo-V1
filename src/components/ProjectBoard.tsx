@@ -520,7 +520,7 @@ export default function ProjectBoard({ projectId }: { projectId: string }) {
               <Link href="/dashboard" className="p-2 hover:bg-white/30 dark:hover:bg-black/25 rounded-lg transition-colors text-muted-foreground hover:text-foreground">
                 <ChevronLeft className="w-5 h-5" />
               </Link>
-              <div>
+              <div className="min-w-0 flex-1">
                 <h1 className="text-xl font-extrabold text-foreground tracking-tight truncate">
                   {project.name}
                 </h1>
@@ -531,7 +531,7 @@ export default function ProjectBoard({ projectId }: { projectId: string }) {
               </div>
             </div>
 
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4 flex-shrink-0">
               {/* Member Avatars */}
               <div className="flex items-center gap-3">
                 <div className="flex -space-x-2 overflow-hidden">
@@ -553,16 +553,6 @@ export default function ProjectBoard({ projectId }: { projectId: string }) {
                   Share
                 </button>
               </div>
-
-              <div className="h-8 w-px bg-white/20 dark:bg-white/5 mx-2" />
-
-              <Link 
-                href="/dashboard/stats" 
-                className="flex items-center gap-2 px-4 py-2 bg-white/25 dark:bg-black/25 hover:bg-white/35 dark:hover:bg-black/45 text-foreground rounded-xl text-sm font-bold transition-all border border-white/20 dark:border-white/5 shadow-md"
-              >
-                <BarChart2 className="w-4 h-4" />
-                Stats
-              </Link>
             </div>
           </header>
 
