@@ -2,13 +2,14 @@
 
 import { useMemo, useState } from 'react';
 import useSWR, { mutate } from 'swr';
-import { Plus, ArrowRight, X } from 'lucide-react';
+import { Plus, ArrowRight, X, ListTodo } from 'lucide-react';
 import {
   getSprints,
   getBacklogTasks,
   createSprint,
   moveTaskToSprint,
 } from '@/app/actions/sprintActions';
+import EmptyState from './EmptyState';
 
 type SprintWithCount = Awaited<ReturnType<typeof getSprints>>[number];
 type BacklogTask = Awaited<ReturnType<typeof getBacklogTasks>>[number];
@@ -127,8 +128,26 @@ export default function BacklogView({ projectId }: { projectId: string }) {
           <tbody className="divide-y divide-border">
             {visibleTasks.length === 0 ? (
               <tr>
-                <td colSpan={7} className="px-6 py-10 text-center text-sm text-muted-foreground">
-                  No tasks here yet.
+                <td colSpan={7} className="px-6 py-10">
+                  <EmptyState
+                    icon={ListTodo}
+                    title={currentSprint ? 'No tasks in this sprint' : 'Your backlog is empty'}
+                    description={
+                      currentSprint
+                        ? 'Pull items from the Backlog tab to plan this sprint.'
+                        : 'Add tasks on the board, then sort them into sprints from here.'
+                    }
+                    cta={{
+                      label: currentSprint ? 'Open backlog' : 'Open project board',
+                      onClick: () => {
+                        if (currentSprint) {
+                          setActiveTab('backlog');
+                        } else {
+                          window.location.href = `/projects/${projectId}`;
+                        }
+                      },
+                    }}
+                  />
                 </td>
               </tr>
             ) : (

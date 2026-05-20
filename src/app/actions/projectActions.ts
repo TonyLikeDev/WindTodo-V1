@@ -3,6 +3,7 @@
 import prisma from '@/lib/prisma'
 import { revalidatePath } from 'next/cache'
 import { getAuthUser, syncUser } from './userActions'
+import { getProjectTemplate } from '@/lib/projectTemplates'
 
 async function requireUserId() {
   // Writes touch FKs into User — must guarantee the row exists.
@@ -90,6 +91,36 @@ export async function createProject(name: string, color: string) {
       userId,
       projectId: project.id,
       position:  col.position,
+    })),
+  })
+
+  revalidatePath('/dashboard')
+  return project
+}
+
+export async function createProjectFromTemplate(templateId: string) {
+  const userId = await requireUserId()
+  const template = getProjectTemplate(templateId)
+  if (!template) throw new Error('Unknown template')
+
+  const project = await prisma.project.create({
+    data: {
+      name: template.name,
+      color: template.color,
+      userId,
+      members: {
+        create: { userId, role: 'ADMIN' },
+      },
+    },
+  })
+
+  await prisma.boardList.createMany({
+    data: template.columns.map((col, position) => ({
+      name: col.name,
+      color: col.color,
+      userId,
+      projectId: project.id,
+      position,
     })),
   })
 

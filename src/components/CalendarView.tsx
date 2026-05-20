@@ -3,9 +3,10 @@
 import { useState, useMemo } from 'react';
 import useSWR, { mutate as globalMutate } from 'swr';
 import Link from 'next/link';
-import { ChevronLeft, ChevronRight, CalendarDays, X, ExternalLink } from 'lucide-react';
+import { ChevronLeft, ChevronRight, CalendarDays, CalendarPlus, X, ExternalLink } from 'lucide-react';
 import { getCalendarTasks, updateTask, deleteTask } from '@/app/actions/taskActions';
 import { getProjects } from '@/app/actions/projectActions';
+import EmptyState from './EmptyState';
 import TaskDetailModal, {
   type ModalTask,
   type ModalUserProfile,
@@ -353,11 +354,13 @@ export default function CalendarView() {
             {/* Task list */}
             <div className="flex-1 overflow-y-auto custom-scrollbar px-4 py-3 space-y-2">
               {selectedDayTasks.length === 0 ? (
-                <div className="flex flex-col items-center justify-center h-32 gap-2">
-                  <CalendarDays className="w-8 h-8 text-muted-foreground/40" />
-                  <p className="text-sm text-muted-foreground text-center">No tasks on this day</p>
-                  <p className="text-xs text-muted-foreground/60 text-center">Set a start or due date on a task to see it here</p>
-                </div>
+                <EmptyState
+                  icon={CalendarPlus}
+                  title="Nothing scheduled"
+                  description="Add a task with a due date to see it here."
+                  variant="compact"
+                  accent="rgb(167, 139, 250)"
+                />
               ) : (
                 selectedDayTasks.map((task) => (
                   <div
