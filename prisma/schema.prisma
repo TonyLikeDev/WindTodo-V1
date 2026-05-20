@@ -4,33 +4,8 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
-}
-
-enum TaskStatus {
-  TODO
-  IN_PROGRESS
-  DONE
-}
-
-enum TaskPriority {
-  LOW
-  MEDIUM
-  HIGH
-  URGENT
-}
-
-enum TaskType {
-  TASK
-  STORY
-  BUG
-}
-
-enum ProjectRole {
-  ADMIN
-  MEMBER
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
 }
 
 model User {
@@ -47,24 +22,24 @@ model User {
 }
 
 model Task {
-  id          String       @id @default(uuid())
+  id          String    @id @default(uuid())
   title       String
   description String?
-  userId      String       // Creator
-  creator     User         @relation("TaskCreator", fields: [userId], references: [id])
+  userId      String    // Creator
+  creator     User      @relation("TaskCreator", fields: [userId], references: [id])
   assigneeId  String?
-  assignee    User?        @relation("TaskAssignee", fields: [assigneeId], references: [id])
+  assignee    User?     @relation("TaskAssignee", fields: [assigneeId], references: [id])
   listId      String
-  list        BoardList    @relation(fields: [listId], references: [id], onDelete: Cascade)
+  list        BoardList @relation(fields: [listId], references: [id], onDelete: Cascade)
   sprintId    String?
-  sprint      Sprint?      @relation(fields: [sprintId], references: [id], onDelete: SetNull)
-  position    Int          @default(0)
-  status      TaskStatus   @default(TODO)
-  priority    TaskPriority @default(MEDIUM)
-  type        TaskType     @default(TASK)
+  sprint      Sprint?   @relation(fields: [sprintId], references: [id], onDelete: SetNull)
+  position    Int       @default(0)
+  status      String    @default("TODO")
+  priority    String    @default("MEDIUM")
+  type        String    @default("TASK")
   startDate   DateTime?
   endDate     DateTime?
-  createdAt   DateTime     @default(now())
+  createdAt   DateTime  @default(now())
 
   @@index([userId, listId])
   @@index([listId, position])
@@ -100,13 +75,13 @@ model Sprint {
 }
 
 model ProjectMember {
-  id        String      @id @default(uuid())
+  id        String   @id @default(uuid())
   projectId String
-  project   Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
   userId    String
-  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  role      ProjectRole @default(MEMBER)
-  createdAt DateTime    @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role      String   @default("MEMBER")
+  createdAt DateTime @default(now())
 
   @@unique([projectId, userId])
   @@index([projectId])

@@ -37,10 +37,17 @@ export default function TaskList({ title, listId, placeholder, bgColor }: { titl
   const [inputValue, setInputValue] = useState('');
   const isVirtual = VIRTUAL_LISTS.has(listId);
 
-  const { data: tasks = [], mutate, isLoading } = useSWR<Task[]>(listId, getTasks, {
-    revalidateOnFocus: false,
-    dedupingInterval: 5000,
-  });
+  const { data: tasks = [], mutate, isLoading } = useSWR<Task[]>(
+    listId,
+    async () => {
+      const res = await getTasks(listId);
+      return res as unknown as Task[];
+    },
+    {
+      revalidateOnFocus: false,
+      dedupingInterval: 5000,
+    }
+  );
 
   const { data: projects = [] } = useSWR(
     isVirtual ? 'projects' : null,

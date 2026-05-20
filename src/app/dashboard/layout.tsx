@@ -1,11 +1,14 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Sidebar from "@/components/Sidebar";
 import SkyBackground from "@/components/SkyBackground";
 import { useTheme } from "next-themes";
 import { Sun, Moon, Menu } from "lucide-react";
+
+const SWIPE_THRESHOLD_PX = 50;
+const VERTICAL_SWIPE_TOLERANCE_PX = 60;
 
 export default function DashboardLayout({
   children,
@@ -24,11 +27,55 @@ export default function DashboardLayout({
     setTheme(theme === "dark" ? "light" : "dark");
   };
 
+  const touchStartX = useRef<number | null>(null);
+  const touchStartY = useRef<number | null>(null);
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+    touchStartY.current = e.touches[0].clientY;
+  };
+
+  const onTouchEndOpen = (e: React.TouchEvent) => {
+    if (touchStartX.current === null || touchStartY.current === null) return;
+
+    const screenMidpoint = window.innerWidth / 2;
+    const dx = e.changedTouches[0].clientX - touchStartX.current;
+    const dy = e.changedTouches[0].clientY - touchStartY.current;
+
+    if (
+      touchStartX.current <= screenMidpoint &&
+      dx > SWIPE_THRESHOLD_PX &&
+      Math.abs(dy) < VERTICAL_SWIPE_TOLERANCE_PX
+    ) {
+      setIsMobileMenuOpen(true);
+    }
+
+    touchStartX.current = null;
+    touchStartY.current = null;
+  };
+
+  const onTouchEndClose = (e: React.TouchEvent) => {
+    if (touchStartX.current === null || touchStartY.current === null) return;
+    const dx = e.changedTouches[0].clientX - touchStartX.current;
+    const dy = e.changedTouches[0].clientY - touchStartY.current;
+
+    if (dx < -SWIPE_THRESHOLD_PX && Math.abs(dy) < VERTICAL_SWIPE_TOLERANCE_PX) {
+      setIsMobileMenuOpen(false);
+    }
+
+    touchStartX.current = null;
+    touchStartY.current = null;
+  };
+
   return (
     <SkyBackground>
       <div className="flex h-screen overflow-hidden w-full relative">
         <Sidebar isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} />
-        <main className="flex-grow flex flex-col h-screen overflow-hidden w-full relative">
+        <main 
+          className="flex-grow flex flex-col h-screen overflow-hidden w-full relative"
+          onTouchStart={!isMobileMenuOpen ? onTouchStart : undefined}
+          onTouchEnd={!isMobileMenuOpen ? onTouchEndOpen : undefined}
+        >
           
           {/* Floating Actions Header (Top Right) */}
           <div className="absolute top-4 md:top-6 right-4 md:right-8 z-40 flex items-center gap-3">
@@ -67,6 +114,8 @@ export default function DashboardLayout({
           <div
             className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40 md:hidden"
             onClick={() => setIsMobileMenuOpen(false)}
+            onTouchStart={onTouchStart}
+            onTouchEnd={onTouchEndClose}
           />
         )}
       </div>
