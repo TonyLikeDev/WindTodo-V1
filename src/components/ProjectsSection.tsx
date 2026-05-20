@@ -77,28 +77,34 @@ export default function ProjectsSection() {
           <Link
             key={p.id}
             href={p.id.startsWith('temp-') ? '#' : `/projects/${p.id}`}
-            className={`glass rounded-2xl p-6 flex flex-col min-h-[180px] hover:bg-white/5 transition-colors group relative ${
+            className={`glass rounded-2xl p-6 flex flex-col min-h-[180px] transition-transform hover:-translate-y-0.5 group relative ${
               p.id.startsWith('temp-') ? 'opacity-50 pointer-events-none' : ''
             }`}
-            style={{ background: p.color }}
+            style={{
+              background: `linear-gradient(135deg, color-mix(in srgb, ${p.color} 88%, transparent) 0%, color-mix(in srgb, ${p.color} 70%, #000 18%) 100%)`,
+              backdropFilter: 'blur(16px) saturate(140%)',
+              WebkitBackdropFilter: 'blur(16px) saturate(140%)',
+              borderColor: `color-mix(in srgb, ${p.color} 55%, transparent)`,
+              boxShadow: `0 10px 28px -10px color-mix(in srgb, ${p.color} 70%, transparent)`,
+            }}
           >
             <div className="flex items-center justify-between mb-2">
-              <h3 className="text-base font-semibold text-white truncate pr-8">{p.name}</h3>
-              <svg className="w-4 h-4 text-gray-400 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <h3 className="text-base font-semibold text-gray-900 dark:text-white truncate pr-8">{p.name}</h3>
+              <svg className="w-4 h-4 text-gray-700/70 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
             </div>
 
             <button
               onClick={(e) => handleDelete(e, p)}
-              className="absolute top-6 right-12 p-2 text-white/50 hover:text-red-400 hover:bg-red-500/20 rounded-lg opacity-0 group-hover:opacity-100 transition-all z-10"
+              className="absolute top-6 right-12 p-2 text-gray-800/60 dark:text-white/50 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-500/20 rounded-lg opacity-0 group-hover:opacity-100 transition-all z-10"
               title={isOwner ? 'Delete Project' : 'Leave Project'}
             >
               {isOwner ? <Trash2 className="w-4 h-4" /> : <LogOut className="w-4 h-4" />}
             </button>
 
-            <p className="text-xs text-white/70 mb-auto">Open board</p>
-            <div className="mt-4 text-[11px] text-white/60 uppercase tracking-wider font-semibold">Project</div>
+            <p className="text-xs text-gray-800/80 dark:text-white/70 mb-auto">Open board</p>
+            <div className="mt-4 text-[11px] text-gray-800/75 dark:text-white/60 uppercase tracking-wider font-semibold">Project</div>
           </Link>
           );
         })}
