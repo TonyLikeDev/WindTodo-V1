@@ -23,7 +23,7 @@ import { Plus, ChevronLeft, BarChart2, X, ChevronDown, Check, Trash2 } from 'luc
 type UserProfile = {
   id: string;
   name: string | null;
-  avatarUrl: string | null;
+  image: string | null;
   email: string;
 };
 
@@ -537,8 +537,8 @@ export default function ProjectBoard({ projectId }: { projectId: string }) {
                 <div className="flex -space-x-2 overflow-hidden">
                   {project.members.map(({ user: m }) => (
                     <div key={m.id} className="flex h-8 w-8 rounded-full ring-2 ring-white/10 dark:ring-black/40 bg-slate-200 dark:bg-slate-800 items-center justify-center text-[10px] font-bold text-foreground border border-white/30 dark:border-white/5 shadow-md" title={m.name || m.email}>
-                      {m.avatarUrl ? (
-                        <img src={m.avatarUrl} alt={m.name || ''} className="h-full w-full object-cover" />
+                      {m.image ? (
+                        <img src={m.image} alt={m.name || ''} className="h-full w-full object-cover" />
                       ) : (
                         (m.name || m.email).charAt(0).toUpperCase()
                       )}
@@ -755,8 +755,8 @@ export default function ProjectBoard({ projectId }: { projectId: string }) {
                           className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold text-foreground flex-shrink-0 overflow-hidden"
                           style={{ background: avatarBgFor(m.id) }}
                         >
-                          {m.avatarUrl ? (
-                            <img src={m.avatarUrl} alt={displayName} className="w-full h-full object-cover" />
+                          {m.image ? (
+                            <img src={m.image} alt={displayName} className="w-full h-full object-cover" />
                           ) : (
                             initial
                           )}

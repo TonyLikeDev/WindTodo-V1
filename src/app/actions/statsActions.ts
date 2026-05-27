@@ -116,7 +116,7 @@ export async function getProjectStats(projectId: string, days?: number | null) {
       id:              member.id,
       name:            member.name || member.email.split('@')[0],
       email:           member.email,
-      avatarUrl:       member.avatarUrl,
+      image:       member.image,
       rank:            idx + 1,
       total:           agg.total,
       completed:       agg.done,

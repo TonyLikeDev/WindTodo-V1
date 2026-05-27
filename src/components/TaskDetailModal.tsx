@@ -11,7 +11,7 @@ export type TaskStatus = 'TODO' | 'IN_PROGRESS' | 'DONE';
 export type ModalUserProfile = {
   id: string;
   name: string | null;
-  avatarUrl: string | null;
+  image: string | null;
   email: string;
 };
 
@@ -100,7 +100,7 @@ export default function TaskDetailModal({
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
+      if (e.key === 'Escape') { commitTitle(); commitDescription(); onClose(); }
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
@@ -132,7 +132,11 @@ export default function TaskDetailModal({
     <div
       className="fixed inset-0 z-[300] flex items-start justify-center bg-black/60 backdrop-blur-sm p-4 overflow-y-auto animate-bubble-fade"
       onPointerDown={(e) => {
-        if (e.target === e.currentTarget) onClose();
+        if (e.target === e.currentTarget) {
+          commitTitle();
+          commitDescription();
+          onClose();
+        }
       }}
     >
       <div className="w-full max-w-4xl my-12 bg-background border border-border rounded-2xl shadow-2xl overflow-hidden animate-bubble-pop">
@@ -170,7 +174,7 @@ export default function TaskDetailModal({
               <Trash2 className="w-4 h-4" />
             </button>
             <button
-              onClick={onClose}
+              onClick={() => { commitTitle(); commitDescription(); onClose(); }}
               className="text-muted-foreground hover:text-foreground hover:bg-white/10 p-2 rounded-lg transition-colors"
               title="Close"
             >

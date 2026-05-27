@@ -61,7 +61,7 @@ export default function RoadmapView({ projectId }: { projectId: string }) {
     return (proj?.members ?? []).map((m) => ({
       id: m.user.id,
       name: m.user.name,
-      avatarUrl: m.user.avatarUrl,
+      image: m.user.image,
       email: m.user.email,
     }));
   }, [projects, projectId]);
@@ -129,7 +129,7 @@ export default function RoadmapView({ projectId }: { projectId: string }) {
         ? {
             id: t.assignee.id,
             name: t.assignee.name,
-            avatarUrl: t.assignee.avatarUrl,
+            image: t.assignee.image,
             email: t.assignee.email,
           }
         : null,

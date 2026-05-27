@@ -87,7 +87,7 @@ interface MemberStats {
   id: string;
   name: string;
   email: string;
-  avatarUrl?: string | null;
+  image?: string | null;
   total: number;
   completed: number;
   inProgress: number;
@@ -105,8 +105,8 @@ function MemberCard({ u, rank, totalProjectTasks }: { u: MemberStats; rank: numb
       {/* Header */}
       <div className="flex items-center gap-3">
         <div className="relative flex-shrink-0">
-          {u.avatarUrl ? (
-            <img src={u.avatarUrl} alt={u.name} className="w-11 h-11 rounded-full object-cover border-2 border-white/60" />
+          {u.image ? (
+            <img src={u.image} alt={u.name} className="w-11 h-11 rounded-full object-cover border-2 border-white/60" />
           ) : (
             <div
               className="w-11 h-11 rounded-full flex items-center justify-center text-sm font-bold text-foreground border-2 border-white/60"

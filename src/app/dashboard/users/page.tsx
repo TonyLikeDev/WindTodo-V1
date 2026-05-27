@@ -38,9 +38,9 @@ export default async function UsersPage() {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center space-x-3">
                         <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-[10px] font-bold text-primary border border-primary/20 overflow-hidden">
-                          {row.user.avatarUrl ? (
+                          {row.user.image ? (
                             // eslint-disable-next-line @next/next/no-img-element
-                            <img src={row.user.avatarUrl} alt={displayName} className="w-full h-full object-cover" />
+                            <img src={row.user.image} alt={displayName} className="w-full h-full object-cover" />
                           ) : (
                             initials
                           )}

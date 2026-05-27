@@ -6,7 +6,7 @@ import Image from "next/image";
 import useSWR from "swr";
 import { ChevronRight, LogOut, Settings as SettingsIcon } from "lucide-react";
 import { syncUser } from "@/app/actions/userActions";
-import { logout } from "@/app/actions/authActions";
+import { authClient } from "@/lib/auth-client";
 
 export default function Sidebar({ isOpen = false, onClose = () => {} }: { isOpen?: boolean, onClose?: () => void }) {
   const pathname = usePathname();
@@ -79,9 +79,9 @@ export default function Sidebar({ isOpen = false, onClose = () => {} }: { isOpen
             <div className="mt-auto pt-6 border-t border-white/20 space-y-3">
                 <div className="glass rounded-2xl p-4 flex items-center space-x-3">
                     <div className="w-10 h-10 rounded-full bg-primary/20 border border-white/60 overflow-hidden relative flex items-center justify-center text-primary font-bold text-sm">
-                        {user?.avatarUrl ? (
+                        {user?.image ? (
                           <Image
-                            src={user.avatarUrl}
+                            src={user.image}
                             alt={displayName}
                             fill
                             unoptimized
@@ -96,15 +96,14 @@ export default function Sidebar({ isOpen = false, onClose = () => {} }: { isOpen
                     </div>
                 </div>
 
-                <form action={logout}>
-                    <button
-                      type="submit"
-                      className="w-full flex items-center gap-4 px-4 py-3 rounded-2xl text-muted-foreground hover:bg-red-500/10 hover:text-red-500 transition-all group"
-                    >
-                        <LogOut size={18} className="group-hover:translate-x-0.5 transition-transform" />
-                        <span className="text-sm font-bold">Sign Out</span>
-                    </button>
-                </form>
+                <button
+                  type="button"
+                  onClick={() => authClient.signOut({ fetchOptions: { onSuccess: () => { window.location.href = '/login' } } })}
+                  className="w-full flex items-center gap-4 px-4 py-3 rounded-2xl text-muted-foreground hover:bg-red-500/10 hover:text-red-500 transition-all group"
+                >
+                    <LogOut size={18} className="group-hover:translate-x-0.5 transition-transform" />
+                    <span className="text-sm font-bold">Sign Out</span>
+                </button>
             </div>
         </div>
     </aside>

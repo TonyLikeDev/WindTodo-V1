@@ -9,25 +9,77 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
+// ─── Better Auth models ───────────────────────────────────────────────────────
+
 model User {
-  id              String          @id
-  email           String          @unique
-  name            String?
-  avatarUrl       String?
+  id            String    @id
+  email         String    @unique
+  emailVerified Boolean   @default(false)
+  name          String?
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // App relations
   createdTasks    Task[]          @relation("TaskCreator")
   assignedTasks   Task[]          @relation("TaskAssignee")
   memberProjects  ProjectMember[]
   createdProjects Project[]       @relation("ProjectCreator")
   lists           BoardList[]     @relation("ListCreator")
   initiatives     Initiative[]
-  createdAt       DateTime        @default(now())
+
+  // Better Auth relations
+  sessions Session[]
+  accounts Account[]
 }
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@unique([providerId, accountId])
+}
+
+model Verification {
+  id         String    @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+}
+
+// ─── App models ───────────────────────────────────────────────────────────────
 
 model Task {
   id           String       @id @default(uuid())
   title        String
   description  String?
-  userId       String    // Creator
+  userId       String
   creator      User         @relation("TaskCreator", fields: [userId], references: [id])
   assigneeId   String?
   assignee     User?        @relation("TaskAssignee", fields: [assigneeId], references: [id])
@@ -55,7 +107,7 @@ model Project {
   id          String          @id @default(uuid())
   name        String
   color       String
-  userId      String          // Creator
+  userId      String
   creator     User            @relation("ProjectCreator", fields: [userId], references: [id])
   members     ProjectMember[]
   createdAt   DateTime        @default(now())
