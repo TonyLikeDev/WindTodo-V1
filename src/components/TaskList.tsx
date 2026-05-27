@@ -240,7 +240,7 @@ export default function TaskList({ title, listId, placeholder, bgColor }: { titl
           <button
             onClick={handleAddTask}
             disabled={!inputValue.trim() || (isVirtual && !effectiveProjectId)}
-            className="absolute right-2 top-2 p-1.5 bg-primary hover:bg-primary/90 disabled:bg-white/60 disabled:text-muted-foreground text-white rounded-lg transition-all shadow-md shadow-primary/30 disabled:shadow-none"
+            className="absolute right-2 top-2 p-1.5 bg-primary hover:bg-primary/90 disabled:bg-white/40 dark:disabled:bg-white/10 disabled:text-muted-foreground text-white rounded-lg transition-all shadow-md shadow-primary/30 disabled:shadow-none"
           >
             <Plus className="w-5 h-5" />
           </button>

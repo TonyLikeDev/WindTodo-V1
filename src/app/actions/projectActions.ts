@@ -1,5 +1,6 @@
 'use server'
 
+import { cache } from 'react'
 import prisma from '@/lib/prisma'
 import { revalidatePath } from 'next/cache'
 import { getAuthUser, syncUser } from './userActions'
@@ -42,7 +43,9 @@ async function requireProjectAccess(projectId: string, userId: string) {
   if (!project) throw new Error('Not authorized for this project')
 }
 
-export async function getProjects() {
+// cache() deduplicates calls within a single server request — multiple Suspense sections
+// (ProjectsLoader, TasksLoader) both call getProjects() but only one DB query is made.
+export const getProjects = cache(async function getProjects() {
   const user = await getAuthUser()
   if (!user) return []
 
@@ -61,7 +64,7 @@ export async function getProjects() {
     },
     orderBy: { createdAt: 'asc' },
   })
-}
+})
 
 export async function createProject(name: string, color: string) {
   const userId = await requireUserId()

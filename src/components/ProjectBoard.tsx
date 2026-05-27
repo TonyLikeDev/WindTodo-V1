@@ -662,7 +662,7 @@ export default function ProjectBoard({ projectId }: { projectId: string }) {
         {showMemberModal && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
             <div
-              className="absolute inset-0 bg-white/60 backdrop-blur-md"
+              className="absolute inset-0 bg-black/20 dark:bg-black/50 backdrop-blur-md"
               onClick={() => setShowMemberModal(false)}
             />
             <div className="relative glass w-full max-w-xl rounded-3xl border border-white/50 shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
@@ -695,13 +695,13 @@ export default function ProjectBoard({ projectId }: { projectId: string }) {
                       }
                     }}
                     placeholder="Email address or name"
-                    className="flex-1 bg-white/50 border border-white/50 rounded-lg px-3 py-2 text-sm text-foreground placeholder-muted-foreground/70 focus:outline-none focus:ring-1 focus:ring-white/30"
+                    className="flex-1 bg-white/50 dark:bg-white/5 border border-white/50 dark:border-white/10 rounded-lg px-3 py-2 text-sm text-foreground placeholder-muted-foreground/70 focus:outline-none focus:ring-1 focus:ring-white/30 dark:focus:ring-white/10"
                   />
                   <div className="relative">
                     <select
                       value={inviteRole}
                       onChange={(e) => setInviteRole(e.target.value as 'member' | 'admin')}
-                      className="appearance-none bg-white/50 border border-white/50 rounded-lg pl-3 pr-8 py-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-white/30 cursor-pointer"
+                      className="appearance-none bg-white/50 dark:bg-white/5 border border-white/50 dark:border-white/10 rounded-lg pl-3 pr-8 py-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-white/30 dark:focus:ring-white/10 cursor-pointer"
                     >
                       <option value="member">Member</option>
                       <option value="admin">Admin</option>
@@ -722,10 +722,10 @@ export default function ProjectBoard({ projectId }: { projectId: string }) {
               </div>
 
               {/* Tabs */}
-              <div className="px-6 border-b border-white/40 flex items-center gap-6">
+              <div className="px-6 border-b border-white/40 dark:border-white/10 flex items-center gap-6">
                 <div className="relative pb-3 text-sm font-bold text-foreground flex items-center gap-2">
                   Board members
-                  <span className="text-[10px] font-bold bg-white/50 text-foreground px-1.5 py-0.5 rounded">
+                  <span className="text-[10px] font-bold bg-white/50 dark:bg-white/10 text-foreground px-1.5 py-0.5 rounded">
                     {project.members.length}
                   </span>
                   <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-white" />
@@ -778,7 +778,7 @@ export default function ProjectBoard({ projectId }: { projectId: string }) {
                             className={`px-3 py-1.5 border rounded-lg text-sm font-bold flex items-center gap-1 select-none ${
                               role === 'ADMIN'
                                 ? 'border-blue-500/40 text-blue-400'
-                                : 'border-white/50 text-foreground'
+                                : 'border-white/50 dark:border-white/10 text-foreground'
                             }`}
                           >
                             {roleLabel}
@@ -791,7 +791,7 @@ export default function ProjectBoard({ projectId }: { projectId: string }) {
                             className={`px-3 py-1.5 border rounded-lg text-sm font-bold flex items-center gap-1 transition-all ${
                               role === 'ADMIN'
                                 ? 'border-blue-500/40 text-blue-400 hover:bg-blue-500/10'
-                                : 'border-white/50 text-foreground hover:bg-white/40'
+                                : 'border-white/50 dark:border-white/10 text-foreground hover:bg-white/40 dark:hover:bg-white/10'
                             }`}
                           >
                             {roleLabel}
@@ -800,11 +800,11 @@ export default function ProjectBoard({ projectId }: { projectId: string }) {
                         )}
 
                         {menuOpen && canManage && (
-                          <div className="absolute right-0 top-full mt-1 z-20 w-48 bg-white/80 border border-white/50 rounded-xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-150">
+                          <div className="absolute right-0 top-full mt-1 z-20 w-48 bg-white/90 dark:bg-slate-900/95 border border-white/50 dark:border-white/10 rounded-xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-150">
                             <button
                               type="button"
                               onClick={() => handleSetMemberRole(m.id, 'ADMIN')}
-                              className="w-full flex items-center justify-between px-3 py-2 text-sm hover:bg-white/40 text-foreground"
+                              className="w-full flex items-center justify-between px-3 py-2 text-sm hover:bg-white/40 dark:hover:bg-white/10 text-foreground"
                             >
                               <span>Admin</span>
                               {role === 'ADMIN' && <Check className="w-4 h-4 text-blue-400" />}
@@ -812,12 +812,12 @@ export default function ProjectBoard({ projectId }: { projectId: string }) {
                             <button
                               type="button"
                               onClick={() => handleSetMemberRole(m.id, 'MEMBER')}
-                              className="w-full flex items-center justify-between px-3 py-2 text-sm hover:bg-white/40 text-foreground"
+                              className="w-full flex items-center justify-between px-3 py-2 text-sm hover:bg-white/40 dark:hover:bg-white/10 text-foreground"
                             >
                               <span>Member</span>
                               {role === 'MEMBER' && <Check className="w-4 h-4 text-blue-400" />}
                             </button>
-                            <div className="h-px bg-white/40" />
+                            <div className="h-px bg-white/40 dark:bg-white/10" />
                             <button
                               type="button"
                               onClick={() => {

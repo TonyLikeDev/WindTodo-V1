@@ -15,7 +15,7 @@ export default async function UsersPage() {
       <div className="glass overflow-hidden rounded-2xl">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="bg-white/40 border-b border-border">
+            <tr className="bg-white/40 dark:bg-white/5 border-b border-border">
               <th className="px-6 py-4 text-xs font-bold text-foreground/70 dark:text-white/70 uppercase tracking-wider">User</th>
               <th className="px-6 py-4 text-xs font-bold text-foreground/70 dark:text-white/70 uppercase tracking-wider">Role</th>
               <th className="px-6 py-4 text-xs font-bold text-foreground/70 dark:text-white/70 uppercase tracking-wider">Project</th>

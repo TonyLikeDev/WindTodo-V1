@@ -39,7 +39,7 @@ export default function AddUserForm() {
           setError(null);
           setSuccess(null);
         }}
-        className="flex items-center gap-1.5 px-4 py-2 bg-white/80 text-foreground text-sm font-bold rounded-lg hover:bg-white transition-all shadow-lg shadow-sky-dark/10 active:scale-95"
+        className="flex items-center gap-1.5 px-4 py-2 bg-white/80 dark:bg-white/10 text-foreground text-sm font-bold rounded-lg hover:bg-white dark:hover:bg-white/20 transition-all shadow-lg shadow-sky-dark/10 active:scale-95"
       >
         <Plus className="w-4 h-4" />
         Add user
@@ -50,7 +50,7 @@ export default function AddUserForm() {
           <button
             type="button"
             aria-label="Close add user popup"
-            className="absolute inset-0 bg-white/60 backdrop-blur-md"
+            className="absolute inset-0 bg-black/20 dark:bg-black/50 backdrop-blur-md"
             onClick={() => setOpen(false)}
           />
 
@@ -89,7 +89,7 @@ export default function AddUserForm() {
               placeholder="user@example.com"
               required
               autoFocus
-              className="mt-2 w-full rounded-xl border border-white/50 bg-white/55 px-3 py-2.5 text-sm text-foreground placeholder-muted-foreground/70 transition-all focus:outline-none focus:ring-2 focus:ring-primary/30"
+              className="mt-2 w-full rounded-xl border border-white/50 dark:border-white/10 bg-white/55 dark:bg-white/5 px-3 py-2.5 text-sm text-foreground placeholder-muted-foreground/70 transition-all focus:outline-none focus:ring-2 focus:ring-primary/30"
             />
 
             {error && <p className="mt-2 text-xs text-red-500">{error}</p>}

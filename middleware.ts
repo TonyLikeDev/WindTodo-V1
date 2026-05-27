@@ -1,11 +1,24 @@
-import { betterFetch } from '@better-fetch/fetch'
-import type { Session } from 'better-auth/types'
-import { NextResponse, type NextRequest } from 'next/server'
+import { type NextRequest, NextResponse } from 'next/server'
 
-export default async function middleware(request: NextRequest) {
+// Cookie names better-auth uses, mirroring getSessionCookie() in better-auth/dist/cookies.
+// Covers dot vs dash separator and HTTP vs HTTPS (__Secure- prefix) variants.
+const SESSION_COOKIE_NAMES = [
+  'better-auth.session_token',
+  '__Secure-better-auth.session_token',
+  'better-auth-session_token',
+  '__Secure-better-auth-session_token',
+] as const
+
+function hasSessionCookie(request: NextRequest): boolean {
+  const cookieHeader = request.headers.get('cookie') ?? ''
+  return SESSION_COOKIE_NAMES.some(name => cookieHeader.includes(name + '='))
+}
+
+// Synchronous — no HTTP round-trip on every request.
+// Full session validation happens inside the server component via getAuthUser().
+export default function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
-  // Allow public paths through without auth check
   if (
     pathname.startsWith('/login') ||
     pathname.startsWith('/signup') ||
@@ -15,14 +28,7 @@ export default async function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
-  const { data: session } = await betterFetch<Session>('/api/auth/get-session', {
-    baseURL: request.nextUrl.origin,
-    headers: {
-      cookie: request.headers.get('cookie') ?? '',
-    },
-  })
-
-  if (!session) {
+  if (!hasSessionCookie(request)) {
     const url = request.nextUrl.clone()
     url.pathname = '/login'
     url.searchParams.set('error', 'Please log in to access the site.')

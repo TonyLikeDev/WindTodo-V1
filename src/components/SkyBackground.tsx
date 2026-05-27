@@ -6,7 +6,7 @@ import { useTheme } from "next-themes";
 
 const Cloud = ({ className, style }: { className?: string; style?: React.CSSProperties }) => (
   <svg
-    className={`absolute opacity-60 pointer-events-none ${className}`}
+    className={`absolute opacity-60 dark:opacity-[0.06] pointer-events-none ${className}`}
     viewBox="0 0 200 60"
     fill="white"
     style={style}
@@ -25,23 +25,23 @@ export default function SkyBackground({ children }: { children: React.ReactNode 
 
   return (
     <div className="relative min-h-screen w-full sky-gradient overflow-hidden flex flex-col">
-      <div className="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] bg-white/20 blur-[120px] rounded-full pointer-events-none" />
-      <div className="absolute bottom-[-10%] left-[-5%] w-[400px] h-[400px] bg-accent-lavender/30 blur-[100px] rounded-full pointer-events-none" />
+      <div className="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] bg-white/20 dark:hidden blur-[120px] rounded-full pointer-events-none" />
+      <div className="absolute bottom-[-10%] left-[-5%] w-[400px] h-[400px] bg-accent-lavender/30 dark:bg-indigo-900/20 blur-[100px] rounded-full pointer-events-none" />
 
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {/* Dynamic Celestial Body (Sun/Moon background graphic) */}
         {mounted && (
           theme === "dark" ? (
-            <div 
-              className="absolute top-[6%] right-[6%] w-[160px] h-[160px] transition-all duration-1000 ease-in-out select-none opacity-85"
+            <div
+              className="absolute top-[6%] right-[6%] w-[160px] h-[160px] transition-all duration-1000 ease-in-out select-none opacity-50"
               style={{
-                filter: "drop-shadow(0 0 25px rgba(129, 140, 248, 0.6))"
+                filter: "drop-shadow(0 0 18px rgba(99, 102, 241, 0.3))"
               }}
             >
               {/* Moon Glow */}
-              <div className="absolute inset-0 bg-indigo-400/25 blur-xl rounded-full animate-pulse" style={{ animationDuration: '5s' }} />
+              <div className="absolute inset-0 bg-indigo-700/20 blur-xl rounded-full animate-pulse" style={{ animationDuration: '5s' }} />
               {/* Moon Icon */}
-              <svg className="w-full h-full text-indigo-100/70" viewBox="0 0 100 100" fill="currentColor">
+              <svg className="w-full h-full text-slate-300/60" viewBox="0 0 100 100" fill="currentColor">
                 <path d="M50 25C36.19 25 25 36.19 25 50C25 63.81 36.19 75 50 75C53.94 75 57.65 74.09 61 72.48C50.29 70.82 42.5 61.34 42.5 50C42.5 38.66 50.29 29.18 61 27.52C57.65 25.91 53.94 25 50 25Z" />
               </svg>
             </div>

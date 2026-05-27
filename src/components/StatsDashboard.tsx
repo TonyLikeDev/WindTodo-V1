@@ -101,15 +101,15 @@ function MemberCard({ u, rank, totalProjectTasks }: { u: MemberStats; rank: numb
   const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : null;
 
   return (
-    <div className="glass rounded-2xl p-5 border border-white/40 flex flex-col gap-4 hover:bg-white/60 transition-all duration-300">
+    <div className="glass rounded-2xl p-5 border border-white/40 dark:border-white/10 flex flex-col gap-4 hover:bg-white/60 dark:hover:bg-white/10 transition-all duration-300">
       {/* Header */}
       <div className="flex items-center gap-3">
         <div className="relative flex-shrink-0">
           {u.image ? (
-            <img src={u.image} alt={u.name} className="w-11 h-11 rounded-full object-cover border-2 border-white/60" />
+            <img src={u.image} alt={u.name} className="w-11 h-11 rounded-full object-cover border-2 border-white/60 dark:border-white/20" />
           ) : (
             <div
-              className="w-11 h-11 rounded-full flex items-center justify-center text-sm font-bold text-foreground border-2 border-white/60"
+              className="w-11 h-11 rounded-full flex items-center justify-center text-sm font-bold text-foreground border-2 border-white/60 dark:border-white/20"
               style={{ background: avatarBg }}
             >
               {u.name.charAt(0).toUpperCase()}
@@ -131,17 +131,17 @@ function MemberCard({ u, rank, totalProjectTasks }: { u: MemberStats; rank: numb
 
       {/* Stats chips */}
       <div className="grid grid-cols-3 gap-2">
-        <div className="flex flex-col items-center p-2 rounded-lg bg-white/400 border border-white/60">
+        <div className="flex flex-col items-center p-2 rounded-lg bg-white/40 dark:bg-white/5 border border-white/60 dark:border-white/10">
           <span className="text-muted-foreground text-[9px] font-bold uppercase tracking-wider mb-0.5">To Do</span>
           <span className="text-foreground text-base font-bold">{u.todo}</span>
         </div>
-        <div className="flex flex-col items-center p-2 rounded-lg bg-blue-500/10">
-          <span className="text-blue-600 text-[9px] font-bold uppercase tracking-wider mb-0.5">Active</span>
-          <span className="text-blue-800 text-base font-bold">{u.inProgress}</span>
+        <div className="flex flex-col items-center p-2 rounded-lg bg-blue-500/10 dark:bg-blue-900/20">
+          <span className="text-blue-600 dark:text-blue-400 text-[9px] font-bold uppercase tracking-wider mb-0.5">Active</span>
+          <span className="text-blue-800 dark:text-blue-300 text-base font-bold">{u.inProgress}</span>
         </div>
-        <div className="flex flex-col items-center p-2 rounded-lg bg-green-500/10">
-          <span className="text-green-600 text-[9px] font-bold uppercase tracking-wider mb-0.5">Done</span>
-          <span className="text-green-800 text-base font-bold">{u.completed}</span>
+        <div className="flex flex-col items-center p-2 rounded-lg bg-green-500/10 dark:bg-green-900/20">
+          <span className="text-green-600 dark:text-green-400 text-[9px] font-bold uppercase tracking-wider mb-0.5">Done</span>
+          <span className="text-green-800 dark:text-green-300 text-base font-bold">{u.completed}</span>
         </div>
       </div>
 
@@ -152,7 +152,7 @@ function MemberCard({ u, rank, totalProjectTasks }: { u: MemberStats; rank: numb
             <span>{u.total} tasks assigned</span>
             <span className="text-foreground font-semibold">{u.contributionPct}% of project</span>
           </div>
-          <div className="h-2 rounded-full overflow-hidden bg-white/40 flex gap-0.5">
+          <div className="h-2 rounded-full overflow-hidden bg-white/40 dark:bg-white/10 flex gap-0.5">
             {u.completed > 0 && (
               <div
                 className="h-full rounded-l-full bg-green-500 transition-all duration-700"
@@ -180,7 +180,7 @@ function MemberCard({ u, rank, totalProjectTasks }: { u: MemberStats; rank: numb
         </div>
       )}
       {u.total === 0 && (
-        <p className="text-[11px] text-slate-800 font-bold italic text-center">No tasks assigned yet</p>
+        <p className="text-[11px] text-slate-600 dark:text-slate-400 font-bold italic text-center">No tasks assigned yet</p>
       )}
     </div>
   );
@@ -325,7 +325,7 @@ export default function StatsDashboard({
               </div>
             </div>
           ) : (
-            <div className="flex-1 flex items-center justify-center text-slate-800 font-bold text-sm italic">No tasks yet</div>
+            <div className="flex-1 flex items-center justify-center text-slate-600 dark:text-slate-400 font-bold text-sm italic">No tasks yet</div>
           )}
         </GlassCard>
       </div>
@@ -341,7 +341,7 @@ export default function StatsDashboard({
           <CalendarRange className="w-4 h-4" />
           <span className="text-xs font-bold uppercase tracking-widest">Contribution period</span>
         </div>
-        <div className="flex items-center gap-1 bg-white/70 backdrop-blur-md rounded-full border border-white/60 p-1">
+        <div className="flex items-center gap-1 bg-white/70 dark:bg-white/10 backdrop-blur-md rounded-full border border-white/60 dark:border-white/10 p-1">
           {RANGE_OPTIONS.map((opt) => {
             const active = rangeDays === opt.days;
             return (
@@ -404,7 +404,7 @@ export default function StatsDashboard({
               </div>
             </div>
           ) : (
-            <div className="flex-1 flex items-center justify-center text-slate-800 font-bold text-sm italic">No tasks yet</div>
+            <div className="flex-1 flex items-center justify-center text-slate-600 dark:text-slate-400 font-bold text-sm italic">No tasks yet</div>
           )}
         </GlassCard>
 
@@ -456,7 +456,7 @@ export default function StatsDashboard({
                   <div key={row.label} className="flex items-center gap-3">
                     <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: row.color }} />
                     <div className="flex-1">
-                      <div className="h-1.5 rounded-full bg-white/40 overflow-hidden">
+                      <div className="h-1.5 rounded-full bg-white/40 dark:bg-white/10 overflow-hidden">
                         <div
                           className="h-full rounded-full transition-all duration-700"
                           style={{
@@ -473,7 +473,7 @@ export default function StatsDashboard({
                     </span>
                   </div>
                 ))}
-                <div className="pt-2 border-t border-white/40 flex justify-between text-[10px] text-muted-foreground">
+                <div className="pt-2 border-t border-white/40 dark:border-white/10 flex justify-between text-[10px] text-muted-foreground">
                   <span>Total tasks: <span className="text-foreground font-bold">{projectStats.totalTasks}</span></span>
                   <span>Members: <span className="text-foreground font-bold">{projectStats.userStats.length}</span></span>
                   {projectStats.unassignedCount > 0 && (
@@ -483,7 +483,7 @@ export default function StatsDashboard({
               </div>
             </div>
           ) : (
-            <div className="flex-1 flex items-center justify-center text-slate-800 font-bold text-sm italic">Select a project</div>
+            <div className="flex-1 flex items-center justify-center text-slate-600 dark:text-slate-400 font-bold text-sm italic">Select a project</div>
           )}
         </GlassCard>
       </div>
@@ -553,16 +553,16 @@ export default function StatsDashboard({
 
 // ─── Stat Card ──────────────────────────────────────────────────────────────────
 const ACCENT: Record<string, string> = {
-  white: 'border-white/60',
-  gray:  'border-white/60',
-  blue:  'border-blue-300/40',
-  green: 'border-green-300/40',
+  white: 'border-white/60 dark:border-white/10',
+  gray:  'border-white/60 dark:border-white/10',
+  blue:  'border-blue-300/40 dark:border-blue-800/30',
+  green: 'border-green-300/40 dark:border-green-800/30',
 };
 const ACCENT_BG: Record<string, string> = {
-  white: 'bg-white/50',
-  gray:  'bg-white/40',
-  blue:  'bg-blue-100/60',
-  green: 'bg-green-100/60',
+  white: 'bg-white/50 dark:bg-white/5',
+  gray:  'bg-white/40 dark:bg-white/5',
+  blue:  'bg-blue-100/60 dark:bg-blue-900/20',
+  green: 'bg-green-100/60 dark:bg-green-900/20',
 };
 const ACCENT_ICON: Record<string, string> = {
   white: 'text-primary',
@@ -578,7 +578,7 @@ function StatCard({
 }) {
   return (
     <div className={`glass rounded-2xl p-5 border ${ACCENT[accent]} ${ACCENT_BG[accent]} flex items-center gap-4 group hover:scale-[1.02] transition-transform duration-300`}>
-      <div className={`p-3 rounded-xl bg-white/70 group-hover:bg-white transition-colors ${ACCENT_ICON[accent]}`}>
+      <div className={`p-3 rounded-xl bg-white/70 dark:bg-white/10 group-hover:bg-white dark:group-hover:bg-white/20 transition-colors ${ACCENT_ICON[accent]}`}>
         {icon}
       </div>
       <div>

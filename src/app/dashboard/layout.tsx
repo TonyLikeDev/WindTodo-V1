@@ -2,6 +2,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { usePathname } from "next/navigation";
 import Sidebar from "@/components/Sidebar";
 import SkyBackground from "@/components/SkyBackground";
 import { useTheme } from "next-themes";
@@ -18,6 +19,8 @@ export default function DashboardLayout({
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const { theme, setTheme } = useTheme();
+  const pathname = usePathname();
+  const isDashboardHome = pathname === "/dashboard";
 
   useEffect(() => {
     setMounted(true);
@@ -77,11 +80,9 @@ export default function DashboardLayout({
           onTouchEnd={!isMobileMenuOpen ? onTouchEndOpen : undefined}
         >
           
-          {/* Floating Actions Header (Top Right) */}
-          <div className="absolute top-4 md:top-6 right-4 md:right-8 z-40 flex items-center gap-3">
-            
-            {/* Theme Toggle Button */}
-            {mounted && (
+          {/* Theme Toggle Button — only on the main dashboard overview */}
+          {mounted && isDashboardHome && (
+            <div className="absolute top-4 md:top-6 right-4 md:right-8 z-40">
               <button
                 onClick={toggleTheme}
                 className="p-2.5 rounded-2xl bg-white/40 dark:bg-black/20 hover:bg-white/60 dark:hover:bg-black/35 text-foreground hover:text-primary transition-all border border-white/20 dark:border-white/5 flex items-center justify-center cursor-pointer shadow-md shadow-sky-dark/5 dark:shadow-none"
@@ -93,8 +94,8 @@ export default function DashboardLayout({
                   <Moon size={18} className="text-indigo-600" />
                 )}
               </button>
-            )}
-          </div>
+            </div>
+          )}
 
           {/* Mobile Menu Trigger (Top Left) */}
           <button
