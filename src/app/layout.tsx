@@ -3,12 +3,13 @@ import { Poppins } from "next/font/google";
 import { GoogleAnalytics, GoogleTagManager } from "@next/third-parties/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
-import EffectsCanvas from "@/components/EffectsCanvas";
+import LazyEffectsCanvas from "@/components/LazyEffectsCanvas";
 
 const poppins = Poppins({
   variable: "--font-poppins",
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700", "800"],
+  weight: ["400", "600", "700"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -37,7 +38,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           {children}
-          <EffectsCanvas />
+          <LazyEffectsCanvas />
         </ThemeProvider>
       </body>
     </html>

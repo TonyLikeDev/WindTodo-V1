@@ -4,10 +4,17 @@ import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import useSWR from 'swr';
 import { Map, Columns3, List, LayoutGrid, X } from 'lucide-react';
+import dynamic from 'next/dynamic';
 import ProjectBoard from './ProjectBoard';
 import ProjectTipsBubble from './ProjectTipsBubble';
-import RoadmapView from './RoadmapView';
-import BacklogView from './BacklogView';
+
+// Lazy-load non-default views — only Kanban is shown on first render
+const RoadmapView = dynamic(() => import('./RoadmapView'), {
+  loading: () => <div className="h-full glass rounded-2xl animate-pulse" />,
+});
+const BacklogView = dynamic(() => import('./BacklogView'), {
+  loading: () => <div className="h-full glass rounded-2xl animate-pulse" />,
+});
 import { getProjects } from '@/app/actions/projectActions';
 
 type ViewMode = 'roadmap' | 'kanban' | 'backlog';
