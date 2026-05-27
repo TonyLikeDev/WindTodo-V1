@@ -1,30 +1,25 @@
 'use server'
 
-import { createClient } from '@/utils/supabase/server'
+import { auth } from '@/lib/auth'
+import { APIError } from 'better-auth/api'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
-import { cookies } from 'next/headers'
+import { headers } from 'next/headers'
 
 export async function login(prevState: unknown, formData: FormData) {
   const email = formData.get('email') as string
   const password = formData.get('password') as string
 
-  if (process.env.NEXT_PUBLIC_SUPABASE_URL?.includes('placeholder')) {
-    const cookieStore = await cookies()
-    cookieStore.set('windtodo-user-email', email, { path: '/' })
-    revalidatePath('/dashboard', 'layout')
-    redirect('/dashboard')
-  }
-
-  const supabase = await createClient()
-
-  const { error } = await supabase.auth.signInWithPassword({
-    email,
-    password,
-  })
-
-  if (error) {
-    return { error: error.message }
+  try {
+    await auth.api.signInEmail({
+      body: { email, password },
+      headers: await headers(),
+    })
+  } catch (e) {
+    if (e instanceof APIError) {
+      return { error: e.message }
+    }
+    return { error: 'Invalid email or password' }
   }
 
   revalidatePath('/dashboard', 'layout')
@@ -40,22 +35,20 @@ export async function signup(prevState: unknown, formData: FormData) {
     return { error: 'Passwords do not match' }
   }
 
-  if (process.env.NEXT_PUBLIC_SUPABASE_URL?.includes('placeholder')) {
-    const cookieStore = await cookies()
-    cookieStore.set('windtodo-user-email', email, { path: '/' })
-    revalidatePath('/dashboard', 'layout')
-    redirect('/dashboard')
-  }
-
-  const supabase = await createClient()
-
-  const { error } = await supabase.auth.signUp({
-    email,
-    password,
-  })
-
-  if (error) {
-    return { error: error.message }
+  try {
+    await auth.api.signUpEmail({
+      body: {
+        email,
+        password,
+        name: email.split('@')[0],
+      },
+      headers: await headers(),
+    })
+  } catch (e) {
+    if (e instanceof APIError) {
+      return { error: e.message }
+    }
+    return { error: 'Failed to create account' }
   }
 
   revalidatePath('/dashboard', 'layout')
@@ -63,13 +56,8 @@ export async function signup(prevState: unknown, formData: FormData) {
 }
 
 export async function logout() {
-  if (process.env.NEXT_PUBLIC_SUPABASE_URL?.includes('placeholder')) {
-    const cookieStore = await cookies()
-    cookieStore.delete('windtodo-user-email')
-    redirect('/login')
-  }
-
-  const supabase = await createClient()
-  await supabase.auth.signOut()
+  await auth.api.signOut({
+    headers: await headers(),
+  })
   redirect('/login')
 }

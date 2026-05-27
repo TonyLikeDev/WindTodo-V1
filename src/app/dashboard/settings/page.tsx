@@ -104,8 +104,8 @@ export default function SettingsPage() {
                 <div className="flex flex-col sm:flex-row items-center gap-8">
                   <div className="relative group">
                     <div className="w-28 h-28 rounded-[2rem] bg-white dark:bg-black/25 overflow-hidden flex items-center justify-center border-4 border-white dark:border-white/10 shadow-xl shadow-sky-dark/10">
-                      {user?.avatarUrl ? (
-                        <Image src={user.avatarUrl} alt="" width={112} height={112} className="object-cover" unoptimized />
+                      {user?.image ? (
+                        <Image src={user.image} alt="" width={112} height={112} className="object-cover" unoptimized />
                       ) : (
                         <span className="text-3xl font-bold text-primary">{initial}</span>
                       )}

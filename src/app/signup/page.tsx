@@ -1,13 +1,47 @@
 "use client";
 
-import { useActionState } from 'react';
-import { signup } from '@/app/actions/authActions';
+import { useState } from 'react';
+import { authClient } from '@/lib/auth-client';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import SkyBackground from '@/components/SkyBackground';
 
 export default function SignupPage() {
-  const [state, formAction, isPending] = useActionState(signup, null);
+  const router = useRouter();
+  const [error, setError] = useState<string | undefined>();
+  const [isPending, setIsPending] = useState(false);
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setError(undefined);
+
+    const form = e.currentTarget;
+    const email = (form.elements.namedItem('email') as HTMLInputElement).value;
+    const password = (form.elements.namedItem('password') as HTMLInputElement).value;
+    const confirmPassword = (form.elements.namedItem('confirmPassword') as HTMLInputElement).value;
+
+    if (password !== confirmPassword) {
+      setError('Passwords do not match');
+      return;
+    }
+
+    setIsPending(true);
+
+    const { error } = await authClient.signUp.email({
+      email,
+      password,
+      name: email.split('@')[0],
+    });
+
+    if (error) {
+      setError(error.message ?? 'Failed to create account');
+      setIsPending(false);
+      return;
+    }
+
+    router.push('/dashboard');
+  }
 
   return (
     <SkyBackground>
@@ -19,10 +53,10 @@ export default function SignupPage() {
 
           <h1 className="text-xl font-bold text-foreground mb-5 tracking-tight">Create Account</h1>
 
-          <form className="w-full space-y-4" action={formAction}>
-            {state?.error && (
+          <form className="w-full space-y-4" onSubmit={handleSubmit}>
+            {error && (
               <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-center mb-4">
-                <p className="text-sm text-red-600">{state.error}</p>
+                <p className="text-sm text-red-600">{error}</p>
               </div>
             )}
             <div>

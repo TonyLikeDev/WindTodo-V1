@@ -1,28 +1,50 @@
 "use client";
 
-import { useActionState, Suspense } from 'react';
-import { login } from '@/app/actions/authActions';
+import { useState, Suspense } from 'react';
+import { authClient } from '@/lib/auth-client';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import SkyBackground from '@/components/SkyBackground';
 
-function ErrorMessage({ actionError }: { actionError?: string }) {
+function ErrorMessage({ error }: { error?: string }) {
   const searchParams = useSearchParams();
   const urlError = searchParams.get('error');
-  const error = actionError || urlError;
+  const message = error || urlError;
 
-  if (!error) return null;
+  if (!message) return null;
 
   return (
     <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-center mb-4">
-      <p className="text-sm text-red-600">{error}</p>
+      <p className="text-sm text-red-600">{message}</p>
     </div>
   );
 }
 
 export default function LoginPage() {
-  const [state, formAction, isPending] = useActionState(login, null);
+  const router = useRouter();
+  const [error, setError] = useState<string | undefined>();
+  const [isPending, setIsPending] = useState(false);
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setError(undefined);
+    setIsPending(true);
+
+    const form = e.currentTarget;
+    const email = (form.elements.namedItem('email') as HTMLInputElement).value;
+    const password = (form.elements.namedItem('password') as HTMLInputElement).value;
+
+    const { error } = await authClient.signIn.email({ email, password });
+
+    if (error) {
+      setError(error.message ?? 'Invalid email or password');
+      setIsPending(false);
+      return;
+    }
+
+    router.push('/dashboard');
+  }
 
   return (
     <SkyBackground>
@@ -34,9 +56,9 @@ export default function LoginPage() {
           </div>
 
           <h1 className="text-xl font-bold text-foreground mb-5 tracking-tight">WindTodo</h1>
-          <form className="w-full space-y-4" action={formAction}>
+          <form className="w-full space-y-4" onSubmit={handleSubmit}>
             <Suspense fallback={null}>
-              <ErrorMessage actionError={state?.error} />
+              <ErrorMessage error={error} />
             </Suspense>
             <div>
               <label className="block text-sm font-medium text-muted-foreground mb-1 px-1">Email</label>

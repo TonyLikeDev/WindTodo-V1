@@ -11,7 +11,7 @@ import { playCelestialChime } from './EffectsCanvas';
 type UserProfile = {
   id: string;
   name: string | null;
-  avatarUrl: string | null;
+  image: string | null;
   email: string;
 };
 
@@ -495,8 +495,8 @@ export default function BoardColumn({
                         {t.assignee ? (
                           <div className="flex items-center gap-1.5 bg-white/30 dark:bg-black/20 rounded-full pl-0.5 pr-2 py-0.5 border border-white/20 dark:border-white/5">
                             <div className="w-5 h-5 rounded-full bg-white/50 dark:bg-slate-800/50 flex items-center justify-center text-[10px] font-bold text-foreground overflow-hidden flex-shrink-0">
-                              {t.assignee.avatarUrl ? (
-                                <img src={t.assignee.avatarUrl} alt={t.assignee.name || ''} className="w-full h-full object-cover" />
+                              {t.assignee.image ? (
+                                <img src={t.assignee.image} alt={t.assignee.name || ''} className="w-full h-full object-cover" />
                               ) : (
                                 (t.assignee.name || t.assignee.email).charAt(0).toUpperCase()
                               )}

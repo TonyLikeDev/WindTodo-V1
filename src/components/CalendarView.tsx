@@ -119,7 +119,7 @@ export default function CalendarView() {
         ? {
             id: t.assignee.id,
             name: t.assignee.name,
-            avatarUrl: t.assignee.avatarUrl,
+            image: t.assignee.image,
             email: t.assignee.email,
           }
         : null,
@@ -128,7 +128,7 @@ export default function CalendarView() {
         ? {
             id: t.creator.id,
             name: t.creator.name,
-            avatarUrl: t.creator.avatarUrl,
+            image: t.creator.image,
             email: t.creator.email,
           }
         : null,
@@ -143,7 +143,7 @@ export default function CalendarView() {
     return (proj?.members ?? []).map((m) => ({
       id: m.user.id,
       name: m.user.name,
-      avatarUrl: m.user.avatarUrl,
+      image: m.user.image,
       email: m.user.email,
     }));
   }, [openTaskId, tasks, projects]);
