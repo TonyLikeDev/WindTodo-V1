@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
   ResponsiveContainer, PieChart, Pie, Cell, RadialBarChart, RadialBar,
@@ -196,20 +196,39 @@ const RANGE_OPTIONS: { label: string; days: number | null }[] = [
 ];
 
 // ─── Main dashboard ─────────────────────────────────────────────────────────────
-export default function StatsDashboard({ minimal = false }: { minimal?: boolean } = {}) {
+export default function StatsDashboard({
+  minimal = false,
+  initialStats,
+}: {
+  minimal?: boolean;
+  initialStats?: OverallStats | null;
+} = {}) {
   const [isMounted, setIsMounted] = useState(false);
-  const [overall, setOverall] = useState<OverallStats | null>(null);
+  // Use server-provided initial data when available so the first render is instant.
+  const [overall, setOverall] = useState<OverallStats | null>(initialStats ?? null);
   const [projects, setProjects] = useState<ProjectData[]>([]);
   const [selectedProjectId, setSelectedProjectId] = useState<string>('');
   const [projectStats, setProjectStats] = useState<ProjectBreakdown | null>(null);
   const [loadingProject, setLoadingProject] = useState(false);
-  const [loading, setLoading] = useState(true);
+  // Start in a non-loading state when we already have server-fetched data.
+  const [loading, setLoading] = useState(initialStats == null);
   const [rangeDays, setRangeDays] = useState<number | null>(null);
+
+  // When initialStats was provided by the server, skip the first DB fetch entirely.
+  // Subsequent renders (e.g. when the user changes rangeDays) will still fetch.
+  const skipInitialFetch = useRef(initialStats != null);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsMounted(true);
+
+    if (skipInitialFetch.current) {
+      skipInitialFetch.current = false;
+      return;
+    }
+
     async function init() {
+      setLoading(true);
       if (minimal) {
         const overallData = await getOverallStats(rangeDays);
         setOverall(overallData);

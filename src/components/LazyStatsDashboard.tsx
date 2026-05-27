@@ -14,6 +14,20 @@ const StatsDashboard = dynamic(() => import('./StatsDashboard'), {
   ),
 });
 
-export default function LazyStatsDashboard({ minimal }: { minimal?: boolean }) {
-  return <StatsDashboard minimal={minimal} />;
+interface OverallStats {
+  totalProjects: number;
+  totalTasks: number;
+  completedTasks: number;
+  inProgressTasks: number;
+  todoTasks: number;
+}
+
+export default function LazyStatsDashboard({
+  minimal,
+  initialStats,
+}: {
+  minimal?: boolean;
+  initialStats?: OverallStats | null;
+}) {
+  return <StatsDashboard minimal={minimal} initialStats={initialStats} />;
 }
