@@ -1,4 +1,4 @@
-import StatsDashboard from '@/components/StatsDashboard';
+import LazyStatsDashboard from '@/components/LazyStatsDashboard';
 import ProjectsSection from '@/components/ProjectsSection';
 import TaskList from '@/components/TaskList';
 
@@ -10,7 +10,7 @@ export default function Dashboard() {
           <h1 className="text-3xl font-extrabold text-foreground tracking-tight mb-2">Workspace Overview</h1>
           <p className="text-muted-foreground text-sm">Monitor your projects and team productivity in real-time.</p>
         </div>
-        <StatsDashboard minimal />
+        <LazyStatsDashboard minimal />
       </section>
 
       <section>

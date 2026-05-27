@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { memo, useEffect, useMemo, useRef, useState } from 'react';
 import useSWR from 'swr';
 import { createTask, deleteTask, getTasks, updateTask } from '@/app/actions/taskActions';
 import { useBoardDrag } from './BoardDragContext';
@@ -67,7 +67,7 @@ function getColumnTheme(name: string) {
   return null;
 }
 
-export default function BoardColumn({
+const BoardColumn = memo(function BoardColumn({
   listId,
   title,
   color,
@@ -614,7 +614,9 @@ export default function BoardColumn({
     )}
     </>
   );
-}
+});
+
+export default BoardColumn;
 
 function DropLine({ show }: { show: boolean }) {
   return (
