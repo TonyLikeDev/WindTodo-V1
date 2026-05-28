@@ -2,7 +2,8 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { Trash2, X, User as UserIcon, Flag, Layers, CircleDot, Calendar } from 'lucide-react';
+import { Trash2, X, User as UserIcon, Flag, Layers, CircleDot, Calendar, Paperclip, FileText, Image as ImageIcon, FileArchive, Download } from 'lucide-react';
+import { deleteAttachment } from '@/app/actions/attachmentActions';
 
 export type TaskPriority = 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
 export type TaskType = 'TASK' | 'STORY' | 'BUG';
@@ -13,6 +14,16 @@ export type ModalUserProfile = {
   name: string | null;
   image: string | null;
   email: string;
+};
+
+export type TaskAttachmentData = {
+  id: string;
+  url: string;
+  fileName: string;
+  fileSize: number;
+  mimeType: string;
+  createdAt: Date | string;
+  userId: string;
 };
 
 export type ModalTask = {
@@ -28,6 +39,7 @@ export type ModalTask = {
   assignee?: ModalUserProfile | null;
   createdAt: Date;
   creator?: ModalUserProfile | null;
+  attachments?: TaskAttachmentData[];
 };
 
 export type TaskPatch = {
@@ -60,6 +72,18 @@ const TYPE_STYLES: Record<TaskType, string> = {
   BUG: 'bg-rose-100/80 text-rose-700 border-rose-300',
 };
 
+function formatBytes(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+function FileIcon({ mimeType }: { mimeType: string }) {
+  if (mimeType.startsWith('image/')) return <ImageIcon className="w-4 h-4 flex-shrink-0" />;
+  if (mimeType === 'application/zip' || mimeType.includes('compressed')) return <FileArchive className="w-4 h-4 flex-shrink-0" />;
+  return <FileText className="w-4 h-4 flex-shrink-0" />;
+}
+
 function toDateInput(d: Date | null): string {
   if (!d) return '';
   const dt = new Date(d);
@@ -90,13 +114,19 @@ export default function TaskDetailModal({
 }) {
   const [title, setTitle] = useState(task.title);
   const [description, setDescription] = useState(task.description ?? '');
+  const [attachments, setAttachments] = useState<TaskAttachmentData[]>(task.attachments ?? []);
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [dragOver, setDragOver] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const titleRef = useRef<HTMLInputElement>(null);
   const descRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     setTitle(task.title);
     setDescription(task.description ?? '');
-  }, [task.id, task.title, task.description]);
+    setAttachments(task.attachments ?? []);
+  }, [task.id, task.title, task.description, task.attachments]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -112,6 +142,48 @@ export default function TaskDetailModal({
     el.style.height = 'auto';
     el.style.height = el.scrollHeight + 'px';
   }, [description]);
+
+  const uploadFile = async (file: File) => {
+    setUploadError(null);
+    setUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('taskId', task.id);
+      const res = await fetch('/api/upload', { method: 'POST', body: formData });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Upload failed');
+      setAttachments((prev) => [...prev, data as TaskAttachmentData]);
+    } catch (err) {
+      setUploadError(err instanceof Error ? err.message : 'Upload failed');
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+    await uploadFile(file);
+  };
+
+  const handleDrop = async (e: React.DragEvent) => {
+    e.preventDefault();
+    setDragOver(false);
+    const file = e.dataTransfer.files?.[0];
+    if (!file) return;
+    await uploadFile(file);
+  };
+
+  const handleDeleteAttachment = async (id: string) => {
+    try {
+      await deleteAttachment(id);
+      setAttachments((prev) => prev.filter((a) => a.id !== id));
+    } catch {
+      // silently ignore — user can retry
+    }
+  };
 
   const commitTitle = () => {
     const trimmed = title.trim();
@@ -185,19 +257,102 @@ export default function TaskDetailModal({
 
         {/* Body */}
         <div className="grid grid-cols-1 md:grid-cols-[1fr_280px] gap-6 px-6 py-6">
-          {/* Left: description */}
-          <div>
-            <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-2">
-              Description
+          {/* Left: description + attachments */}
+          <div className="space-y-5">
+            <div>
+              <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-2">
+                Description
+              </div>
+              <textarea
+                ref={descRef}
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                onBlur={commitDescription}
+                placeholder="Add a description…"
+                className="w-full min-h-[120px] bg-white/[0.04] border border-border rounded-xl px-3 py-2.5 text-sm text-foreground placeholder-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring/20 resize-none transition-all"
+              />
             </div>
-            <textarea
-              ref={descRef}
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              onBlur={commitDescription}
-              placeholder="Add a description…"
-              className="w-full min-h-[120px] bg-white/[0.04] border border-border rounded-xl px-3 py-2.5 text-sm text-foreground placeholder-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring/20 resize-none transition-all"
-            />
+
+            {/* Attachments */}
+            <div>
+              <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-2">
+                Attachments {attachments.length > 0 && <span className="normal-case font-normal">({attachments.length})</span>}
+              </div>
+
+              {/* Drop zone */}
+              <div
+                onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+                onDragLeave={() => setDragOver(false)}
+                onDrop={handleDrop}
+                onClick={() => !uploading && fileInputRef.current?.click()}
+                className={`relative flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed px-4 py-6 cursor-pointer transition-colors
+                  ${dragOver
+                    ? 'border-primary/60 bg-primary/5'
+                    : 'border-border/60 hover:border-border hover:bg-white/[0.03]'
+                  }
+                  ${uploading ? 'pointer-events-none opacity-60' : ''}
+                `}
+              >
+                <Paperclip className={`w-5 h-5 ${dragOver ? 'text-primary' : 'text-muted-foreground'}`} />
+                <div className="text-center">
+                  <p className="text-sm text-muted-foreground">
+                    {uploading
+                      ? 'Uploading…'
+                      : dragOver
+                      ? 'Drop file here'
+                      : 'Drag & drop a file here, or click to browse'}
+                  </p>
+                  <p className="text-[11px] text-muted-foreground/50 mt-0.5">Max 10 MB</p>
+                </div>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  className="hidden"
+                  onChange={handleFileChange}
+                />
+              </div>
+
+              {uploadError && (
+                <p className="text-xs text-red-400 mt-2">{uploadError}</p>
+              )}
+
+              {/* File list */}
+              {attachments.length > 0 && (
+                <div className="space-y-1.5 mt-3">
+                  {attachments.map((a) => (
+                    <div
+                      key={a.id}
+                      className="flex items-center gap-2.5 px-3 py-2 rounded-lg bg-white/[0.04] border border-border group"
+                    >
+                      <span className="text-muted-foreground">
+                        <FileIcon mimeType={a.mimeType} />
+                      </span>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm text-foreground truncate">{a.fileName}</p>
+                        <p className="text-[11px] text-muted-foreground">{formatBytes(a.fileSize)}</p>
+                      </div>
+                      <a
+                        href={a.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-muted-foreground hover:text-foreground p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity"
+                        title="Download"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <Download className="w-3.5 h-3.5" />
+                      </a>
+                      <button
+                        onClick={() => handleDeleteAttachment(a.id)}
+                        className="text-muted-foreground hover:text-red-400 p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity"
+                        title="Remove attachment"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Right: properties */}

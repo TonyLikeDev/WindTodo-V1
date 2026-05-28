@@ -12,6 +12,7 @@
   "dependencies": {
     "@next/third-parties": "^16.2.6",
     "@prisma/client": "^6.19.3",
+    "@vercel/blob": "^2.4.0",
     "better-auth": "^1.6.11",
     "lucide-react": "^1.14.0",
     "next": "16.2.6",

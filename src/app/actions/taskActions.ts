@@ -45,7 +45,7 @@ async function loadTaskForUser(taskId: string, userId: string) {
   })
 }
 
-const TASK_INCLUDE = { creator: true, assignee: true } as const
+const TASK_INCLUDE = { creator: true, assignee: true, attachments: { orderBy: { createdAt: 'asc' as const } } } as const
 
 // Every task in the project (across every BoardList) with its parent list info,
 // for the roadmap timeline. Caller is responsible for filtering to ones with

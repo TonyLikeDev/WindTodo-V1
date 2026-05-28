@@ -21,12 +21,13 @@ model User {
   updatedAt     DateTime  @updatedAt
 
   // App relations
-  createdTasks    Task[]          @relation("TaskCreator")
-  assignedTasks   Task[]          @relation("TaskAssignee")
+  createdTasks    Task[]           @relation("TaskCreator")
+  assignedTasks   Task[]           @relation("TaskAssignee")
   memberProjects  ProjectMember[]
-  createdProjects Project[]       @relation("ProjectCreator")
-  lists           BoardList[]     @relation("ListCreator")
+  createdProjects Project[]        @relation("ProjectCreator")
+  lists           BoardList[]      @relation("ListCreator")
   initiatives     Initiative[]
+  attachments     TaskAttachment[]
 
   // Better Auth relations
   sessions Session[]
@@ -76,31 +77,47 @@ model Verification {
 // ─── App models ───────────────────────────────────────────────────────────────
 
 model Task {
-  id           String       @id @default(uuid())
+  id           String           @id @default(uuid())
   title        String
   description  String?
   userId       String
-  creator      User         @relation("TaskCreator", fields: [userId], references: [id])
+  creator      User             @relation("TaskCreator", fields: [userId], references: [id])
   assigneeId   String?
-  assignee     User?        @relation("TaskAssignee", fields: [assigneeId], references: [id])
+  assignee     User?            @relation("TaskAssignee", fields: [assigneeId], references: [id])
   listId       String
-  list         BoardList    @relation(fields: [listId], references: [id], onDelete: Cascade)
+  list         BoardList        @relation(fields: [listId], references: [id], onDelete: Cascade)
   sprintId     String?
-  sprint       Sprint?      @relation(fields: [sprintId], references: [id], onDelete: SetNull)
+  sprint       Sprint?          @relation(fields: [sprintId], references: [id], onDelete: SetNull)
   initiativeId String?
-  initiative   Initiative?  @relation(fields: [initiativeId], references: [id])
-  position     Int          @default(0)
-  status       TaskStatus   @default(TODO)
-  priority     TaskPriority @default(MEDIUM)
-  type         TaskType     @default(TASK)
+  initiative   Initiative?      @relation(fields: [initiativeId], references: [id])
+  position     Int              @default(0)
+  status       TaskStatus       @default(TODO)
+  priority     TaskPriority     @default(MEDIUM)
+  type         TaskType         @default(TASK)
   startDate    DateTime?
   endDate      DateTime?
-  createdAt    DateTime     @default(now())
+  createdAt    DateTime         @default(now())
+  attachments  TaskAttachment[]
 
   @@index([userId, listId])
   @@index([listId, position])
   @@index([sprintId])
   @@index([initiativeId])
+}
+
+model TaskAttachment {
+  id        String   @id @default(uuid())
+  taskId    String
+  task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  url       String
+  fileName  String
+  fileSize  Int
+  mimeType  String
+  createdAt DateTime @default(now())
+
+  @@index([taskId])
 }
 
 model Project {
