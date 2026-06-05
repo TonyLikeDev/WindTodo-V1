@@ -4,9 +4,11 @@ import { memo, useEffect, useMemo, useRef, useState } from 'react';
 import useSWR from 'swr';
 import { createTask, deleteTask, getTasks, updateTask } from '@/app/actions/taskActions';
 import { useBoardDrag } from './BoardDragContext';
-import { User, Trash2, MoreHorizontal, Plus, ChevronDown } from 'lucide-react';
+import { User, Trash2, MoreHorizontal, Plus, ChevronDown, ChevronRight, CheckSquare, Square } from 'lucide-react';
 import TaskDetailModal, { TaskPatch } from './TaskDetailModal';
 import { playCelestialChime } from './EffectsCanvas';
+import { useConfirm } from './ConfirmDialog';
+import { parseSubtasks, subtaskProgress, toggleSubtask } from '@/lib/subtasks';
 
 type UserProfile = {
   id: string;
@@ -110,6 +112,8 @@ const BoardColumn = memo(function BoardColumn({
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const [openTaskId, setOpenTaskId] = useState<string | null>(null);
+  const [expandedSubtasks, setExpandedSubtasks] = useState<Set<string>>(new Set());
+  const { confirm, confirmDialog } = useConfirm();
   const [renaming, setRenaming] = useState(isDraft);
   const [renameValue, setRenameValue] = useState(isDraft ? '' : title);
   const renameInputRef = useRef<HTMLInputElement>(null);
@@ -226,6 +230,47 @@ const BoardColumn = memo(function BoardColumn({
   const remove = async (id: string) => {
     mutate(tasks.filter((t) => t.id !== id), false);
     await deleteTask(id);
+    mutate();
+  };
+
+  const requestRemoveTask = async (id: string) => {
+    const target = tasks.find((t) => t.id === id);
+    const ok = await confirm({
+      title: 'Delete task?',
+      message: target
+        ? `"${target.title}" will be permanently removed. This can't be undone.`
+        : "This task will be permanently removed. This can't be undone.",
+      confirmLabel: 'Delete',
+      danger: true,
+    });
+    if (ok) remove(id);
+  };
+
+  const requestRemoveList = async () => {
+    const ok = await confirm({
+      title: 'Delete list?',
+      message: `"${title}" and all of its tasks will be permanently removed. This can't be undone.`,
+      confirmLabel: 'Delete list',
+      danger: true,
+    });
+    if (ok) onRemoveList?.();
+  };
+
+  const toggleSubtaskExpanded = (taskId: string) => {
+    setExpandedSubtasks((prev) => {
+      const next = new Set(prev);
+      if (next.has(taskId)) next.delete(taskId);
+      else next.add(taskId);
+      return next;
+    });
+  };
+
+  const toggleCardSubtask = async (taskId: string, lineIndex: number, checked: boolean) => {
+    const target = tasks.find((t) => t.id === taskId);
+    if (!target?.description) return;
+    const nextDesc = toggleSubtask(target.description, lineIndex, checked);
+    mutate(tasks.map((t) => (t.id === taskId ? { ...t, description: nextDesc } : t)), false);
+    await updateTask(taskId, { description: nextDesc });
     mutate();
   };
 
@@ -385,7 +430,7 @@ const BoardColumn = memo(function BoardColumn({
                   <button
                     onClick={() => {
                       setMenuOpen(false);
-                      onRemoveList();
+                      requestRemoveList();
                     }}
                     className="flex items-center gap-2 w-full text-left px-3 py-2 text-xs text-red-400 hover:bg-red-500/10 transition-colors border-t border-white/20 dark:border-white/5"
                   >
@@ -481,12 +526,68 @@ const BoardColumn = memo(function BoardColumn({
                       </div>
                       <button
                         onPointerDown={(e) => e.stopPropagation()}
-                        onClick={() => remove(t.id)}
+                        onClick={() => requestRemoveTask(t.id)}
                         className="opacity-0 group-hover/card:opacity-100 text-muted-foreground/70 hover:text-red-400 transition-all flex-shrink-0 mt-0.5"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
                     </div>
+
+                    {/* Subtasks: dropdown arrow + checklist parsed from the description */}
+                    {(() => {
+                      const { done, total } = subtaskProgress(t.description);
+                      if (total === 0) return null;
+                      const expanded = expandedSubtasks.has(t.id);
+                      const allDone = done === total;
+                      return (
+                        <div className="-mt-0.5">
+                          <button
+                            type="button"
+                            onPointerDown={(e) => e.stopPropagation()}
+                            onClick={() => toggleSubtaskExpanded(t.id)}
+                            className="flex items-center gap-1 text-[11px] font-bold text-muted-foreground hover:text-foreground transition-colors"
+                            aria-expanded={expanded}
+                            title={expanded ? 'Hide subtasks' : 'Show subtasks'}
+                          >
+                            <ChevronRight
+                              className={`w-3.5 h-3.5 transition-transform ${expanded ? 'rotate-90' : ''}`}
+                            />
+                            <CheckSquare className="w-3 h-3" />
+                            <span className={allDone ? 'text-green-500' : ''}>
+                              {done}/{total}
+                            </span>
+                          </button>
+                          {expanded && (
+                            <div className="mt-1 ml-1.5 space-y-0.5 border-l border-white/15 dark:border-white/10 pl-2">
+                              {parseSubtasks(t.description).map((s) => (
+                                <button
+                                  key={s.lineIndex}
+                                  type="button"
+                                  onPointerDown={(e) => e.stopPropagation()}
+                                  onClick={() => toggleCardSubtask(t.id, s.lineIndex, !s.checked)}
+                                  className="flex items-start gap-1.5 w-full text-left py-0.5 group/sub"
+                                >
+                                  {s.checked ? (
+                                    <CheckSquare className="w-3.5 h-3.5 text-primary flex-shrink-0 mt-[1px]" />
+                                  ) : (
+                                    <Square className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0 mt-[1px] group-hover/sub:text-foreground transition-colors" />
+                                  )}
+                                  <span
+                                    className={`text-[12px] leading-snug break-words ${
+                                      s.checked
+                                        ? 'line-through text-muted-foreground'
+                                        : 'text-foreground/90'
+                                    }`}
+                                  >
+                                    {s.label || 'Untitled subtask'}
+                                  </span>
+                                </button>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })()}
 
                     {/* Footer: assignee + assign selector */}
                     <div className="flex items-center justify-between gap-2">
@@ -612,6 +713,7 @@ const BoardColumn = memo(function BoardColumn({
         }}
       />
     )}
+    {confirmDialog}
     </>
   );
 });

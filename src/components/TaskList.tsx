@@ -14,6 +14,7 @@ import useSWR from 'swr';
 import { playCelestialChime } from './EffectsCanvas';
 import { Inbox, Plus, Trash2 } from 'lucide-react';
 import EmptyState from './EmptyState';
+import { useConfirm } from './ConfirmDialog';
 
 type Task = {
   id: string;
@@ -38,6 +39,7 @@ export default function TaskList({ title, listId, placeholder, bgColor }: { titl
   const [inputValue, setInputValue] = useState('');
   const inputRef = useRef<HTMLInputElement | null>(null);
   const isVirtual = VIRTUAL_LISTS.has(listId);
+  const { confirm, confirmDialog } = useConfirm();
 
   const { data: tasks = [], mutate, isLoading } = useSWR<Task[]>(
     listId,
@@ -103,6 +105,19 @@ export default function TaskList({ title, listId, placeholder, bgColor }: { titl
     mutate();
   };
 
+  const requestRemoveTask = async (id: string) => {
+    const target = tasks.find(t => t.id === id);
+    const ok = await confirm({
+      title: 'Delete task?',
+      message: target
+        ? `"${target.title}" will be permanently removed. This can't be undone.`
+        : "This task will be permanently removed. This can't be undone.",
+      confirmLabel: 'Delete',
+      danger: true,
+    });
+    if (ok) handleRemoveTask(id);
+  };
+
   if (isLoading) {
     return (
       <GlassCard className="flex flex-col h-full min-h-[300px] animate-pulse">
@@ -124,6 +139,7 @@ export default function TaskList({ title, listId, placeholder, bgColor }: { titl
   }
 
   return (
+    <>
     <GlassCard className="flex flex-col h-full transition-all duration-300 group/list" style={bgColor ? { background: bgColor } : undefined}>
       <div className="flex items-center justify-between mb-6">
         <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
@@ -181,7 +197,7 @@ export default function TaskList({ title, listId, placeholder, bgColor }: { titl
                 </div>
               </div>
               <button
-                onClick={() => handleRemoveTask(task.id)}
+                onClick={() => requestRemoveTask(task.id)}
                 className="opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-red-500 transition-all p-1"
               >
                 <Trash2 className="w-4 h-4" />
@@ -247,5 +263,7 @@ export default function TaskList({ title, listId, placeholder, bgColor }: { titl
         </div>
       </div>
     </GlassCard>
+    {confirmDialog}
+    </>
   );
 }

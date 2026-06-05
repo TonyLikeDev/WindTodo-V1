@@ -13,6 +13,7 @@ import {
 } from '@/app/actions/projectActions';
 import { getAuthUser } from '@/app/actions/userActions';
 import { PROJECT_TEMPLATES, type ProjectTemplate } from '@/lib/projectTemplates';
+import { useConfirm } from './ConfirmDialog';
 
 const TEMPLATE_ICON: Record<string, typeof User> = {
   personal: User,
@@ -42,6 +43,7 @@ export default function ProjectsSection() {
     dedupingInterval: 60000,
   });
   const [open, setOpen] = useState(false);
+  const { confirm, confirmDialog } = useConfirm();
 
   const handleCreate = async (name: string, color: string) => {
     setOpen(false);
@@ -75,11 +77,23 @@ export default function ProjectsSection() {
     e.stopPropagation();
 
     const isOwner = me?.id === project.userId;
-    const message = isOwner
-      ? 'Are you sure you want to delete this project? All lists and tasks will be permanently removed.'
-      : 'Leave this project? You will lose access until an admin invites you back.';
+    const ok = await confirm(
+      isOwner
+        ? {
+            title: 'Delete project?',
+            message: `"${project.name}" and all of its lists and tasks will be permanently removed. This can't be undone.`,
+            confirmLabel: 'Delete project',
+            danger: true,
+          }
+        : {
+            title: 'Leave project?',
+            message: `You'll lose access to "${project.name}" until an admin invites you back.`,
+            confirmLabel: 'Leave',
+            danger: true,
+          },
+    );
 
-    if (confirm(message)) {
+    if (ok) {
       mutate(projects.filter(p => p.id !== project.id), false);
       await deleteProject(project.id);
       mutate();
@@ -204,6 +218,7 @@ export default function ProjectsSection() {
       </button>
 
       <AddProjectModal open={open} onClose={() => setOpen(false)} onCreate={handleCreate} />
+      {confirmDialog}
     </>
   );
 }

@@ -2,8 +2,10 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { Trash2, X, User as UserIcon, Flag, Layers, CircleDot, Calendar, Paperclip, FileText, Image as ImageIcon, FileArchive, Download } from 'lucide-react';
+import { Trash2, X, User as UserIcon, Flag, Layers, CircleDot, Calendar, Paperclip, FileText, Image as ImageIcon, FileArchive, Download, CheckSquare, Square, Plus } from 'lucide-react';
 import { deleteAttachment } from '@/app/actions/attachmentActions';
+import { useConfirm } from './ConfirmDialog';
+import { addSubtask, parseSubtasks, toggleSubtask } from '@/lib/subtasks';
 
 export type TaskPriority = 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
 export type TaskType = 'TASK' | 'STORY' | 'BUG';
@@ -114,6 +116,7 @@ export default function TaskDetailModal({
 }) {
   const [title, setTitle] = useState(task.title);
   const [description, setDescription] = useState(task.description ?? '');
+  const [newSubtask, setNewSubtask] = useState('');
   const [attachments, setAttachments] = useState<TaskAttachmentData[]>(task.attachments ?? []);
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
@@ -121,6 +124,10 @@ export default function TaskDetailModal({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const titleRef = useRef<HTMLInputElement>(null);
   const descRef = useRef<HTMLTextAreaElement>(null);
+  const { confirm, confirmDialog } = useConfirm();
+
+  const subtasks = parseSubtasks(description);
+  const subtaskDone = subtasks.filter((s) => s.checked).length;
 
   useEffect(() => {
     setTitle(task.title);
@@ -200,7 +207,36 @@ export default function TaskDetailModal({
     onChange({ description: next });
   };
 
+  // Subtasks live inside the description text — update local state for instant
+  // feedback and persist through the same description field.
+  const applyDescription = (next: string) => {
+    setDescription(next);
+    onChange({ description: next.trim() ? next : null });
+  };
+
+  const handleToggleSubtask = (lineIndex: number, checked: boolean) => {
+    applyDescription(toggleSubtask(description, lineIndex, checked));
+  };
+
+  const handleAddSubtask = () => {
+    const label = newSubtask.trim();
+    if (!label) return;
+    applyDescription(addSubtask(description, label));
+    setNewSubtask('');
+  };
+
+  const handleDelete = async () => {
+    const ok = await confirm({
+      title: 'Delete task?',
+      message: `"${task.title}" will be permanently removed. This can't be undone.`,
+      confirmLabel: 'Delete',
+      danger: true,
+    });
+    if (ok) onDelete();
+  };
+
   return (
+    <>
     <div
       className="fixed inset-0 z-[300] flex items-start justify-center bg-black/60 backdrop-blur-sm p-4 overflow-y-auto animate-bubble-fade"
       onPointerDown={(e) => {
@@ -239,7 +275,7 @@ export default function TaskDetailModal({
           </div>
           <div className="flex items-center gap-1 ml-4 flex-shrink-0">
             <button
-              onClick={onDelete}
+              onClick={handleDelete}
               className="text-muted-foreground hover:text-red-400 hover:bg-red-500/10 p-2 rounded-lg transition-colors"
               title="Delete task"
             >
@@ -268,9 +304,85 @@ export default function TaskDetailModal({
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 onBlur={commitDescription}
-                placeholder="Add a description…"
+                placeholder="Add a description…  Tip: type [] to start a subtask."
                 className="w-full min-h-[120px] bg-white/[0.04] border border-border rounded-xl px-3 py-2.5 text-sm text-foreground placeholder-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring/20 resize-none transition-all"
               />
+            </div>
+
+            {/* Subtasks (checklist parsed from the description) */}
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+                  Subtasks {subtasks.length > 0 && (
+                    <span className="normal-case font-normal">({subtaskDone}/{subtasks.length})</span>
+                  )}
+                </div>
+              </div>
+
+              {subtasks.length > 0 && (
+                <>
+                  <div className="mb-2 h-1.5 w-full rounded-full bg-white/10 overflow-hidden">
+                    <div
+                      className="h-full bg-primary transition-all duration-300"
+                      style={{ width: `${(subtaskDone / subtasks.length) * 100}%` }}
+                    />
+                  </div>
+                  <div className="space-y-0.5 mb-2">
+                    {subtasks.map((s) => (
+                      <div
+                        key={s.lineIndex}
+                        className="flex items-start gap-2 px-2 py-1.5 rounded-lg hover:bg-white/[0.04] transition-colors"
+                      >
+                        <button
+                          type="button"
+                          onClick={() => handleToggleSubtask(s.lineIndex, !s.checked)}
+                          className="mt-[1px] flex-shrink-0 text-muted-foreground hover:text-primary transition-colors"
+                          aria-label={s.checked ? 'Mark incomplete' : 'Mark complete'}
+                        >
+                          {s.checked ? (
+                            <CheckSquare className="w-4 h-4 text-primary" />
+                          ) : (
+                            <Square className="w-4 h-4" />
+                          )}
+                        </button>
+                        <span
+                          className={`text-sm flex-1 break-words ${
+                            s.checked ? 'line-through text-muted-foreground' : 'text-foreground'
+                          }`}
+                        >
+                          {s.label || (
+                            <span className="italic text-muted-foreground/60">Untitled subtask</span>
+                          )}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
+
+              <div className="flex items-center gap-2">
+                <input
+                  value={newSubtask}
+                  onChange={(e) => setNewSubtask(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      handleAddSubtask();
+                    }
+                  }}
+                  placeholder="Add a subtask…"
+                  className="flex-1 bg-white/[0.04] border border-border rounded-lg px-3 py-1.5 text-sm text-foreground placeholder-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring/20 transition-all"
+                />
+                <button
+                  type="button"
+                  onClick={handleAddSubtask}
+                  disabled={!newSubtask.trim()}
+                  className="flex items-center gap-1 px-3 py-1.5 text-xs font-bold rounded-lg bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  Add
+                </button>
+              </div>
             </div>
 
             {/* Attachments */}
@@ -442,6 +554,8 @@ export default function TaskDetailModal({
         </div>
       </div>
     </div>
+    {confirmDialog}
+    </>
   );
 }
 
