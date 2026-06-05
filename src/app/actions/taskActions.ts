@@ -160,7 +160,7 @@ export async function createMyTaskInProject(title: string, projectId: string) {
     include: TASK_INCLUDE,
   })
 
-  revalidatePath('/')
+  revalidatePath('/dashboard', 'layout')
   return task
 }
 
@@ -195,7 +195,7 @@ export async function createTask(title: string, listId: string, assigneeId?: str
     include: TASK_INCLUDE,
   })
 
-  revalidatePath('/')
+  revalidatePath('/dashboard', 'layout')
   return task
 }
 
@@ -224,7 +224,7 @@ export async function updateTask(taskId: string, data: {
     include: TASK_INCLUDE,
   })
 
-  revalidatePath('/')
+  revalidatePath('/dashboard', 'layout')
   return task
 }
 
@@ -299,7 +299,7 @@ export async function moveTask(
     }
   })
 
-  revalidatePath('/')
+  revalidatePath('/dashboard', 'layout')
 }
 
 export async function deleteTask(taskId: string) {
@@ -307,7 +307,7 @@ export async function deleteTask(taskId: string) {
   const existing = await loadTaskForUser(taskId, userId)
   if (!existing) return
   await prisma.task.delete({ where: { id: taskId } })
-  revalidatePath('/')
+  revalidatePath('/dashboard', 'layout')
 }
 
 // Returns all tasks (with startDate or endDate) accessible to the current user,

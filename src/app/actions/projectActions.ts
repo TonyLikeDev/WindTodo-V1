@@ -179,6 +179,53 @@ export async function getBoardLists(projectId: string) {
   })
 }
 
+// One round-trip fetch of everything the Kanban board needs on first paint:
+// the project list (header + membership), this board's lists, and every task
+// grouped by list. Used to server-render the board and seed the SWR cache so
+// the client renders with data instead of waterfalling N+ separate requests
+// (getProjects + getBoardLists + one getTasks per column) after hydration.
+//
+// The task `include` mirrors getTasks (taskActions.ts) exactly so the seeded
+// SWR entries are shape-identical to what a later revalidation returns.
+export async function getProjectBoardData(projectId: string) {
+  const user = await getAuthUser()
+  if (!user) return null
+
+  // Single access check for the whole board (vs. one per server action before).
+  const access = await prisma.project.findFirst({
+    where: {
+      id: projectId,
+      OR: [{ userId: user.id }, { members: { some: { userId: user.id } } }],
+    },
+    select: { id: true },
+  })
+  if (!access) return null
+
+  const [projects, lists, tasks] = await Promise.all([
+    getProjects(), // cache()-deduped; includes members + _count.lists
+    prisma.boardList.findMany({
+      where: { projectId },
+      orderBy: [{ position: 'asc' }, { createdAt: 'asc' }],
+    }),
+    prisma.task.findMany({
+      where: { list: { projectId } },
+      include: {
+        creator: true,
+        assignee: true,
+        attachments: { orderBy: { createdAt: 'asc' } },
+      },
+      orderBy: [{ position: 'asc' }, { createdAt: 'asc' }],
+    }),
+  ])
+
+  // Seed every list (even empty ones) so each column hydrates without a fetch.
+  const tasksByListId: Record<string, typeof tasks> = {}
+  for (const l of lists) tasksByListId[l.id] = []
+  for (const t of tasks) (tasksByListId[t.listId] ??= []).push(t)
+
+  return { authUser: user, projects, lists, tasksByListId }
+}
+
 export async function createBoardList(
   projectId: string,
   name: string,

@@ -21,9 +21,14 @@ function localStorageProvider() {
   }
 
   // Persist relevant keys before the page unloads so the next visit is instant.
+  // Besides the stable whitelist, persist every project board's lists
+  // (`board:<projectId>`) so returning to a board renders columns immediately.
   window.addEventListener('beforeunload', () => {
     try {
-      const entries = [...map.entries()].filter(([k]) => PERSIST_KEYS.has(k as string))
+      const entries = [...map.entries()].filter(([k]) => {
+        const key = k as string
+        return PERSIST_KEYS.has(key) || key.startsWith('board:')
+      })
       localStorage.setItem(STORAGE_KEY, JSON.stringify(entries))
     } catch { /* ignore QuotaExceededError */ }
   })

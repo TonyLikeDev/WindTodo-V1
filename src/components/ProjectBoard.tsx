@@ -70,7 +70,6 @@ export default function ProjectBoard({ projectId }: { projectId: string }) {
     () => getProjects() as unknown as Promise<Project[]>,
     { revalidateOnFocus: false, dedupingInterval: 10000 }
   );
-  const { data: allUsers = [] } = useSWR('users', getAllUsers, { revalidateOnFocus: false, dedupingInterval: 60000 });
   const { data: me } = useSWR('auth-user', getAuthUser, { revalidateOnFocus: false, dedupingInterval: 60000 });
   
   const { data: lists = [], mutate, isLoading: listsLoading } = useSWR<BoardList[]>(
@@ -80,6 +79,9 @@ export default function ProjectBoard({ projectId }: { projectId: string }) {
   );
   const [draft, setDraft] = useState<{ id: string; color: string; index: number } | null>(null);
   const [showMemberModal, setShowMemberModal] = useState(false);
+  // The full user list is only needed for the Share modal's invite search, so
+  // don't fetch it on every board load — fetch lazily when the modal opens.
+  const { data: allUsers = [] } = useSWR(showMemberModal ? 'users' : null, getAllUsers, { revalidateOnFocus: false, dedupingInterval: 60000 });
   const [shareInput, setShareInput] = useState('');
   const [inviteRole, setInviteRole] = useState<'member' | 'admin'>('member');
   const [shareError, setShareError] = useState<string | null>(null);
