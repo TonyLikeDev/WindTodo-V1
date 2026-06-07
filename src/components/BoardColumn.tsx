@@ -74,6 +74,7 @@ const BoardColumn = memo(function BoardColumn({
   title,
   color,
   members = [],
+  initialTasks,
   onRemoveList,
   onRename,
   onChangeColor,
@@ -88,6 +89,7 @@ const BoardColumn = memo(function BoardColumn({
   title: string;
   color: string;
   members?: UserProfile[];
+  initialTasks?: unknown[];
   onRemoveList?: () => void;
   onRename?: (newName: string) => void;
   onChangeColor?: (color: string) => void;
@@ -104,6 +106,14 @@ const BoardColumn = memo(function BoardColumn({
     {
       revalidateOnFocus: false,
       dedupingInterval: 5000,
+      // Seed from server-rendered data so the column paints instantly. When seed
+      // data is present, skip the on-mount revalidation — getTasks is a Server
+      // Action and Next.js runs them serially, so N columns refetching on mount
+      // made the columns appear one-by-one. Columns without a seed (e.g. a list
+      // created after load) still fetch normally.
+      fallbackData: initialTasks as Task[] | undefined,
+      revalidateIfStale: initialTasks === undefined,
+      revalidateOnMount: initialTasks === undefined ? undefined : false,
     }
   );
   const [adding, setAdding] = useState(false);

@@ -56,6 +56,17 @@ type BoardList = {
   createdAt: Date;
 };
 
+// Server-seeded board data (from getProjectBoardData), passed down so each
+// SWR hook can render from it instantly via `fallbackData` — no per-column
+// fetch-on-mount (those are serialized server actions and appear one-by-one).
+export type InitialBoardData = {
+  projects: Project[];
+  lists: BoardList[];
+  // tasks per list — typed loosely here; BoardColumn casts to its Task shape.
+  tasksByListId: Record<string, unknown[]>;
+  authUser: UserProfile | null;
+} | null;
+
 const AVATAR_PALETTE = ['#8b5cf6', '#ec4899', '#f59e0b', '#10b981', '#3b82f6', '#ef4444', '#06b6d4', '#a855f7'];
 function avatarBgFor(id: string): string {
   let h = 0;
@@ -63,19 +74,26 @@ function avatarBgFor(id: string): string {
   return AVATAR_PALETTE[h % AVATAR_PALETTE.length];
 }
 
-export default function ProjectBoard({ projectId }: { projectId: string }) {
+export default function ProjectBoard({ projectId, initialBoard }: { projectId: string; initialBoard?: InitialBoardData }) {
   const { resolvedTheme } = useTheme();
   const { data: projects = [], mutate: mutateProjects, isLoading: projectsLoading } = useSWR<Project[]>(
     'projects',
     () => getProjects() as unknown as Promise<Project[]>,
-    { revalidateOnFocus: false, dedupingInterval: 10000 }
+    { revalidateOnFocus: false, dedupingInterval: 10000, fallbackData: initialBoard?.projects }
   );
   const { data: me } = useSWR('auth-user', getAuthUser, { revalidateOnFocus: false, dedupingInterval: 60000 });
-  
+
   const { data: lists = [], mutate, isLoading: listsLoading } = useSWR<BoardList[]>(
     `board:${projectId}`,
     () => getBoardLists(projectId),
-    { revalidateOnFocus: false, dedupingInterval: 5000 }
+    {
+      revalidateOnFocus: false,
+      dedupingInterval: 5000,
+      fallbackData: initialBoard?.lists,
+      // Skip on-mount refetch when server-seeded (see BoardColumn note).
+      revalidateIfStale: !initialBoard?.lists,
+      revalidateOnMount: initialBoard?.lists ? false : undefined,
+    }
   );
   const [draft, setDraft] = useState<{ id: string; color: string; index: number } | null>(null);
   const [showMemberModal, setShowMemberModal] = useState(false);
@@ -618,6 +636,7 @@ export default function ProjectBoard({ projectId }: { projectId: string }) {
                           title={l.name}
                           color={l.color}
                           members={memberUsers}
+                          initialTasks={initialBoard?.tasksByListId?.[l.id]}
                           onRemoveList={() => handleRemoveList(l.id)}
                           onRename={(name) => handleRenameList(l.id, name)}
                           onChangeColor={(c) => handleChangeListColor(l.id, c)}

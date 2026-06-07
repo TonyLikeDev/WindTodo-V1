@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import useSWR from 'swr';
 import { Map, Columns3, List, LayoutGrid, X } from 'lucide-react';
 import dynamic from 'next/dynamic';
-import ProjectBoard from './ProjectBoard';
+import ProjectBoard, { type InitialBoardData } from './ProjectBoard';
 import ProjectTipsBubble from './ProjectTipsBubble';
 
 // Lazy-load non-default views — only Kanban is shown on first render
@@ -25,12 +25,12 @@ const VIEW_OPTIONS: { id: ViewMode; label: string; Icon: typeof Map }[] = [
   { id: 'backlog', label: 'Backlog', Icon: List },
 ];
 
-export default function ProjectViewSwitcher({ projectId }: { projectId: string }) {
+export default function ProjectViewSwitcher({ projectId, initialBoard }: { projectId: string; initialBoard?: InitialBoardData }) {
   const [view, setView] = useState<ViewMode>('kanban');
 
   return (
     <div className="relative h-full w-full">
-      {view === 'kanban' && <ProjectBoard projectId={projectId} />}
+      {view === 'kanban' && <ProjectBoard projectId={projectId} initialBoard={initialBoard} />}
       {view === 'roadmap' && <RoadmapView projectId={projectId} />}
       {view === 'backlog' && <BacklogView projectId={projectId} />}
 
