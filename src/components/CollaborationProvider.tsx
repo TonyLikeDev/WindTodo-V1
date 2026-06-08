@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { LiveblocksProvider, RoomProvider, useMyPresence, useOthers, useBroadcastEvent, useEventListener } from '@liveblocks/react';
-import { mutate as globalMutate } from 'swr';
+import { useSWRConfig } from 'swr';
 
 export type Collaborator = {
   id: string;
@@ -10,12 +10,14 @@ export type Collaborator = {
   image: string | null;
   color: string;
   cursor: { x: number; y: number } | null;
+  draggingTaskId: string | null;
+  hoveredSlot: { listId: string; index: number } | null;
 };
 
 interface CollaborationContextType {
   isConfigured: boolean;
   others: Collaborator[];
-  updateMyPresence: (presence: { cursor: { x: number; y: number } | null }) => void;
+  updateMyPresence: (presence: Partial<Liveblocks['Presence']>) => void;
   broadcastBoardUpdate: (type: 'LISTS' | 'TASKS', payload: any) => void;
 }
 
@@ -30,6 +32,8 @@ declare global {
   interface Liveblocks {
     Presence: {
       cursor: { x: number; y: number } | null;
+      draggingTaskId: string | null;
+      hoveredSlot: { listId: string; index: number } | null;
     };
     RoomEvent:
       | { type: 'MUTATE_LISTS'; projectId: string }
@@ -47,7 +51,7 @@ export function CollaborationProvider({ children, projectId, isConfigured }: Col
   if (isConfigured) {
     return (
       <LiveblocksProvider authEndpoint="/api/liveblocks-auth">
-        <RoomProvider id={`project-${projectId}`} initialPresence={{ cursor: null }}>
+        <RoomProvider id={`project-${projectId}`} initialPresence={{ cursor: null, draggingTaskId: null, hoveredSlot: null }}>
           <LiveblocksInner projectId={projectId}>{children}</LiveblocksInner>
         </RoomProvider>
       </LiveblocksProvider>
@@ -63,6 +67,7 @@ function LiveblocksInner({ children, projectId }: { children: React.ReactNode; p
   const [myPresence, updateMyPresence] = useMyPresence();
   const rawOthers = useOthers();
   const broadcast = useBroadcastEvent();
+  const { mutate } = useSWRConfig();
 
   const others = rawOthers.map((o) => ({
     id: o.connectionId.toString(),
@@ -70,6 +75,8 @@ function LiveblocksInner({ children, projectId }: { children: React.ReactNode; p
     image: (o.info as any)?.image || null,
     color: (o.info as any)?.color || '#9333ea',
     cursor: o.presence.cursor || null,
+    draggingTaskId: o.presence.draggingTaskId || null,
+    hoveredSlot: o.presence.hoveredSlot || null,
   }));
 
   const broadcastBoardUpdate = (type: 'LISTS' | 'TASKS', payload: any) => {
@@ -82,10 +89,10 @@ function LiveblocksInner({ children, projectId }: { children: React.ReactNode; p
 
   useEventListener(({ event }) => {
     if (event.type === 'MUTATE_LISTS') {
-      globalMutate(`board:${event.projectId}`);
+      mutate(`board:${event.projectId}`);
     } else if (event.type === 'MUTATE_TASKS') {
       event.listIds.forEach((listId: string) => {
-        globalMutate(listId);
+        mutate(listId);
       });
     }
   });
@@ -119,6 +126,8 @@ function SimulatedCollaborationInner({ children }: { children: React.ReactNode }
       image: null,
       color: colors[i],
       cursor: null,
+      draggingTaskId: null,
+      hoveredSlot: null,
     }));
 
     setOthers(initialCollaborators);

@@ -474,16 +474,24 @@ const BoardColumn = memo(function BoardColumn({
             {visibleTasks.map((t, i) => {
               const isTemp = t.id.startsWith('temp-');
               const showLineAbove = isHoveredHere && hoveredSlot?.index === i;
+              const draggingCollab = collab?.others.find((o) => o.draggingTaskId === t.id);
+
+              const otherHover = collab?.others.find(
+                (o) => o.draggingTaskId && o.hoveredSlot?.listId === listId && o.hoveredSlot?.index === i
+              );
+              const activeShowLine = showLineAbove || !!otherHover;
+              const activeColor = otherHover ? otherHover.color : undefined;
+
               return (
                 <div key={t.id} className="relative group/card">
-                  <DropLine show={!!showLineAbove} />
+                  <DropLine show={!!activeShowLine} color={activeColor} />
                   <div
                     ref={(el) => {
                       if (el) cardRefs.current.set(t.id, el);
                       else cardRefs.current.delete(t.id);
                     }}
                     onPointerDown={(e) => {
-                      if (isTemp) return;
+                      if (isTemp || draggingCollab) return;
                       if (e.button !== 0) return;
                       if ((e.target as HTMLElement).closest('button, select, input')) return;
                       const element = e.currentTarget as HTMLElement;
@@ -521,9 +529,18 @@ const BoardColumn = memo(function BoardColumn({
                       window.addEventListener('pointercancel', onCancel);
                     }}
                     className={`bg-white/60 dark:bg-slate-900/40 backdrop-blur-md border border-white/20 dark:border-white/5 px-3 py-3 my-1 rounded-xl text-sm text-foreground flex flex-col gap-2.5 group transition-all duration-200 hover:bg-white/70 dark:hover:bg-slate-800/50 hover:border-white/30 dark:hover:border-white/10 hover:shadow-lg dark:hover:shadow-black/20 ${
-                      isTemp ? 'opacity-50 cursor-default' : 'cursor-grab active:cursor-grabbing'
+                      isTemp || draggingCollab ? 'opacity-50 cursor-default' : 'cursor-grab active:cursor-grabbing'
                     } ${t.status === 'DONE' ? 'opacity-60' : ''}`}
+                    style={draggingCollab ? { borderColor: draggingCollab.color, borderWidth: '2px' } : undefined}
                   >
+                    {draggingCollab && (
+                      <div
+                        className="absolute right-2 -top-2.5 px-1.5 py-0.5 text-[8px] font-bold text-white rounded shadow-sm whitespace-nowrap animate-pulse z-[20]"
+                        style={{ backgroundColor: draggingCollab.color }}
+                      >
+                        {draggingCollab.name} is moving
+                      </div>
+                    )}
                     {/* Task title row */}
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex items-start gap-2 flex-1 min-w-0">
@@ -654,12 +671,19 @@ const BoardColumn = memo(function BoardColumn({
                 </div>
               );
             })}
-            <DropLine
-              show={
-                !!isHoveredHere &&
-                hoveredSlot?.index === visibleTasks.length
-              }
-            />
+            {(() => {
+              const otherHoverAtEnd = collab?.others.find(
+                (o) => o.draggingTaskId && o.hoveredSlot?.listId === listId && o.hoveredSlot?.index === visibleTasks.length
+              );
+              const showLineBelow = (isHoveredHere && hoveredSlot?.index === visibleTasks.length) || !!otherHoverAtEnd;
+              const activeColor = otherHoverAtEnd ? otherHoverAtEnd.color : undefined;
+              return (
+                <DropLine
+                  show={!!showLineBelow}
+                  color={activeColor}
+                />
+              );
+            })()}
           </div>
         )}
       </div>
@@ -738,13 +762,14 @@ const BoardColumn = memo(function BoardColumn({
 
 export default BoardColumn;
 
-function DropLine({ show }: { show: boolean }) {
+function DropLine({ show, color }: { show: boolean; color?: string }) {
   return (
     <div
       aria-hidden
-      className={`h-0.5 rounded-full bg-primary/50 transition-all duration-300 ${
-        show ? 'opacity-100 my-2' : 'opacity-0 h-0 my-0'
-      }`}
+      className={`h-0.5 rounded-full transition-all duration-300 ${
+        color ? '' : 'bg-primary/50'
+      } ${show ? 'opacity-100 my-2' : 'opacity-0 h-0 my-0'}`}
+      style={color ? { backgroundColor: color } : undefined}
     />
   );
 }

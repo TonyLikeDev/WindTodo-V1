@@ -8,6 +8,7 @@ import {
   useRef,
   useState,
 } from 'react';
+import { useCollaboration } from './CollaborationProvider';
 
 export type DraggableTask = {
   id: string;
@@ -68,6 +69,7 @@ export function BoardDragProvider({
   const targetsRef = useRef<Map<string, DropTargetHandle>>(new Map());
   const [drag, setDrag] = useState<DragState | null>(null);
   const [hoveredSlot, setHoveredSlot] = useState<DropSlot | null>(null);
+  const collab = useCollaboration();
 
   const registerDropTarget = useCallback(
     (listId: string, handle: DropTargetHandle | null) => {
@@ -109,6 +111,7 @@ export function BoardDragProvider({
         height: rect.height,
       });
       setHoveredSlot(null);
+      collab?.updateMyPresence({ draggingTaskId: task.id });
 
       const onMove = (e: PointerEvent) => {
         setDrag((prev) =>
@@ -138,6 +141,7 @@ export function BoardDragProvider({
         document.body.style.cursor = '';
         setDrag(null);
         setHoveredSlot(null);
+        collab?.updateMyPresence({ draggingTaskId: null });
       };
 
       document.body.style.userSelect = 'none';
@@ -146,7 +150,7 @@ export function BoardDragProvider({
       window.addEventListener('pointerup', finish);
       window.addEventListener('pointercancel', cancel);
     },
-    [findSlotAt, onDrop],
+    [findSlotAt, onDrop, collab],
   );
 
   return (

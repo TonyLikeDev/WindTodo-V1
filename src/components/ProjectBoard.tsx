@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { MouseEvent as ReactMouseEvent, ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import useSWR, { mutate as globalMutate } from 'swr';
+import useSWR, { useSWRConfig } from 'swr';
 import BoardColumn, { DEFAULT_LIST_COLOR } from './BoardColumn';
 import { BoardDragProvider, DraggableTask } from './BoardDragContext';
 import { moveTask, updateTask } from '@/app/actions/taskActions';
@@ -122,6 +122,7 @@ export default function ProjectBoard({ projectId, initialBoard }: { projectId: s
   const lastDropIndexRef = useRef<number | null>(null);
   const collab = useCollaboration();
   const boardContentRef = useRef<HTMLDivElement>(null);
+  const { mutate: boundMutate } = useSWRConfig();
   const LIST_DRAG_THRESHOLD_PX = 6;
 
   const project = useMemo(
@@ -436,7 +437,7 @@ export default function ProjectBoard({ projectId, initialBoard }: { projectId: s
       const newStatus = targetList ? getStatusFromListName(targetList.name) : null;
 
       if (sourceListId === targetListId) {
-        globalMutate(
+        boundMutate(
           targetListId,
           (cur: DraggableTask[] = []) => {
             const without = cur.filter((t) => t.id !== task.id);
@@ -451,7 +452,7 @@ export default function ProjectBoard({ projectId, initialBoard }: { projectId: s
           false,
         );
       } else {
-        globalMutate(
+        boundMutate(
           sourceListId,
           (cur: DraggableTask[] = []) =>
             cur
@@ -459,7 +460,7 @@ export default function ProjectBoard({ projectId, initialBoard }: { projectId: s
               .map((t, i) => ({ ...t, position: i })),
           false,
         );
-        globalMutate(
+        boundMutate(
           targetListId,
           (cur: DraggableTask[] = []) => {
             const clamped = Math.max(0, Math.min(targetIndex, cur.length));
@@ -489,8 +490,8 @@ export default function ProjectBoard({ projectId, initialBoard }: { projectId: s
           await updateTask(task.id, { status: newStatus });
         }
       } finally {
-        globalMutate(sourceListId);
-        if (sourceListId !== targetListId) globalMutate(targetListId);
+        boundMutate(sourceListId);
+        if (sourceListId !== targetListId) boundMutate(targetListId);
         collab?.broadcastBoardUpdate('TASKS', { listIds: [sourceListId, targetListId] });
       }
     },
