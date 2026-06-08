@@ -3,6 +3,7 @@ import ProjectViewSwitcher from '@/components/ProjectViewSwitcher';
 import DashboardSWRProvider from '@/components/DashboardSWRProvider';
 import type { InitialBoardData } from '@/components/ProjectBoard';
 import { getProjectBoardData } from '@/app/actions/projectActions';
+import { CollaborationProvider } from '@/components/CollaborationProvider';
 
 // Server component: the layout chrome streams instantly while BoardLoader
 // fetches the whole board in ONE round trip and seeds the SWR cache, so the
@@ -41,6 +42,8 @@ async function BoardLoader({
     }
   }
 
+  const isConfigured = !!process.env.LIVEBLOCKS_SECRET_KEY;
+
   // Match the dashboard's proven structure: an OUTER provider establishes the
   // localStorage cache, and an INNER provider injects the server fallback.
   // Combining both on one SWRConfig left the per-list fallback unapplied on the
@@ -51,10 +54,12 @@ async function BoardLoader({
   // server data on first render instead of fetching one-by-one.
   return (
     <DashboardSWRProvider provideCache fallback={fallback}>
-      <ProjectViewSwitcher
-        projectId={projectId}
-        initialBoard={data as unknown as InitialBoardData}
-      />
+      <CollaborationProvider projectId={projectId} isConfigured={isConfigured}>
+        <ProjectViewSwitcher
+          projectId={projectId}
+          initialBoard={data as unknown as InitialBoardData}
+        />
+      </CollaborationProvider>
     </DashboardSWRProvider>
   );
 }

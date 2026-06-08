@@ -9,6 +9,7 @@ import TaskDetailModal, { TaskPatch } from './TaskDetailModal';
 import { playCelestialChime } from './EffectsCanvas';
 import { useConfirm } from './ConfirmDialog';
 import { parseSubtasks, subtaskProgress, toggleSubtask } from '@/lib/subtasks';
+import { useCollaboration } from './CollaborationProvider';
 
 type UserProfile = {
   id: string;
@@ -130,6 +131,7 @@ const BoardColumn = memo(function BoardColumn({
   const columnRef = useRef<HTMLDivElement>(null);
   const cardRefs = useRef<Map<string, HTMLDivElement>>(new Map());
   const { registerDropTarget, startDrag, draggingTaskId, hoveredSlot } = useBoardDrag();
+  const collab = useCollaboration();
 
   useEffect(() => {
     if (adding) inputRef.current?.focus();
@@ -209,6 +211,7 @@ const BoardColumn = memo(function BoardColumn({
     setValue('');
     await createTask(trimmed, listId);
     mutate();
+    collab?.broadcastBoardUpdate('TASKS', { listIds: [listId] });
   };
 
   const updateStatus = async (taskId: string, newStatus: 'TODO' | 'IN_PROGRESS' | 'DONE') => {
@@ -228,6 +231,7 @@ const BoardColumn = memo(function BoardColumn({
     mutate(tasks.map(t => t.id === taskId ? { ...t, status: newStatus } : t), false);
     await updateTask(taskId, { status: newStatus });
     mutate();
+    collab?.broadcastBoardUpdate('TASKS', { listIds: [listId] });
   };
 
   const assignTask = async (taskId: string, assigneeId: string | null) => {
@@ -235,12 +239,14 @@ const BoardColumn = memo(function BoardColumn({
     mutate(tasks.map(t => t.id === taskId ? { ...t, assigneeId, assignee } : t), false);
     await updateTask(taskId, { assigneeId });
     mutate();
+    collab?.broadcastBoardUpdate('TASKS', { listIds: [listId] });
   };
 
   const remove = async (id: string) => {
     mutate(tasks.filter((t) => t.id !== id), false);
     await deleteTask(id);
     mutate();
+    collab?.broadcastBoardUpdate('TASKS', { listIds: [listId] });
   };
 
   const requestRemoveTask = async (id: string) => {
@@ -282,6 +288,7 @@ const BoardColumn = memo(function BoardColumn({
     mutate(tasks.map((t) => (t.id === taskId ? { ...t, description: nextDesc } : t)), false);
     await updateTask(taskId, { description: nextDesc });
     mutate();
+    collab?.broadcastBoardUpdate('TASKS', { listIds: [listId] });
   };
 
   const patchTask = async (id: string, patch: TaskPatch) => {
@@ -311,6 +318,7 @@ const BoardColumn = memo(function BoardColumn({
     mutate(next, false);
     await updateTask(id, patch);
     mutate();
+    collab?.broadcastBoardUpdate('TASKS', { listIds: [listId] });
   };
 
   const isHoveredHere = !isDraft && hoveredSlot?.listId === listId;

@@ -18,7 +18,9 @@ import {
 } from '@/app/actions/projectActions';
 import { getAllUsers, addMemberToProject, removeMemberFromProject, addUserByEmail, getAuthUser, setMemberRole } from '@/app/actions/userActions';
 import { useTheme } from 'next-themes';
-import { Plus, ChevronLeft, BarChart2, X, ChevronDown, Check, Trash2 } from 'lucide-react';
+import { useCollaboration } from './CollaborationProvider';
+import LiveCursors from './LiveCursors';
+import { Plus, ChevronLeft, BarChart2, X, ChevronDown, Check, Trash2, WifiOff } from 'lucide-react';
 
 type UserProfile = {
   id: string;
@@ -118,6 +120,8 @@ export default function ProjectBoard({ projectId, initialBoard }: { projectId: s
   } | null>(null);
   const listsContainerRef = useRef<HTMLDivElement>(null);
   const lastDropIndexRef = useRef<number | null>(null);
+  const collab = useCollaboration();
+  const boardContentRef = useRef<HTMLDivElement>(null);
   const LIST_DRAG_THRESHOLD_PX = 6;
 
   const project = useMemo(
@@ -168,6 +172,7 @@ export default function ProjectBoard({ projectId, initialBoard }: { projectId: s
 
     await createBoardList(projectId, name, color, index);
     mutate();
+    collab?.broadcastBoardUpdate('LISTS', { projectId });
   };
 
   const handleAddMember = async (userId: string, role: 'ADMIN' | 'MEMBER' = 'MEMBER') => {
@@ -252,6 +257,7 @@ export default function ProjectBoard({ projectId, initialBoard }: { projectId: s
     mutate(lists.filter((l) => l.id !== id), false);
     await deleteBoardList(id);
     mutate();
+    collab?.broadcastBoardUpdate('LISTS', { projectId });
   };
 
   const handleRenameList = async (id: string, newName: string) => {
@@ -261,6 +267,7 @@ export default function ProjectBoard({ projectId, initialBoard }: { projectId: s
     );
     await renameBoardList(id, newName);
     mutate();
+    collab?.broadcastBoardUpdate('LISTS', { projectId });
   };
 
   const handleChangeListColor = async (id: string, color: string) => {
@@ -270,6 +277,7 @@ export default function ProjectBoard({ projectId, initialBoard }: { projectId: s
     );
     await updateBoardListColor(id, color);
     mutate();
+    collab?.broadcastBoardUpdate('LISTS', { projectId });
   };
 
   const handleListDragStart = (listId: string, e: React.PointerEvent<HTMLDivElement>) => {
@@ -383,6 +391,7 @@ export default function ProjectBoard({ projectId, initialBoard }: { projectId: s
       await reorderBoardLists(projectId, reordered.map((l) => l.id));
     } finally {
       mutate();
+      collab?.broadcastBoardUpdate('LISTS', { projectId });
     }
   };
 
@@ -482,6 +491,7 @@ export default function ProjectBoard({ projectId, initialBoard }: { projectId: s
       } finally {
         globalMutate(sourceListId);
         if (sourceListId !== targetListId) globalMutate(targetListId);
+        collab?.broadcastBoardUpdate('TASKS', { listIds: [sourceListId, targetListId] });
       }
     },
     [lists],
@@ -576,9 +586,30 @@ export default function ProjectBoard({ projectId, initialBoard }: { projectId: s
             </div>
           </header>
 
+          {/* Demo Mode Banner */}
+          {collab && !collab.isConfigured && (
+            <div className="bg-amber-500/10 dark:bg-amber-500/20 border-b border-amber-500/20 px-8 py-2.5 flex items-center justify-between gap-4 text-xs font-medium text-amber-800 dark:text-amber-200 z-10 animate-in slide-in-from-top duration-300">
+              <div className="flex items-center gap-2">
+                <WifiOff className="w-3.5 h-3.5 text-amber-500" />
+                <span>
+                  <strong>Demo Mode</strong>: Live cursors and updates are simulated. To connect real multiplayer with your team, add your <code>LIVEBLOCKS_SECRET_KEY</code> to the <code>.env</code> file.
+                </span>
+              </div>
+              <a
+                href="https://liveblocks.io"
+                target="_blank"
+                rel="noreferrer"
+                className="underline hover:text-amber-900 dark:hover:text-amber-100 transition-colors shrink-0"
+              >
+                Get Liveblocks key →
+              </a>
+            </div>
+          )}
+
           {/* Board Content */}
           <div
-            className="flex-1 overflow-x-auto custom-scrollbar p-8"
+            ref={boardContentRef}
+            className="flex-1 overflow-x-auto custom-scrollbar p-8 relative"
             onDoubleClick={handleBoardDoubleClick}
           >
             <div
@@ -658,6 +689,8 @@ export default function ProjectBoard({ projectId, initialBoard }: { projectId: s
                 {lists.length === 0 ? 'Add First List' : 'Add New Column'}
               </button>
             </div>
+            {/* Live cursors overlay */}
+            <LiveCursors containerRef={boardContentRef} />
           </div>
 
           {listDragGhost && (
