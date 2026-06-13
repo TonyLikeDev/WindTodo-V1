@@ -233,3 +233,9 @@ html, body {
   transition: background-color 5000s ease-in-out 0s;
 }
 
+/* Hide the "Powered by Liveblocks" badge that @liveblocks/core injects into the
+   DOM (as #liveblocks-badge) when the room reports showBrand on the free plan. */
+#liveblocks-badge {
+  display: none !important;
+}
+
