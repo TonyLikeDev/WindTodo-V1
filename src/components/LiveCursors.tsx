@@ -59,7 +59,7 @@ export default function LiveCursors({ containerRef }: LiveCursorsProps) {
         return (
           <div
             key={other.id}
-            className="absolute z-[9999] pointer-events-none transition-all duration-100 ease-out select-none"
+            className="absolute z-[90] pointer-events-none transition-all duration-100 ease-out select-none"
             style={{
               left: `${other.cursor.x * 100}%`,
               top: `${other.cursor.y * 100}%`,

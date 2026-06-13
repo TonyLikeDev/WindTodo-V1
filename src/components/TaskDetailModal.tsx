@@ -247,7 +247,7 @@ export default function TaskDetailModal({
         }
       }}
     >
-      <div className="w-full max-w-4xl my-12 bg-background border border-border rounded-2xl shadow-2xl overflow-hidden animate-bubble-pop">
+      <div className="w-full max-w-6xl my-12 bg-background border border-border rounded-2xl shadow-2xl overflow-hidden animate-bubble-pop">
         {/* Header */}
         <div className="flex items-start justify-between px-6 pt-5 pb-4 border-b border-border/50">
           <div className="flex-1 min-w-0">
@@ -305,7 +305,7 @@ export default function TaskDetailModal({
                 onChange={(e) => setDescription(e.target.value)}
                 onBlur={commitDescription}
                 placeholder="Add a description…  Tip: type [] to start a subtask."
-                className="w-full min-h-[120px] bg-white/[0.04] border border-border rounded-xl px-3 py-2.5 text-sm text-foreground placeholder-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring/20 resize-none transition-all"
+                className="w-full min-h-[240px] bg-white/[0.04] border border-border rounded-xl px-3 py-2.5 text-sm text-foreground placeholder-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring/20 resize-none transition-all"
               />
             </div>
 
