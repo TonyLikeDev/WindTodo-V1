@@ -6,6 +6,9 @@ import { useSWRConfig } from 'swr';
 
 export type Collaborator = {
   id: string;
+  // Database user id (Liveblocks session userId) — used to match a live
+  // collaborator back to a project member. Null in simulated demo mode.
+  userId: string | null;
   name: string;
   image: string | null;
   color: string;
@@ -71,6 +74,7 @@ function LiveblocksInner({ children, projectId }: { children: React.ReactNode; p
 
   const others = rawOthers.map((o) => ({
     id: o.connectionId.toString(),
+    userId: o.id ?? null,
     name: (o.info as any)?.name || 'Anonymous',
     image: (o.info as any)?.image || null,
     color: (o.info as any)?.color || '#9333ea',
@@ -122,6 +126,7 @@ function SimulatedCollaborationInner({ children }: { children: React.ReactNode }
 
     const initialCollaborators = names.map((name, i) => ({
       id: `sim-${i}`,
+      userId: null,
       name,
       image: null,
       color: colors[i],

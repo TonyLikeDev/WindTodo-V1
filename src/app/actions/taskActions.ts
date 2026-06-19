@@ -199,6 +199,62 @@ export async function createTask(title: string, listId: string, assigneeId?: str
   return task
 }
 
+// Bulk-create several tasks in one list (used by the AI "Import notes" flow).
+// Positions are appended sequentially after the current last task, in a single
+// transaction so the board stays consistent.
+type NewTaskInput = {
+  title: string
+  description?: string | null
+  priority?: 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT'
+  type?: 'TASK' | 'STORY' | 'BUG'
+}
+
+export async function createTasksBulk(listId: string, items: NewTaskInput[]) {
+  const userId = await requireUserId()
+
+  if (listId === 'recent_assignments' || listId === 'all_tasks') {
+    throw new Error('Cannot create tasks in a virtual list')
+  }
+  if (!(await userCanAccessList(listId, userId))) {
+    throw new Error('Not authorized for this list')
+  }
+
+  const clean = items
+    .map((t) => ({ ...t, title: t.title?.trim() }))
+    .filter((t) => !!t.title)
+  if (clean.length === 0) return []
+
+  const last = await prisma.task.findFirst({
+    where: { listId },
+    orderBy: { position: 'desc' },
+    select: { position: true },
+  })
+  const base = (last?.position ?? -1) + 1
+  const today = new Date()
+
+  const created = await prisma.$transaction(
+    clean.map((t, i) =>
+      prisma.task.create({
+        data: {
+          title: t.title,
+          description: t.description ?? null,
+          priority: t.priority ?? undefined,
+          type: t.type ?? undefined,
+          userId,
+          listId,
+          position: base + i,
+          startDate: today,
+          endDate: today,
+        },
+        include: TASK_INCLUDE,
+      }),
+    ),
+  )
+
+  revalidatePath('/dashboard', 'layout')
+  return created
+}
+
 export async function updateTask(taskId: string, data: {
   title?: string
   assigneeId?: string | null

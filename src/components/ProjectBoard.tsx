@@ -20,7 +20,8 @@ import { getAllUsers, addMemberToProject, removeMemberFromProject, addUserByEmai
 import { useTheme } from 'next-themes';
 import { useCollaboration } from './CollaborationProvider';
 import LiveCursors from './LiveCursors';
-import { Plus, ChevronLeft, BarChart2, X, ChevronDown, Check, Trash2, WifiOff } from 'lucide-react';
+import ImportNotesModal from './ImportNotesModal';
+import { Plus, ChevronLeft, BarChart2, X, ChevronDown, Check, Trash2, WifiOff, Sparkles } from 'lucide-react';
 
 type UserProfile = {
   id: string;
@@ -99,6 +100,7 @@ export default function ProjectBoard({ projectId, initialBoard }: { projectId: s
   );
   const [draft, setDraft] = useState<{ id: string; color: string; index: number } | null>(null);
   const [showMemberModal, setShowMemberModal] = useState(false);
+  const [showImportModal, setShowImportModal] = useState(false);
   // The full user list is only needed for the Share modal's invite search, so
   // don't fetch it on every board load — fetch lazily when the modal opens.
   const { data: allUsers = [] } = useSWR(showMemberModal ? 'users' : null, getAllUsers, { revalidateOnFocus: false, dedupingInterval: 60000 });
@@ -138,6 +140,18 @@ export default function ProjectBoard({ projectId, initialBoard }: { projectId: s
     [project?.members, me?.id],
   );
   const iAmAdmin = !!project && (project.userId === me?.id || myMembership?.role === 'ADMIN');
+
+  // Members currently online, via Liveblocks presence. You count as online while
+  // viewing; others come from `collab.others` (keyed by their db user id). In
+  // demo/unconfigured mode presence isn't real, so we can't filter — show all.
+  const onlineMemberships = (() => {
+    const members = project?.members ?? [];
+    if (!collab || !collab.isConfigured) return members;
+    const online = new Set<string>();
+    if (me?.id) online.add(me.id);
+    for (const o of collab.others) if (o.userId) online.add(o.userId);
+    return members.filter((mem) => online.has(mem.userId));
+  })();
 
   const startDraft = (index: number) => {
     if (draft) return;
@@ -566,7 +580,7 @@ export default function ProjectBoard({ projectId, initialBoard }: { projectId: s
               {/* Member Avatars */}
               <div className="flex items-center gap-3">
                 <div className="flex -space-x-2 overflow-hidden">
-                  {project.members.map(({ user: m }) => (
+                  {onlineMemberships.map(({ user: m }) => (
                     <div key={m.id} className="flex h-8 w-8 rounded-full ring-2 ring-white/10 dark:ring-black/40 bg-slate-200 dark:bg-slate-800 items-center justify-center text-[10px] font-bold text-foreground border border-white/30 dark:border-white/5 shadow-md" title={m.name || m.email}>
                       {m.image ? (
                         <img src={m.image} alt={m.name || ''} className="h-full w-full object-cover" />
@@ -576,7 +590,15 @@ export default function ProjectBoard({ projectId, initialBoard }: { projectId: s
                     </div>
                   ))}
                 </div>
-                <button 
+                <button
+                  onClick={() => setShowImportModal(true)}
+                  title="Import tasks from notes with AI"
+                  className="flex items-center gap-2 px-4 py-2 bg-white/25 dark:bg-black/25 hover:bg-white/35 dark:hover:bg-black/45 text-foreground rounded-xl text-sm font-bold transition-all border border-white/20 dark:border-white/5 shadow-md"
+                >
+                  <Sparkles className="w-4 h-4" />
+                  Import
+                </button>
+                <button
                   onClick={() => setShowMemberModal(true)}
                   className="flex items-center gap-2 px-4 py-2 bg-white/25 dark:bg-black/25 hover:bg-white/35 dark:hover:bg-black/45 text-foreground rounded-xl text-sm font-bold transition-all border border-white/20 dark:border-white/5 shadow-md"
                 >
@@ -893,6 +915,18 @@ export default function ProjectBoard({ projectId, initialBoard }: { projectId: s
               </div>
             </div>
           </div>
+        )}
+
+        {/* AI: Import tasks from notes */}
+        {showImportModal && (
+          <ImportNotesModal
+            lists={lists.map((l) => ({ id: l.id, name: l.name }))}
+            onClose={() => setShowImportModal(false)}
+            onImported={(listId) => {
+              boundMutate(listId);
+              collab?.broadcastBoardUpdate('TASKS', { listIds: [listId] });
+            }}
+          />
         )}
       </div>
     </BoardDragProvider>
